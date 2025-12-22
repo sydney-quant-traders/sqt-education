@@ -1,0 +1,151 @@
+\documentclass[xcolor=dvipsnames, aspectratio=169]{beamer}
+
+% IMPORTS ===================================================
+
+\usepackage{fontspec}
+\usepackage{tcolorbox}
+
+\usepackage{amsmath, amssymb, amsthm} % standard AMS packages
+\usepackage{mathtools}                 % extends amsmath
+\usepackage{bm}                         % bold symbols
+\usepackage{physics}                    % derivatives, partials, etc.
+\usepackage{esvect}                     % vector arrows
+\usepackage{commath}                    % extra math macros
+\usepackage{mathrsfs}                   % script letters (sigma-algebras)
+\usepackage{bbm}                        % blackboard bold indicator
+\usepackage{stmaryrd}                   % extra symbols
+\usepackage{fixdif}
+
+% =========================
+% Graphics and diagrams
+% =========================
+\usepackage{tikz}              % diagrams, automata, trees
+\usetikzlibrary{cd}
+\usepackage{tikz-cd}
+\usepackage{pgfplots}          % plots, histograms
+\usepackage{forest}            % trees (binary, syntax trees)
+\usepackage{qtree}             % simple trees
+
+% =========================
+% Computer Science
+% =========================
+\usepackage{listings}          % code listings
+\usepackage{algorithm, algpseudocode} % pseudocode
+
+
+% =========================
+% Utilities
+% =========================
+\usepackage{xcolor}            % color control
+\usepackage{hyperref}          % clickable references
+\usepackage{cleveref}          % smarter references
+\usepackage{siunitx}           % numbers and units
+\usepackage{caption, subcaption} % captions for figures
+\usepackage{xparse}            % flexible macros
+
+% COLORS ====================================================
+\definecolor{sqt-title}{RGB}{102, 187, 233}
+\definecolor{sqt-themecolour}{RGB}{50, 183, 233}
+\definecolor{sqt-question}{RGB}{102, 187, 233}
+
+% BEAMER THEME ==============================================
+
+\usetheme{Singapore}
+\usecolortheme{rose}
+\renewcommand{\thefootnote}{\textcolor{themecolour}{*}}
+\beamertemplatenavigationsymbolsempty
+% Make bullets black
+\setbeamercolor{itemize item}{fg=black}
+\setbeamercolor{itemize subitem}{fg=black}
+\setbeamercolor{itemize subsubitem}{fg=black}
+
+\setbeamercolor{structure}{fg=sqt-themecolour}
+\setbeamercolor{title}{fg=sqt-title}
+\setbeamercolor{subtitle}{fg=sqt-title}
+\setbeamercolor{frametitle}{fg=sqt-title}
+
+% FONTS =====================================================
+
+\renewcommand{\footnotesize}{\scriptsize}
+
+\usefonttheme[onlymath]{serif}
+
+\newfontfamily\headingfont[
+  Path = style/,
+  Extension = .otf
+]{romela.light}
+\setbeamerfont{title}{family=\headingfont}
+\setbeamerfont{subtitle}{family=\headingfont}
+\setbeamerfont{frametitle}{family=\headingfont}
+
+
+
+% COLOR BOXES ===============================================
+
+\newtcolorbox{sqt:definition}[1][]{
+  colbacktitle=black,
+  colback=yellow!50,
+  coltitle=white,
+  title=#1
+}
+
+\newtcolorbox{sqt:theorem}[1][]{
+  colbacktitle=black,
+  colback=blue!20!cyan!30,
+  coltitle=white,
+  title=#1
+}
+
+\newtcolorbox{sqt:tip}[1][]{
+  colbacktitle=black,
+  colback=yellow!10!green!40!white,
+  coltitle=white,
+  title=#1
+}
+
+% LOGO ======================================================
+
+\logo{
+  \includegraphics[height=0.8cm]{style/logo.png}
+  \vspace{-0.2cm}
+}
+
+% LISTINGS ==================================================
+
+% Define colors for syntax highlighting (Godbolt light theme)
+\definecolor{codegreen}{RGB}{0, 128, 0}        % Green for comments
+\definecolor{stringgreen}{RGB}{163, 21, 21}    % Dark red for strings
+\definecolor{codegray}{RGB}{128, 128, 128}     % Gray for line numbers
+\definecolor{codeblue}{RGB}{0, 0, 255}         % Blue for keywords
+\definecolor{codepurple}{RGB}{175, 0, 219}     % Purple for types
+\definecolor{backcolour}{RGB}{255, 255, 255}   % White background
+\definecolor{textcolor}{RGB}{0, 0, 0}          % Black text
+
+% Configure listings for C++ (Godbolt light style)
+\lstset{
+  language=C++,
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegreen}\itshape,
+  keywordstyle=\color{codeblue}\bfseries,
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{stringgreen},
+  basicstyle=\ttfamily\footnotesize\color{textcolor},
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  keepspaces=true,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  tabsize=2
+}
+
+% MINTED ====================================================
+
+\usepackage[outputdir=build]{minted}
+\usemintedstyle{vs}  % or: vs, github, colorful, etc.
+\setminted{
+  fontsize=\footnotesize,
+  breaklines=true,
+  bgcolor=white
+}
