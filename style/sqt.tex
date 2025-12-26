@@ -82,26 +82,29 @@
 
 
 % COLOR BOXES ===============================================
-
+\definecolor{sqt-definition}{RGB}{255, 226, 110}
 \newtcolorbox{sqt:definition}[1][]{
-  colbacktitle=black,
-  colback=yellow!50,
-  coltitle=white,
-  title=#1
+  colbacktitle=yellow!30,
+  colback=sqt-definition,
+  coltitle=black,
+  title=#1,
+  boxrule=0.5pt,
 }
 
-\newtcolorbox{sqt:theorem}[1][]{
-  colbacktitle=black,
+\newtcolorbox{sqt:result}[1][]{
+  colbacktitle=blue!10!cyan!10,
   colback=blue!20!cyan!30,
-  coltitle=white,
-  title=#1
+  coltitle=black,
+  title=#1,
+  boxrule=0.5pt
 }
 
 \newtcolorbox{sqt:tip}[1][]{
-  colbacktitle=black,
+  colbacktitle=yellow!5!green!20,
   colback=yellow!10!green!40!white,
-  coltitle=white,
-  title=#1
+  coltitle=black,
+  title=#1,
+  boxrule=0.5pt
 }
 
 % LOGO ======================================================
