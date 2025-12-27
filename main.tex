@@ -63,15 +63,10 @@
   In other words, it provides an equivalence relation on the set $X$ of configurations.
 
   \begin{sqt:definition}[\textbf{Definition:} equivalence relation]
-    A relation $\sim$ is an equivalence relation if it satisfies
-    \begin{itemize}
-      \item reflexive
-      \item symmetric
-      \item transitive
-    \end{itemize}
+    A binary operator $\sim$ such that the expression $x_1\sim x_2$ 
+    evaluates to $\mathrm{TRUE}$ if $x_1$ should be considered equivalent to $x_2$ 
+    in the context of the counting problem.
   \end{sqt:definition}
-
-
 \end{frame}
 
 \begin{frame}{Equivalence Class}
@@ -79,13 +74,21 @@
     The equivalence class of $x$ under $\sim$ is denoted by $[x]_\sim$.\\
     It is defined as the set of all elements equivalent to $x$ under $\sim$.
   \end{sqt:definition}
+
+  \begin{center}
+    \includegraphics[width=7cm]{assets/equivalence_classes.pdf}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Quotient Set}
   \begin{sqt:definition}[\textbf{Definition:} quotient set]
-    The quotient set of $X$ under $\sim$ is denoted by $idk$.\\
+    The quotient set of $X$ under $\sim$ is denoted by $X/\sim$.\\
     It is defined as the set of all equivalence classes (under $\sim$) of its elements.
   \end{sqt:definition}
+
+  \begin{center}
+    \includegraphics[width=9cm]{assets/quotient.pdf}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Counting Problems}
@@ -93,6 +96,17 @@
     Determining the size of the quotient set of a specified set $X$ of configurations,
     modulo some specified equivalence relation $\sim$.
   \end{sqt:definition}
+\end{frame}
+
+\begin{frame}{Back to the Example}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
+    Two arrangements are identical if one can be obtained
+    from the other by rotation.
+  }
+
+
+  Note that it is a coincidence that the equivalence classes are of equal size.
 \end{frame}
 
 \section{Perms and Combs}
