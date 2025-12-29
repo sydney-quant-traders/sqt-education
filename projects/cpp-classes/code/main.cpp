@@ -1,6 +1,14 @@
 // TODO: set up build system
 // TODO: generate compile commands
+// simple async system with continuations and timers
 
-struct Widget {
+#include <iostream>
+#include <chrono>
+#include <queue>
+#include <sys/time.h>
+#include <utility>
+#include <functional>
 
-};
+int main() {
+    return 0;
+}

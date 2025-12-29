@@ -9,61 +9,233 @@
 
 \maketitle
 
-\section{Coding}
+\section{C Recap}
 
-\begin{frame}[fragile]{Code Snippets}
+\begin{frame}[fragile]{Wizard Analogy for C}
+  A wizard has the ability to cast spells to do things:
+  \begin{itemize}
+    \item Start lifetimes of objects.
+    \item Read from memory
+    \item Write to memory
+    \item Jump to another instruction
+  \end{itemize}
 
-  You can get proper syntax highlighting with \verb|minted|.\\
-  This requires having python and Pygments installed on your machine.\\
-  Code snippets won't work inside a Beamer frame unless you use \verb|fragile|.
+  \begin{sqt:tip}[Wizard Analogy]
+    The wizard is an analogy for a thread of execution in a CPU.
+  \end{sqt:tip}
+
+  TODO: FINISH THIS MENTAL MODEL
+\end{frame}
+
+\section{Inventing Classes}
+
+\begin{frame}[fragile]{What is a Class?}
+  \begin{sqt:definition}[\textbf{Definition:} Class]
+    A schema/blueprint for an object, as well as a collection of functions
+    (called methods) where the first argument is a pointer to an instance of that schema.
+  \end{sqt:definition}
 
   \begin{minted}{cpp}
-    template<class T, size_t N = 10>
-    class Buffer : public Container<T> {
-        T* data_{new T[N]};  // meow
-    public:
-        ~Buffer() { delete[] data_; } // woof
-        T& operator[](size_t i) { return data_[i]; }
+    struct Rectangle {
+        int width_;
+        int height_; 
+    };
+
+    int Rectangle_area(Rectangle *this) {
+        return this->width_ * this->height_;
+    }
+
+    void Rectangle_scale(Rectangle *this, int factor) {
+        this->width_ *= factor;
+        this->height_ *= factor;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Constructors}
+  \begin{sqt:definition}[\textbf{Definition:} Constructor]
+    A method that initializes all members of a class instance.
+    The constructor should be called immediately after allocating memory for the instance.
+  \end{sqt:definition}
+
+  There can be multiple constructors with different signatures.
+
+  \begin{minted}{cpp}
+    void Rectangle_ctor_i(Rectangle *this, int side_length) {
+        this->width_ = side_length;
+        this->height_ = side_length;
+    }
+
+    void Rectangle_ctor_ii(Rectangle *this, int width, int height) {
+        this->width_ = width;
+        this->height_ = height;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Destructors}
+  \begin{sqt:definition}[\textbf{Definition:} Destructor]
+    The destructor is a function that must be called on an instance when:
+    \begin{itemize}
+      \item A stack-allocated instance goes out of scope.
+      \item A heap-allocated instance is freed.
+    \end{itemize}
+  \end{sqt:definition}
+
+  There may only be one destructor per class (no overloading).
+
+  \begin{minted}{cpp}
+    void Rectangle_dtor(Rectangle *this) {
+        printf("Rectangle destroyed");
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Example Class Lifecycle}
+  \begin{minted}{cpp}
+    {
+        // alice stack allocated: must be constructed
+        Rectangle alice;
+        Rectangle_ctor_ii(&alice, 10, 20);
+        Rectangle *bob_ptr;
+        {
+            // charlie stack allocated: must be constructed
+            Rectangle charlie;;
+            Rectangle_ctor_ii(&charlie, 5, 15);
+            // bob malloced: must be constructed
+            bob_ptr = (Rectangle *)malloc(sizeof(Rectangle));
+            Rectangle_ctor_i(bob_ptr, 30);
+            // charlie goes out of scope: must be destroyed
+            Rectangle_dtor(&charlie);
+        }
+        // bob freed: must be destroyed
+        Rectangle_dtor(bob_ptr);
+        free(bob_ptr);
+        // alice goes out of scope: must be destroyed
+        Rectangle_dtor(&alice);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Constructor/Destructor Semantics}
+  Technically you can write constructors and destructors that do whatever you want.
+  However, the convention is:
+  \begin{itemize}
+    \item Constructors initialize the class into a ``valid'' state
+    \item Destructors free any resources held by the instance (e.g. heap memory)
+  \end{itemize}
+
+  ``Valid'' in this context means whatever the programmer wants it to mean.
+
+\end{frame}
+
+\begin{frame}[fragile]{Constructor Example}
+  A programmer wants to implement a dynamic array of integers in C:
+  \begin{minted}{cpp}
+    struct dynamic_array {
+        int *data_;
+        size_t size_;
+        size_t capacity_;
     };
   \end{minted}
 
-  Notice that all indentation in the \LaTeX\ source code
-  within the snippet is shown verbatim in the rendered slide. 
+  The programmer wants the object to satisfy the following properties at all times:
+  \begin{itemize}
+    \item \verb|size_| $\leq$ \verb|capacity_|
+    \item \verb|data_| points to a heap-allocated array with length \verb|capacity_|
+  \end{itemize}
+
+  \begin{minted}{cpp}
+    void dynamic_array_ctor(dynamic_array *this) {
+        this->data_ = (int *)malloc(67 * sizeof(int));
+        this->size_ = 0;
+        this->capacity_ = 67;
+    }
+  \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{More Code Examples}
-  \begin{columns}
-  \begin{column}{0.5\textwidth}
+
+\begin{frame}[fragile]{Destructor Example}
+  Assume that the \verb|dynamic_array| instance has ``ownership'' of the memory pointed to by \verb|data_|.\\
+  After instance goes out of scope or is freed, there is no way to refer to the memory pointed to by \verb|data_|.\\
+  It is therefore a good idea to free that memory in the destructor.
+
   \begin{minted}{cpp}
-    template<typename T>
-    class Stack {
-    private:
-        std::vector<T> data;
-        
-    public:
-        void push(const T& item) {
-            data.push_back(item);
+    void dynamic_array_dtor(dynamic_array *this) {
+        free(this->data_);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{C++ Classes}
+  C++ classes are just syntactic sugar for the C-style classes we have seen so far\\
+  and ``automatically'' call constructors and destructors at the appropriate times.\\
+  It also ``automatically'' prepends the \verb|this| pointer appropriately.
+  \vspace{0.5cm}
+
+  Furthermore, using \verb|new| and \verb|delete| in C++ automatically calls constructors and destructors respectively.
+\end{frame}
+
+\begin{frame}[fragile]{C++ Class Definition Example}
+  \begin{minted}{cpp}
+    struct Rectangle {
+        int width_;
+        int height_;
+
+        Rectangle(int width, int height) { // ctor
+            width_ = width;
+            height_ = height;
         }
-        
-        T pop() {
-            T value = data.back();
-            data.pop_back();
-            return value;
+
+        ~Rectangle() { // dtor
+            printf("Rectangle destroyed");
         }
-        
-        bool empty() const; // omitted
+
+        int area() const {
+            return width_ * height_;
+        }
+
+        void scale(int factor) {
+            width_ *= factor;
+            height_ *= factor;
+        }
     };
   \end{minted}
-  \end{column}
-  \begin{column}{0.5\textwidth}
-    You can put diagrams here to assist with 
-    explaining the code.
-
-    \begin{center}
-      \includegraphics[width=4cm]{assets/stack.png}
-    \end{center}
-  \end{column}
-\end{columns}
 \end{frame}
+
+\begin{frame}[fragile]{C++ Class Usage Example}
+  \begin{minted}{cpp}
+    {
+        Rectangle alice{10, 20};
+        Rectangle *bob_ptr;
+        {
+            Rectangle charlie{5, 15};
+            bob_ptr = new Rectangle(30);
+            // charlie goes out of scope: automatically destroyed
+        }
+        // delete calls destructor
+        delete bob_ptr;
+        // alice goes out of scope: automatically destroyed
+    }
+  \end{minted}
+\end{frame}
+
+\section{Inheritance}
+\begin{frame}[fragile]{Inheritance}
+  \begin{sqt:definition}[\textbf{Definition:} Inheritance]
+    A class (e.g. \verb|ClassA|) can inherit from another class (e.g. \verb|ClassB|).\\
+    This means that \verb|ClassA| has all the members and methods of \verb|ClassB|,\\
+
+    as well as any additional members and methods defined in \verb|ClassA|.\\
+    \verb|ClassA| is called the ``derived class'' or ``subclass'',\\
+  \end{sqt:definition}
+
+  Essentially class $A$ is a more specialised version of class $B$.
+\end{frame}
+
+
+\section{Polymorphism}
+
+\section{Ownership}
 
 \end{document}
