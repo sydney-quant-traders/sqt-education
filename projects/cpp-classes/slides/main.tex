@@ -220,6 +220,26 @@
   \end{minted}
 \end{frame}
 
+\section{Ownership}
+
+\begin{frame}[fragile]{Ownership}
+  \begin{sqt:definition}[\textbf{Definition:} Ownership]
+    An object/resource can be owned by 
+    \begin{itemize}
+      \item a scope
+      \item an object
+      \item shared by multiple objects
+    \end{itemize}
+
+    The owner is responsible for freeing the object/resource.
+  \end{sqt:definition}
+
+  Ownership is not a language feature, but rather a concept used to reason about a program.
+
+  Ownership of a resource can be transferred.
+
+\end{frame}
+
 \section{Inheritance}
 \begin{frame}[fragile]{Inheritance}
   \begin{sqt:definition}[\textbf{Definition:} Inheritance]
@@ -245,6 +265,6 @@
 
 \section{Polymorphism}
 
-\section{Ownership}
+
 
 \end{document}

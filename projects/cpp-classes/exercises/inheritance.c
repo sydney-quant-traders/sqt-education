@@ -71,6 +71,8 @@ int main(void) {
         // ensure this call prints "I just woofed 5 times"
         Dog_speak(&d);
         
+        // CAUTION: must make sure to call the Dog destructor.
+        // Calling the Animal destructor would leak memory (bark_volume_)!
         Dog_dtor(&d);
     }
 
