@@ -181,20 +181,16 @@
     struct Rectangle {
         int width_;
         int height_;
-
         Rectangle(int width, int height) { // ctor
             width_ = width;
             height_ = height;
         }
-
         ~Rectangle() { // dtor
             printf("Rectangle destroyed");
         }
-
         int area() const {
             return width_ * height_;
         }
-
         void scale(int factor) {
             width_ *= factor;
             height_ *= factor;
@@ -230,14 +226,11 @@
       \item an object
       \item shared by multiple objects
     \end{itemize}
-
     The owner is responsible for freeing the object/resource.
   \end{sqt:definition}
 
   Ownership is not a language feature, but rather a concept used to reason about a program.
-
   Ownership of a resource can be transferred.
-
 \end{frame}
 
 \section{Inheritance}
@@ -258,13 +251,6 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Inheritance}
-
-\end{frame}
-
-
 \section{Polymorphism}
-
-
 
 \end{document}
