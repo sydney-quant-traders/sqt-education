@@ -225,12 +225,21 @@
   \begin{sqt:definition}[\textbf{Definition:} Inheritance]
     A class (e.g. \verb|ClassA|) can inherit from another class (e.g. \verb|ClassB|).\\
     This means that \verb|ClassA| has all the members and methods of \verb|ClassB|,\\
-
     as well as any additional members and methods defined in \verb|ClassA|.\\
-    \verb|ClassA| is called the ``derived class'' or ``subclass'',\\
+    Methods in \verb|ClassA| can also override methods in \verb|ClassB|.
   \end{sqt:definition}
 
-  Essentially class $A$ is a more specialised version of class $B$.
+  Suppose that class \verb|Base| exists.
+  To define a class \verb|Derived| that inherits from \verb|Base|:
+  \begin{itemize}
+    \item The first member variable of \verb|Derived| must be an instance of \verb|Base|
+    \item The constructor of \verb|Derived| must first call the constructor of \verb|Base|
+    \item The destructor of \verb|Derived| must lastly call the destructor of \verb|Base|
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Inheritance}
+
 \end{frame}
 
 
