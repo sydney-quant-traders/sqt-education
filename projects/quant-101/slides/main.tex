@@ -1,0 +1,276 @@
+\input{style/sqtbeamer.tex}
+
+\title{Quant 101}
+\subtitle{Introduction to Quantitative Finance}
+\institute{Sydney Quant Traders}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Markets \& Exchanges}
+
+\begin{frame}{Trades}
+  \begin{sqt:definition}
+    A \textbf{trade} is swapping money and assets
+  \end{sqt:definition}
+
+  \begin{sqt:definition}
+    \textbf{Settlement} is when ownership of the asset and payment are actually transferred between parties.
+  \end{sqt:definition}
+
+  \vspace{0.3cm}
+  Settlement conventions (where T = trade date, counting in business days):
+  \begin{itemize}
+    \item \textbf{T+0} (`spot', e.g. blockchain)
+    \item \textbf{T+1, T+2, \dots} (`clearing', e.g. equities)
+    \item \textbf{March 20th} (`futures')
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{What is an Exchange}
+  \begin{sqt:definition}
+    A \textbf{securities exchange} is a place where people gather and express their desire to buy or sell.
+    The exchange matches participants to form \textbf{trades}.
+  \end{sqt:definition}
+  \vspace{0.5cm}
+
+  \begin{columns}
+    \begin{column}[t]{0.5\textwidth}
+      US exchanges
+      \begin{itemize}
+        \item (XNYS) NYSE
+        \item (XNAS) Nasdaq
+        \item (XCBO) CBOE
+        \item (XCME) CME
+      \end{itemize}
+    \end{column}
+
+    \begin{column}[t]{0.5\textwidth}
+      APAC exchanges
+      \begin{itemize}
+        \item (XHKG) HKEX
+        \item (XSHG) SSE
+        \item (XSGE) SHFE
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{SKIP}
+  TODO: explain exchanges more after watching Oden's video
+\end{frame}
+
+\begin{frame}{Limit Orderbook}
+  % TODO: note that this is just one mechanism to do counterparty discovery
+  Participants express their desire to buy or sell a particular instrument by maintaining a set of \textbf{limit orders} on the exchange.
+
+  Each order represents an intention to buy or sell a specified quantity of an instrument, where each instrument is traded at a price within some specified price range.
+
+  TODO: finish this slide after watching Oden's video
+\end{frame}
+
+\begin{frame}{Limit Orderbook Examples}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Bid Qty}        & \textbf{Price}          & \textbf{Ask Qty}       \\
+        \hline
+        \cellcolor{gray!10}     & \cellcolor{gray!10}130  & \cellcolor{gray!10}24  \\
+        \cellcolor{gray!10}     & \cellcolor{gray!10}125  & \cellcolor{gray!10}20  \\
+        \cellcolor{gray!10}     & \cellcolor{gray!10}120  & \cellcolor{gray!10}10  \\
+        \cellcolor{gray!10}15   & \cellcolor{gray!10}80   & \cellcolor{gray!10}    \\
+        \cellcolor{gray!10}15   & \cellcolor{gray!10}75   & \cellcolor{gray!10}    \\
+        \cellcolor{gray!10}30   & \cellcolor{gray!10}70   & \cellcolor{gray!10}    \\
+        \hline
+      \end{tabular}
+    \end{column}
+
+    \begin{column}{0.6\textwidth}
+      \textbf{Discussion Questions}
+      \begin{itemize}
+        \item Why are all bids prices below all ask prices?
+        \item Why do the quantities of quotes decrease as we approach the middle price?
+        \item Would we consider this orderbook liquid?
+        \item What is the market price of AMZN in this orderbook?
+      \end{itemize}
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+\begin{frame}{The Exchange Business Model}
+  Exchanges make money by charging a fee per trade.
+
+  This fee is usually proportional to the dollar volume of the trade.
+
+  Exchanges benefit from high trading volume, so they have an incentive to attract participants to their platform.
+
+  To attract customers, exchanges do the following:
+  \begin{itemize}
+    \item They provide a fair and transparent trading environment.
+    \item Have high liquidity.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Market Markets}
+  \begin{sqt:definition}
+    A \textbf{market maker} is a participant in an exchange who provides liquidity by continuously quoting buy and sell prices for a security.
+  \end{sqt:definition}
+
+  Market makers must fulfill obligations to the exchange, or lose their status as a market maker.
+  \begin{itemize}
+    \item Quote a minimum size at all times.
+    \item Quote within a certain spread.
+  \end{itemize}
+\end{frame}
+
+\section{Orderbook Examples}
+
+\section{Trading \& Research}
+
+\begin{frame}{Trading and Research Roles}
+  \begin{itemize}
+    \item \textbf{Trader}
+    \item \textbf{Researcher}
+  \end{itemize}
+
+  \vspace{0.5cm}
+  \begin{sqt:result}
+    The boundaries between these two roles may across firms and teams.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}{Trader}
+  TODO: get help for this slide
+\end{frame}
+
+\begin{frame}{Researcher}
+  There is much more to research than just alpha and pricing theory.
+
+  There are a wide variety of research roles, but they generally fall into the following categories:
+
+  \begin{itemize}
+    \item \textbf{Alpha}: Discovering predictive signals and trading opportunities
+    \item \textbf{Pricing}: Pricing exotics (e.g. barrier options)
+    \item \textbf{Risk}: Risk
+    \item \textbf{Execution}: Transaction costs analysis
+    \item \textbf{Portfolio Optimization}: 
+  \end{itemize}
+
+  Roles also look different depending on time-horizon.
+
+  TODO: finish this slide later
+\end{frame}
+
+\begin{frame}{Researcher Interviews: Core Skills}
+  These interviews also have probability questions.
+  Also may have questions about statistics or take home projects.
+\end{frame}
+
+\section{Engineering}
+
+\begin{frame}{Engineering Roles}
+
+  \begin{itemize}
+    \item \textbf{Software Engineer}
+    \item \textbf{Quantitative Developer}
+    \item \textbf{Hardware Engineer}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Software Engineering}
+  In trading firms, software engineers do much of the same work as software engineers in other industries:
+  \begin{itemize}
+    \item \textbf{Application Development}
+    \item \textbf{UI Development}
+    \item \textbf{Data Engineering}
+  \end{itemize}
+
+  \begin{sqt:result}
+    There isn't really a difference between the software roles.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}{Software Engineering Interviews: Core Skills}
+  Fundamental competencies expected across all software roles during the interview
+
+  \begin{itemize}
+    \item \textbf{Data Structures \& Algorithms}: binary search, graphs, complexity analysis
+    \item \textbf{Design Skills}: System design, API design, code design, OOP
+    \item \textbf{General Knowledge}: Databases, Networks, OS, Concurrency, Compilers
+    \item \textbf{Testing}: Unit tests, mock objects, designing for testability
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Software Engineering Interviews: Specialized Tracks}
+  Many firms separate candidates into specialized tracks early in the process.
+
+  \vspace{0.3cm}
+  \textbf{Low-Latency Track}
+  \begin{itemize}
+    \item C++
+    \item Operating Systems
+    \item Computer Architecture
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textit{Example firms: Citadel Securities, QRT}
+\end{frame}
+
+\begin{frame}{Software Engineering Interviews: Specialized Tracks}
+  \textbf{Python Track}
+  \begin{itemize}
+    \item Probability and statistics
+    \item Data manipulation (NumPy, Pandas, SQL)
+    \item Other stats (machine learning, data science)
+  \end{itemize}
+
+  \textit{Example firms: Citadel Securities}
+\end{frame}
+
+\begin{frame}{Quantitative Development}
+  Half developer, half researcher.
+
+  \vspace{0.3cm}
+  \textbf{Math/Stats Skills}
+  \begin{itemize}
+    \item Undergrad math (linear algebra, probability, statistics)
+    \item ML techniques (linear regression, clustering, decision trees, gradient boosting)
+    \item Python for research (NumPy, Pandas, sklearn, statsmodels, plotting libraries)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Dev Skills}
+  \begin{itemize}
+    \item Expected to be as proficient as any other dev
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textit{Example firms: Citadel Securities}
+\end{frame}
+
+\section{Resources}
+
+\begin{frame}{Resources}
+  \textbf{Talks}
+  \begin{itemize}
+    \item \href{https://www.youtube.com/watch?v=hYmR5qk4z8w}{Oden Petersen \& QuantSoc - Systematic Trading Workshop}
+    \item \href{https://www.youtube.com/watch?v=2YkK4DnEBRE}{George Mukun Wang \& SQT - Intro to Quant Trading}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources}
+  \textbf{Software Engineering Classics}
+  \begin{itemize}
+    \item \textit{Introduction to Algorithms} (CLRS)
+    \item \textit{Designing Data-Intensive Applications} (DDIA)
+    \item \textit{Operating Systems: Three Easy Pieces} (OSTEP)
+    \item \textit{Exceptional C++} by Herb Sutter
+    \item \textit{Effective Modern C++} by Scott Meyers
+  \end{itemize}
+\end{frame}
+
+\end{document}
