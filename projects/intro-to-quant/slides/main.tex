@@ -1,38 +1,106 @@
 \input{style/sqtbeamer.tex}
 
-\title{Quant 101}
-\subtitle{Introduction to Quantitative Finance}
-\institute{Sydney Quant Traders}
+\title{Intro to Quant}
+\subtitle{Workshop}
+\institute{Sydney Quant Traders \\ $\times$ \\ UNSW Competitive Programming \& Mathematics Society}
 \date{}
 
 \begin{document}
 
 \maketitle
 
-\section{Markets \& Exchanges}
+\section{Trading \& Markets}
 
-\begin{frame}{Trades}
-  \begin{sqt:definition}
-    A \textbf{trade} is swapping money and assets
-  \end{sqt:definition}
-
-  \begin{sqt:definition}
-    \textbf{Settlement} is when ownership of the asset and payment are actually transferred between parties.
-  \end{sqt:definition}
+\begin{frame}{Motivation}
+  We will introduce the concepts of
+  \begin{itemize}
+    \item trading
+    \item exchanges
+    \item the orderbook
+  \end{itemize}
 
   \vspace{0.3cm}
-  Settlement conventions (where T = trade date, counting in business days):
+
+  \textcolor{sqt-question}{
+    I thought that firms don't care about prior knowledge of finance?
+  }
+
   \begin{itemize}
-    \item \textbf{T+0} (`spot', e.g. blockchain)
-    \item \textbf{T+1, T+2, \dots} (`clearing', e.g. equities)
-    \item \textbf{March 20th} (`futures')
+    \item this is only true during the interview stage for large HFT firms
+    \item beginner understanding of orderbook dynamics is useful for
+    \begin{itemize}
+      \item mock trading games
+      \item general understanding of the industry
+    \end{itemize}
   \end{itemize}
+\end{frame}
+
+\begin{frame}{Spot Trades}
+  \begin{sqt:tip}
+    Alice says to Bob:
+    \begin{center}
+      ``I want to to sell you 5 AAPL shares. Each share will be sold at \$30. 
+      This transfer will occur by the end of the next business day (tomorrow)." 
+    \end{center}
+  \end{sqt:tip}
+
+  This defines a \textbf{spot trade} (as opposed to a \textbf{future trade}).
+
+  \begin{sqt:definition}
+    A \textbf{spot trade} is an agreement to exchange assets for money, with 
+    the actual transfer occuring almost immediately (within 1 or 2 business days).
+    \begin{itemize}
+      \item sides (Alice is selling, Bob is buying)
+      \item quantity of the asset being traded ($5$)
+      \item price per asset ($\$30$)
+    \end{itemize}
+  \end{sqt:definition}
+\end{frame}
+
+\begin{frame}{Trade Execution and Settlement}
+  Once Bob \textbf{agrees} to this trade, the trade can be \textbf{executed}.
+
+  \begin{sqt:definition}
+    Upon trade \textbf{execution}, both parties are given \textbf{settlement obligations}.
+  \end{sqt:definition}
+  \begin{sqt:tip}
+    For example, in Alice \& Bob's equity spot trade, the obligations are:
+    \begin{itemize}
+      \item Alice must give Bob $5$ shares of AAPL by the settlement deadline
+      \item Bob must give Alice $5\times \$30 = \$150$ by the settlement deadline
+    \end{itemize}
+    Once the obligations are fulfilled, the trade is considered \textbf{settled}.
+  \end{sqt:tip}
+
+  Obligations on other asset classes and types of trades (e.g. futures and options) 
+  are considerably more complex than this.
+  Concepts related to \textbf{clearing} and \textbf{settlement} are 
+  considered part of the \textbf{post-trade life-cycle}.
+\end{frame}
+
+% TODO: finish
+\begin{frame}{Holdings and Position}
+  At each point in time, each participant has a \textbf{holdings} and a \textbf{position} in each asset.
+
+  \begin{center}
+    TODO: insert diagram
+  \end{center}
+
+  \begin{sqt:definition}
+    \textbf{Position} includes the effects of executed \textbf{trades} that have not been \textbf{settled} yet.
+  \end{sqt:definition}
+
+  \begin{sqt:result}
+    Your exposure and PnL is determined by your \textbf{position}.
+    % As a result, for trading games and simulations, we can abstract away the entire post-trade life-cycle
+    % and just consider our \textbf{position}, disregarding \textbf{holdings} entirely.
+  \end{sqt:result}
 \end{frame}
 
 \begin{frame}{What is an Exchange}
   \begin{sqt:definition}
-    A \textbf{securities exchange} is a place where people gather and express their desire to buy or sell.
-    The exchange matches participants to form \textbf{trades}.
+    A \textbf{securities exchange} is a centralised venue for participants to\\
+    find willing counterparties to make \textbf{trades} with.
   \end{sqt:definition}
   \vspace{0.5cm}
 
@@ -58,17 +126,14 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{SKIP}
-  TODO: explain exchanges more after watching Oden's video
-\end{frame}
-
 \begin{frame}{Limit Orderbook}
-  % TODO: note that this is just one mechanism to do counterparty discovery
-  Participants express their desire to buy or sell a particular instrument by maintaining a set of \textbf{limit orders} on the exchange.
+  \begin{center}
+    \textcolor{sqt-question}{
+      Once on an exchange, how do you find willing counterparties?
+    }
+  \end{center}
 
-  Each order represents an intention to buy or sell a specified quantity of an instrument, where each instrument is traded at a price within some specified price range.
-
-  TODO: finish this slide after watching Oden's video
+  You can't just send trade requests to everyone, and agree to each incoming trade request.
 \end{frame}
 
 \begin{frame}{Limit Orderbook Examples}
