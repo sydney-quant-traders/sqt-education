@@ -99,41 +99,87 @@
 
 \begin{frame}{What is an Exchange}
   \begin{sqt:definition}
-    A \textbf{securities exchange} is a centralised venue for participants to\\
+    An \textbf{exchange} is a centralised venue for participants to\\
     find willing counterparties to make \textbf{trades} with.
+  \end{sqt:definition}
+  \begin{sqt:definition}
+    If a trade does not occur on an exchange, then the trade is \textbf{over-the-counter} (OTC).
   \end{sqt:definition}
   \vspace{0.5cm}
 
-  \begin{columns}
-    \begin{column}[t]{0.5\textwidth}
-      US exchanges
-      \begin{itemize}
-        \item (XNYS) NYSE
-        \item (XNAS) Nasdaq
-        \item (XCBO) CBOE
-        \item (XCME) CME
-      \end{itemize}
-    \end{column}
+  \begin{center}
+    \begin{columns}
+      \begin{column}[t]{0.3\textwidth}
+        US exchanges
+        \begin{itemize}
+          \item (XNYS) NYSE
+          \item (XNAS) Nasdaq
+          \item (XCBO) CBOE
+          \item (XCME) CME
+        \end{itemize}
+      \end{column}
 
-    \begin{column}[t]{0.5\textwidth}
-      APAC exchanges
-      \begin{itemize}
-        \item (XHKG) HKEX
-        \item (XSHG) SSE
-        \item (XSGE) SHFE
-      \end{itemize}
-    \end{column}
-  \end{columns}
+      \begin{column}[t]{0.3\textwidth}
+        APAC exchanges
+        \begin{itemize}
+          \item (XHKG) HKEX
+          \item (XSHG) SSE
+          \item (XSGE) SHFE
+        \end{itemize}
+      \end{column}
+    \end{columns}
+  \end{center}
 \end{frame}
 
-\begin{frame}{Limit Orderbook}
+\begin{frame}{Counterparty Discovery}
   \begin{center}
     \textcolor{sqt-question}{
       Once on an exchange, how do you find willing counterparties?
     }
   \end{center}
-
   You can't just send trade requests to everyone, and agree to each incoming trade request.
+\end{frame}
+
+\begin{frame}{Limit Orders}
+  Each participant maintains a set of \textbf{limit orders}, which the exchange uses 
+  to automatically infer whether they would agree to any hypothetical trade or not.\\
+  Here is what a limit order may look like:
+  \begin{sqt:tip}
+    Alice tells the exchange
+    \begin{center}
+      ``I am willing to sell a maximum of 5 AAPL shares.\\
+      I am willing to sell each share at a price of \$30 or better.''
+    \end{center}
+  \end{sqt:tip}
+
+  This is called \textbf{inserting} an order.
+
+  \begin{center}
+    TODO: diagram
+  \end{center}
+\end{frame}
+
+\begin{frame}{Orderbook}
+  By submitting this order, Alice authorizes the exchange to accept trades on her behalf, 
+  until 5 AAPL shares have been sold. Once this happens, the order is considered \textbf{filled}.
+
+  \begin{sqt:definition}
+    The exchange keeps track of each participant's \textbf{open orders} (unfilled),\\
+    and collects them into an \textbf{orderbook}.
+  \end{sqt:definition}
+
+  \begin{center}
+    TODO: diagram
+  \end{center}
+\end{frame}
+
+\begin{frame}{Order Matching}
+  We will discuss \textbf{continuous matching}
+\end{frame}
+
+\section{Orderbook Examples}
+
+\begin{frame}{Aggregated Orderbook}
 \end{frame}
 
 \begin{frame}{Limit Orderbook Examples}
@@ -166,6 +212,8 @@
 
 \end{frame}
 
+\section{Finance Industry}
+
 \begin{frame}{The Exchange Business Model}
   Exchanges make money by charging a fee per trade.
 
@@ -191,8 +239,6 @@
     \item Quote within a certain spread.
   \end{itemize}
 \end{frame}
-
-\section{Orderbook Examples}
 
 \section{Trading \& Research}
 
@@ -320,21 +366,43 @@
 \section{Resources}
 
 \begin{frame}{Resources}
-  \textbf{Talks}
+  \textbf{Trading Fundamentals Talks}
   \begin{itemize}
     \item \href{https://www.youtube.com/watch?v=hYmR5qk4z8w}{Oden Petersen \& QuantSoc - Systematic Trading Workshop}
     \item \href{https://www.youtube.com/watch?v=2YkK4DnEBRE}{George Mukun Wang \& SQT - Intro to Quant Trading}
+  \end{itemize}
+
+  \textbf{Trading Interview Prep}
+  \begin{itemize}
+    \item Green book
+    \item Dice problems
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Resources}
+  \textbf{Math} (I might just be a Botev glazer)
+  \begin{itemize}
+    \item \textit{An Advanced Course in Probability and Stochastic Processes - Zravko Botev}
+    \item \textit{Data Science and Machine Learning - Zdravko Botev}
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Resources}
   \textbf{Software Engineering Classics}
   \begin{itemize}
-    \item \textit{Introduction to Algorithms} (CLRS)
     \item \textit{Designing Data-Intensive Applications} (DDIA)
     \item \textit{Operating Systems: Three Easy Pieces} (OSTEP)
+  \end{itemize}
+
+  \textbf{C++ Classics}
+  \begin{itemize}
     \item \textit{Exceptional C++} by Herb Sutter
     \item \textit{Effective Modern C++} by Scott Meyers
+  \end{itemize}
+
+  \textbf{Blogs, Websites, Videos}
+  \begin{itemize}
+    \item \href{https://agner.org}{Agner Fog Website}
   \end{itemize}
 \end{frame}
 
