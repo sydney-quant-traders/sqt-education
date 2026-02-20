@@ -155,7 +155,7 @@
   This is called \textbf{inserting} an order.
 
   \begin{center}
-    TODO: diagram
+    \input{assets/limit_order_intro.tex}
   \end{center}
 \end{frame}
 
@@ -169,17 +169,100 @@
   \end{sqt:definition}
 
   \begin{center}
-    TODO: diagram
+    \input{assets/orderbook.tex}
   \end{center}
 \end{frame}
 
-\begin{frame}{Order Matching}
-  We will discuss \textbf{continuous matching}
+\begin{frame}{Limit Orders In Cross}
+
+  \begin{sqt:definition}
+    Two limit orders are \textbf{in cross} if
+    \begin{itemize}
+      \item One order is a \textbf{bid} and the other is an \textbf{ask}.
+      \item There exists an \textbf{intersection} between the price ranges they are willing to trade at
+    \end{itemize}
+  \end{sqt:definition}
 \end{frame}
 
-\section{Orderbook Examples}
+\section{Order Matching}
+
+\begin{frame}{Order Matching Algorithm}
+  We will demonstrate \textbf{continuous matching} with \textbf{price-time priority}.\\
+  This is a \textbf{matching algorithm} that determines the trades made when orders are inserted.
+
+  \begin{itemize}
+    \item Orders are \textbf{received} and then \textbf{handled} by the exchange one at a time.
+    \item The order currently being \textbf{handled} is the \textbf{aggressing order}.
+    \item The \textbf{aggressing order} is matched against \textbf{open orders} it is \textbf{in cross} with.
+    \begin{itemize}
+      \item Choose the \textbf{open order} according to \textbf{price-time priority}.
+      \item Execute the trade at the price level of the \textbf{open order}, for the maximum quantity possible.
+    \end{itemize}
+    \item This matching occurs until either:
+    \begin{itemize}
+      \item The aggressing order runs out of quantity:
+      \begin{itemize}
+        \item The order is considered \textbf{filled} and is discarded.
+      \end{itemize}
+      \item No more orders \textbf{in cross} remain:
+      \begin{itemize}
+        \item The order is \textbf{unfilled} or only \textbf{partially filled}.
+        \item If the order was a \textbf{fill-and-kill} (FAK), then the order is discarded.
+        \item If the order was a \textbf{good-till-cancel} (GTC), then it is inserted at its price level at the back of the queue.
+      \end{itemize}
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Small GTC Buy Order: Initial}
+  \begin{center}
+    \input{assets/small_gtc_frame_0.tex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Small GTC Buy Order: Animation}
+  \begin{center}
+    \only<1>{\input{assets/small_gtc_frame_1.tex}}
+    \only<2>{\input{assets/small_gtc_frame_2.tex}}
+    \only<3>{\input{assets/small_gtc_frame_3.tex}}
+    \only<4>{\input{assets/small_gtc_frame_4.tex}}
+    \only<5>{\input{assets/small_gtc_frame_5.tex}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Small GTC Buy Order: Result}
+  \begin{center}
+    \input{assets/small_gtc_frame_result.tex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Large GTC Buy Order: Initial}
+  \begin{center}
+    \input{assets/large_gtc_frame_0.tex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Large GTC Buy Order: Animation}
+  \begin{center}
+    \only<1>{\input{assets/large_gtc_frame_1.tex}}
+    \only<2>{\input{assets/large_gtc_frame_2.tex}}
+    \only<3>{\input{assets/large_gtc_frame_3.tex}}
+    \only<4>{\input{assets/large_gtc_frame_4.tex}}
+    \only<5>{\input{assets/large_gtc_frame_5.tex}}
+    \only<6>{\input{assets/large_gtc_frame_6.tex}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Large GTC Buy Order: Result}
+  \begin{center}
+    \input{assets/large_gtc_frame_result.tex}
+  \end{center}
+\end{frame}
 
 \begin{frame}{Aggregated Orderbook}
+  \begin{center}
+    \input{assets/aggregated_orderbook.tex}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Limit Orderbook Examples}
