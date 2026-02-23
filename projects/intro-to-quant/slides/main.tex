@@ -9,9 +9,35 @@
 
 \maketitle
 
-\section{Trading \& Markets}
+\begin{frame}{Workshop Outline}
+  \begin{itemize}
+    \item introduction to trading
+    \begin{itemize}
+      \item trades, orders, order matching
+      \item overview of the industry
+    \end{itemize}
+    \item roles in trading, research and engineering
+    \begin{itemize}
+      \item job description
+      \item interview process
+      \item interview problems
+    \end{itemize}
+  \end{itemize}
+\end{frame}
 
 \begin{frame}{Motivation}
+  Why the trading industry?
+  \begin{itemize}
+    \item Intellectually challenging
+    \item High agency and ownership
+    \item Compensation
+    \item Benefit to society
+  \end{itemize}
+\end{frame}
+
+\section{Trading \& Markets}
+
+\begin{frame}{Trading Introduction}
   We will introduce the concepts of
   \begin{itemize}
     \item trading
@@ -81,20 +107,32 @@
 % TODO: finish
 \begin{frame}{Holdings and Position}
   At each point in time, each participant has a \textbf{holdings} and a \textbf{position} in each asset.
-
-  \begin{center}
-    TODO: insert diagram
-  \end{center}
-
   \begin{sqt:definition}
     \textbf{Position} includes the effects of executed \textbf{trades} that have not been \textbf{settled} yet.
   \end{sqt:definition}
 
+  \begin{center}
+    \input{assets/holdings_vs_positions.tex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Holdings and Position}
   \begin{sqt:result}
-    Your exposure and PnL is determined by your \textbf{position}.
-    % As a result, for trading games and simulations, we can abstract away the entire post-trade life-cycle
-    % and just consider our \textbf{position}, disregarding \textbf{holdings} entirely.
+    Your \textbf{exposure} and \textbf{PnL} is determined by your \textbf{position}.
   \end{sqt:result}
+
+  This is because the terms of the trade (price, quantity) are locked in immediately upon trade execution,
+  so the transfer of assets and money can be thought of us occuring immediately.
+
+  \begin{sqt:tip}
+    For example, you agree to buy a share of AAPL at \$30.
+    Immediately, you are ``exposed'' to the movement of AAPL stock price.
+    If the market price goes down to \$10, you are still paying \$30 for it upon settlement,
+    but might end up having to sell it away for \$10.
+  \end{sqt:tip}
+
+  As a result, for trading games and simulations, we can abstract away the entire post-trade life-cycle
+  and just consider our asset and cash \textbf{position}, disregarding \textbf{holdings} entirely.
 \end{frame}
 
 \begin{frame}{What is an Exchange}
@@ -131,15 +169,6 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Counterparty Discovery}
-  \begin{center}
-    \textcolor{sqt-question}{
-      Once on an exchange, how do you find willing counterparties?
-    }
-  \end{center}
-  You can't just send trade requests to everyone, and agree to each incoming trade request.
-\end{frame}
-
 \begin{frame}{Limit Orders}
   Each participant maintains a set of \textbf{limit orders}, which the exchange uses 
   to automatically infer whether they would agree to any hypothetical trade or not.\\
@@ -159,10 +188,23 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Orderbook}
-  By submitting this order, Alice authorizes the exchange to accept trades on her behalf, 
-  until 5 AAPL shares have been sold. Once this happens, the order is considered \textbf{filled}.
+\begin{frame}{Bids and Offers}
+  By submitting the \textbf{sell order}, Alice authorizes the exchange to accept trades on her behalf, 
+  until 5 AAPL shares have been \textbf{sold}. Once this happens, the order is considered \textbf{filled}.
 
+  \begin{sqt:definition}
+    \begin{itemize}
+      \item A \textbf{bid} (buy order) expresses a willingness to buy
+      \item An \textbf{offer/ask} (sell order) expresses a willingness to sell
+    \end{itemize}
+  \end{sqt:definition}
+
+  \begin{center}
+    \input{assets/bids_and_asks.tex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Orderbook}
   \begin{sqt:definition}
     The exchange keeps track of each participant's \textbf{open orders} (unfilled),\\
     and collects them into an \textbf{orderbook}.
@@ -182,6 +224,9 @@
       \item There exists an \textbf{intersection} between the price ranges they are willing to trade at
     \end{itemize}
   \end{sqt:definition}
+  \begin{center}
+    \input{assets/in_cross.tex}
+  \end{center}
 \end{frame}
 
 \section{Order Matching}
@@ -260,12 +305,35 @@
 \end{frame}
 
 \begin{frame}{Aggregated Orderbook}
+  \begin{sqt:result}
+    Usually, exchanges only reveal to the participants:
+    \begin{itemize}
+      \item the set of \textbf{their own} open orders
+      \item the \textbf{aggregated} orderbook (all quantities on each level are aggregated)
+    \end{itemize}
+  \end{sqt:result}
+
   \begin{center}
     \input{assets/aggregated_orderbook.tex}
   \end{center}
 \end{frame}
 
+\begin{frame}{Liquidity and Market Impact}
+  \begin{sqt:definition}
+    An orderbook with tight spreads and large volume is considered \textbf{liquid}.
+  \end{sqt:definition}
+
+  In an \textbf{illiquid} market, orders can \textbf{eat through} the orderbook.\\
+  \textbf{Market impact} is when an action (order insertion) has an effect on the market price.
+
+  \begin{center}
+    \input{assets/market_impact.tex}
+  \end{center}
+\end{frame}
+
 \begin{frame}{Limit Orderbook Examples}
+  TODO: ditch this table, use the mathcha drawings instead for consistent style
+
   \begin{columns}[T]
     \begin{column}{0.4\textwidth}
       \begin{tabular}{|c|c|c|}
@@ -295,50 +363,118 @@
 
 \end{frame}
 
-\section{Finance Industry}
+\section{Trading Industry}
 
 \begin{frame}{The Exchange Business Model}
   Exchanges make money by charging a fee per trade.
 
-  This fee is usually proportional to the dollar volume of the trade.
-
   Exchanges benefit from high trading volume, so they have an incentive to attract participants to their platform.
 
-  To attract customers, exchanges do the following:
-  \begin{itemize}
-    \item They provide a fair and transparent trading environment.
-    \item Have high liquidity.
-  \end{itemize}
+  \begin{sqt:result}
+    To attract customers, exchanges:
+    \begin{itemize}
+      \item provide a fair and transparent trading environment.
+      \item maintain high liquidity (by attracting market makers).
+    \end{itemize}
+  \end{sqt:result}
 \end{frame}
 
-\begin{frame}{Market Markets}
+\begin{frame}{Market Makers}
   \begin{sqt:definition}
     A \textbf{market maker} is a participant in an exchange who provides liquidity by continuously quoting buy and sell prices for a security.
   \end{sqt:definition}
 
-  Market makers must fulfill obligations to the exchange, or lose their status as a market maker.
+  Market makers must fulfill obligations to the exchange, and maintain a good relationship with them.
+
   \begin{itemize}
     \item Quote a minimum size at all times.
     \item Quote within a certain spread.
+    \item Don't do disorderly or manipulative trading.
+  \end{itemize}
+
+  In return, the exchange rewards market makers with:
+
+  \begin{itemize}
+    \item fee rebates
+    \item not getting banned
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Automated Trading}
+  Programs run on machines that receive information from the exchange.
+  The information allows them to build a view of the orderbook.
+  They send messages to the exchange
+
+  TODO: diagram
+
+\end{frame}
+
+\begin{frame}{High Frequency Trading}
+  Any exchange activity that reacts to orderbook activity quicky.
+  Medium Frequency is order of magnitude from milliseconds to seconds.
+
+  TODO: talk about queue position
+  TODO: talk about adverse selection
+  TODO: finish
+
+  Then talk about colocation.
+\end{frame}
+
+\begin{frame}{Buy Side and Sell Side}
+  \begin{sqt:definition}
+    \begin{itemize}
+      \item The \textbf{buy side} consists of traders who buy exchange services. \\
+      Liquidity is one of the most important of these services.
+      \item The \textbf{sell side} consists of entities that provide these services.
+    \end{itemize}
+  \end{sqt:definition}
+
+  TODO: give an example
+\end{frame}
+
+\begin{frame}{The Buy Side}
+  TODO: investors, borrowers, hedgers, gamblers
+  \begin{itemize}
+    \item stuff
+  \end{itemize}
+  NOTE: they probably do not understand what hedging would mean
+\end{frame}
+
+\begin{frame}{The Sell Side}
+  TODO: brokers, dealers, market makers
+\end{frame}
+
+\begin{frame}{Hedge Funds}
+  \begin{sqt:definition}
+    A \textbf{hedge fund} holds investor money and assets.
+    An \textbf{investment management firm} trades the assets in the fund and makes returns,
+    taking fees.
+  \end{sqt:definition}
+
+  Examples of hedge funds:
+  \begin{itemize}
+    \item Citadel
+    \item QRT
   \end{itemize}
 \end{frame}
 
 \section{Trading \& Research}
 
-\begin{frame}{Trading and Research Roles}
-  \begin{itemize}
-    \item \textbf{Trader}
-    \item \textbf{Researcher}
-  \end{itemize}
+\begin{frame}{Trader Roles}
+  \begin{sqt:definition}
+    Traders make decisions TODO: finish
+  \end{sqt:definition}
 
-  \vspace{0.5cm}
-  \begin{sqt:result}
-    The boundaries between these two roles may across firms and teams.
-  \end{sqt:result}
+  In HFT, traders adjust the parameters of the autotrader.
+  They also write a lot of random scripts.
 \end{frame}
 
-\begin{frame}{Trader}
-  TODO: get help for this slide
+\begin{frame}{Trader Interviews}
+  Mental math speed (OA)
+  Probability \& combinatorics
+  Estimation (``make me a market on X'')
+  Sometimes trading games (jane street definitely does this)
+  Python (Jane Street definitely)
 \end{frame}
 
 \begin{frame}{Researcher}
@@ -350,8 +486,8 @@
     \item \textbf{Alpha}: Discovering predictive signals and trading opportunities
     \item \textbf{Pricing}: Pricing exotics (e.g. barrier options)
     \item \textbf{Risk}: Risk
-    \item \textbf{Execution}: Transaction costs analysis
-    \item \textbf{Portfolio Optimization}: 
+    \item \textbf{Execution}: Transaction costs analysis, microstructure research
+    \item \textbf{Portfolio Optimization}:
   \end{itemize}
 
   Roles also look different depending on time-horizon.
@@ -362,6 +498,12 @@
 \begin{frame}{Researcher Interviews: Core Skills}
   These interviews also have probability questions.
   Also may have questions about statistics or take home projects.
+
+  Linear regression, generalized linear models, time series
+\end{frame}
+
+\begin{frame}{Trading Interview: Question Example 1}
+  TODO: just pick something someone sent in the discord
 \end{frame}
 
 \section{Engineering}
@@ -375,31 +517,28 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Software Engineering}
-  In trading firms, software engineers do much of the same work as software engineers in other industries:
+\begin{frame}{Software Engineering Roles}
+  \begin{sqt:result}
+    In trading firms, software engineers do much of the same work as software engineers in other industries.
+  \end{sqt:result}
   \begin{itemize}
     \item \textbf{Application Development}
     \item \textbf{UI Development}
     \item \textbf{Data Engineering}
   \end{itemize}
-
-  \begin{sqt:result}
-    There isn't really a difference between the software roles.
-  \end{sqt:result}
 \end{frame}
 
-\begin{frame}{Software Engineering Interviews: Core Skills}
-  Fundamental competencies expected across all software roles during the interview
-
+\begin{frame}{Software Engineering Interviews}
+  Skills assessed:
   \begin{itemize}
     \item \textbf{Data Structures \& Algorithms}: binary search, graphs, complexity analysis
-    \item \textbf{Design Skills}: System design, API design, code design, OOP
+    \item \textbf{Design Skills}: System design, API design, OOP
     \item \textbf{General Knowledge}: Databases, Networks, OS, Concurrency, Compilers
     \item \textbf{Testing}: Unit tests, mock objects, designing for testability
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Software Engineering Interviews: Specialized Tracks}
+\begin{frame}{Software Engineering Specialized Tracks}
   Many firms separate candidates into specialized tracks early in the process.
 
   \vspace{0.3cm}
@@ -414,7 +553,7 @@
   \textit{Example firms: Citadel Securities, QRT}
 \end{frame}
 
-\begin{frame}{Software Engineering Interviews: Specialized Tracks}
+\begin{frame}{Software Engineering Specialized Tracks}
   \textbf{Python Track}
   \begin{itemize}
     \item Probability and statistics
@@ -444,6 +583,12 @@
 
   \vspace{0.3cm}
   \textit{Example firms: Citadel Securities}
+\end{frame}
+
+\section{Interview Questions}
+
+\begin{frame}{Probability Question 1}
+  stuff...
 \end{frame}
 
 \section{Resources}
