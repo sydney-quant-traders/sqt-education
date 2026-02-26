@@ -9,6 +9,245 @@
 
 \maketitle
 
+\section{Codebase Overview}
+
+\begin{frame}{Repository Structure}
+  The repository is a \textbf{LaTeX monorepo} for SQT educational content.
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Top-level directories:}
+      \begin{itemize}
+        \item \texttt{projects/} --- All educational content
+        \item \texttt{style/} --- Shared LaTeX styles (optional)
+      \end{itemize}
+      \vspace{0.3cm}
+      \small Projects can symlink to shared styles, or maintain their own copy
+      (e.g., \texttt{intro-to-quant} has a modified local style).
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Shared style files:}
+      \begin{itemize}
+        \item \texttt{sqtbeamer.tex} --- Slides (beamer)
+        \item \texttt{sqtarticle.tex} --- Worksheets (article)
+        \item \texttt{logo.png} --- SQT branding
+        \item \texttt{romela.light.otf} --- Custom heading font
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Project Types}
+  Each directory in \texttt{projects/} is either:
+  \begin{itemize}
+    \item A \textbf{slide directory} itself (e.g., \texttt{example-slides/})
+    \item A \textbf{collection} of LaTeX projects (e.g., \texttt{intro-to-quant/})
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \begin{sqt:definition}[Slide Directory]
+    A directory containing \texttt{main.tex}, \texttt{Makefile}, and \texttt{style/} (symlink or copy).
+    This is the unit you run \texttt{make} in.
+  \end{sqt:definition}
+
+  \vspace{0.3cm}
+  A collection may contain:
+  \begin{itemize}
+    \item \texttt{slides/} --- Beamer presentation (slide directory)
+    \item \texttt{worksheet/} --- Article-format handout (slide directory)
+    \item \texttt{resources/} --- Reference PDFs, external materials (not a slide directory)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Slide Directory Layout}
+  A \textbf{slide directory} contains everything needed to build a PDF:
+  \begin{minted}{text}
+    projects/example-slides/      # This IS a slide directory
+    +-- assets/                   # TikZ diagrams, images
+    +-- build/                    # Output (gitignored)
+    +-- style -> ../../style      # Symlink (or local copy)
+    +-- .latexmkrc                # Build config
+    +-- Makefile
+    +-- main.tex
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Collection Layout}
+  A \textbf{collection} contains multiple slide directories:
+  \begin{minted}{text}
+    projects/intro-to-quant/      # This is a collection
+    +-- slides/                   # Slide directory
+    |   +-- assets/
+    |   +-- style/                # Local copy (modified)
+    |   +-- Makefile
+    |   +-- main.tex
+    +-- worksheet/                # Another slide directory
+    |   +-- style -> ../../../style
+    |   +-- Makefile
+    |   +-- main.tex
+    +-- resources/                # NOT a slide directory
+        +-- reference.pdf
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Current Projects}
+  \begin{tabular}{lll}
+    \textbf{Directory} & \textbf{Type} & \textbf{Content} \\
+    \hline
+    \texttt{example-slides/} & Slide directory & This template \\
+    \texttt{intro-to-quant/} & Collection & Trading intro \\
+    \texttt{combinatorics/} & Collection & Counting techniques \\
+    \texttt{cpp-classes/} & Collection & C++ intro \\
+  \end{tabular}
+
+  \vspace{0.5cm}
+  \begin{sqt:tip}[Building a collection]
+    Navigate to the specific slide directory within the collection:\\
+    \texttt{cd projects/intro-to-quant/slides \&\& make}
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}[fragile]{Shared Styles via Symlink}
+  Projects access shared styles via a \textbf{symlink}:
+  \begin{minted}{bash}
+    # In your project directory:
+    ln -s ../../style style
+  \end{minted}
+
+  \vspace{0.5cm}
+  Then include in your \verb|main.tex|:
+  \begin{minted}{latex}
+    \input{style/sqtbeamer.tex}  % For slides
+    \input{style/sqtarticle.tex} % For worksheets
+  \end{minted}
+
+  \vspace{0.5cm}
+  \begin{sqt:definition}[Why symlinks?]
+    Symlinks allow all projects to share the same style files.
+    Changes to \texttt{style/} propagate to all projects automatically.
+  \end{sqt:definition}
+\end{frame}
+
+\section{Environment Setup}
+
+\begin{frame}{System Requirements}
+  \textbf{Operating System:}
+  \begin{itemize}
+    \item Linux or macOS (for Makefile, symlinks, shell scripts)
+    \item WSL2 works on Windows
+  \end{itemize}
+
+  \vspace{0.5cm}
+  \textbf{Why not Windows natively?}
+  \begin{itemize}
+    \item Symlinks require admin privileges or developer mode
+    \item Makefile requires GNU Make (not default on Windows)
+    \item Shell scripts use bash syntax
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{TeX Distribution}
+  Install \textbf{TeX Live} (full or medium scheme recommended):
+  \begin{minted}{bash}
+    # Ubuntu/Debian
+    sudo apt install texlive-full
+
+    # macOS (via Homebrew)
+    brew install --cask mactex
+
+    # Or install manually from tug.org/texlive
+  \end{minted}
+
+  \vspace{0.3cm}
+  \textbf{Required components:}
+  \begin{itemize}
+    \item \verb|lualatex| --- Required for \verb|fontspec| (custom fonts)
+    \item \verb|latexmk| --- Build automation
+    \item \verb|minted| package --- Syntax highlighting (needs Pygments)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Python and Pygments}
+  The \verb|minted| package requires Python with Pygments:
+  \begin{minted}{bash}
+    # Install Pygments
+    pip install Pygments
+
+    # Verify installation
+    pygmentize -V
+  \end{minted}
+
+  \vspace{0.5cm}
+  \begin{sqt:result}[Important: Shell Escape]
+    The \texttt{minted} package requires \texttt{-shell-escape} flag.
+    This is configured in \texttt{.latexmkrc}:
+    \begin{center}
+      \texttt{\$lualatex = 'lualatex -shell-escape \%O \%S';}
+    \end{center}
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Build Commands}
+  Navigate to a project directory and use \verb|make|:
+  \begin{minted}{bash}
+    cd projects/example-slides
+
+    make          # Build PDF once -> build/main.pdf
+    make watch    # Continuous compilation (rebuild on save)
+    make clean    # Remove auxiliary files
+    make cleanall # Remove entire build directory
+  \end{minted}
+
+  \vspace{0.3cm}
+  \textbf{Output location:} \verb|build/main.pdf|
+
+  \vspace{0.3cm}
+  \begin{sqt:tip}[Tip: Live Preview]
+    Use \texttt{make watch} with a PDF viewer that auto-refreshes
+    (e.g., Evince on Linux, Skim on macOS).
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}[fragile]{The .latexmkrc Configuration}
+  Each project has a \verb|.latexmkrc| file:
+  \begin{minted}{perl}
+    # Use LuaLaTeX (required for fontspec)
+    $pdf_mode = 4;
+    $lualatex = 'lualatex -interaction=nonstopmode
+                          -shell-escape %O %S';
+
+    # Build into build directory
+    $out_dir = 'build';
+    $aux_dir = 'build';
+
+    # Clean Beamer auxiliary files
+    $clean_ext = 'nav snm vrb synctex.gz';
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Quick Start Checklist}
+  \begin{enumerate}
+    \item Install TeX Live (with LuaLaTeX and latexmk)
+    \item Install Python and Pygments (\texttt{pip install Pygments})
+    \item Clone the repository
+    \item Navigate to a project: \texttt{cd projects/example-slides}
+    \item Build: \texttt{make} or \texttt{make watch}
+    \item View: \texttt{build/main.pdf}
+  \end{enumerate}
+
+  \vspace{0.5cm}
+  \begin{sqt:definition}[Troubleshooting]
+    If build fails, check:
+    \begin{itemize}
+      \item Is \texttt{style} symlink valid? (\texttt{ls -la style})
+      \item Is \texttt{pygmentize} in PATH?
+      \item Are all TeX packages installed?
+    \end{itemize}
+  \end{sqt:definition}
+\end{frame}
+
+
+% to claude: no edits past this point
+
 \section{Introduction}
 \begin{frame}{Using tcolorboxes}
   Colored boxes are used for important definitions (yellow) and results (blue).\\
