@@ -1,37 +1,42 @@
 \input{style/sqtbeamer.tex}
-
-\title{Intro to Quant}
-\subtitle{Workshop}
-\institute{Sydney Quant Traders \\ $\times$ \\ UNSW Competitive Programming \& Mathematics Society}
-\date{}
+\usepackage{pdfpages}
 
 \begin{document}
 
-\maketitle
+{
+\setbeamercolor{background canvas}{bg=}
+\includepdf[pages=1-2]{assets/Introduction To Quant.pdf}
+}
 
 \begin{frame}{Workshop Outline}
   \begin{itemize}
-    \item introduction to trading
+    \item Introduction to trading
     \begin{itemize}
-      \item trades, orders, order matching
-      \item overview of the industry
+      \item Trades, orders, order matching
+      \item Overview of the industry
     \end{itemize}
-    \item roles in trading, research and engineering
+    \item Roles in trading, research and engineering
     \begin{itemize}
-      \item job description
-      \item interview process
-      \item interview problems
+      \item Job description
+      \item Interview process
+      \item Interview problems
     \end{itemize}
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Motivation}
-  Why the trading industry?
+\begin{frame}{What is Quantitative Finance?}
+  \begin{sqt:definition}
+    \textbf{Quantitative finance} is the use of mathematical models, statistics, data,
+    and algorithms to make trading decisions.
+  \end{sqt:definition}
+\end{frame}
+
+\begin{frame}{Why the Trading Industry?}
   \begin{itemize}
     \item Intellectually challenging
     \item High agency and ownership
-    \item Compensation
-    \item Benefit to society
+    \item High compensation
+    \item Benefit to society 
   \end{itemize}
 \end{frame}
 
@@ -40,9 +45,9 @@
 \begin{frame}{Trading Introduction}
   We will introduce the concepts of
   \begin{itemize}
-    \item trading
-    \item exchanges
-    \item the orderbook
+    \item Trading
+    \item Exchanges
+    \item Orders and the orderbook
   \end{itemize}
 
   \vspace{0.3cm}
@@ -51,6 +56,9 @@
     I thought that firms don't care about prior knowledge of finance?
   }
 
+  \vspace{0.3cm}
+
+  \textbf{Motivation:}
   \begin{itemize}
     \item this is only true during the interview stage for large HFT firms
     \item beginner understanding of orderbook dynamics is useful for
@@ -122,7 +130,7 @@
   \end{sqt:result}
 
   This is because the terms of the trade (price, quantity) are locked in immediately upon trade execution,
-  so the transfer of assets and money can be thought of us occuring immediately.
+  so the transfer of assets and money can be thought of as occuring immediately.
 
   \begin{sqt:tip}
     For example, you agree to buy a share of AAPL at \$30.
@@ -331,44 +339,171 @@
   \end{center}
 \end{frame}
 
+% TODO: finish this today
 \begin{frame}{Limit Orderbook Examples}
-  TODO: ditch this table, use the mathcha drawings instead for consistent style
-
   \begin{columns}[T]
     \begin{column}{0.4\textwidth}
-      \begin{tabular}{|c|c|c|}
-        \hline
-        \textbf{Bid Qty}        & \textbf{Price}          & \textbf{Ask Qty}       \\
-        \hline
-        \cellcolor{gray!10}     & \cellcolor{gray!10}130  & \cellcolor{gray!10}24  \\
-        \cellcolor{gray!10}     & \cellcolor{gray!10}125  & \cellcolor{gray!10}20  \\
-        \cellcolor{gray!10}     & \cellcolor{gray!10}120  & \cellcolor{gray!10}10  \\
-        \cellcolor{gray!10}15   & \cellcolor{gray!10}80   & \cellcolor{gray!10}    \\
-        \cellcolor{gray!10}15   & \cellcolor{gray!10}75   & \cellcolor{gray!10}    \\
-        \cellcolor{gray!10}30   & \cellcolor{gray!10}70   & \cellcolor{gray!10}    \\
-        \hline
-      \end{tabular}
+      \input{assets/orderbook_ex_1.tex}
     \end{column}
 
     \begin{column}{0.6\textwidth}
       \textbf{Discussion Questions}
       \begin{itemize}
-        \item Why are all bids prices below all ask prices?
-        \item Why do the quantities of quotes decrease as we approach the middle price?
-        \item Would we consider this orderbook liquid?
-        \item What is the market price of AMZN in this orderbook?
+        \item What trades are made when Charlie inserts the offer?
+        \item How does each person's position change?
+        \item What does the orderbook look like afterwards?
+        \item How does Charlie's opinion differ from Alice's and Bob's?
       \end{itemize}
     \end{column}
   \end{columns}
 
 \end{frame}
 
+\section{Trading Games}
+
+\begin{frame}{What Are Trading Games?}
+  \textbf{Setup}
+  \begin{itemize}
+    \item Players trade a stock whose true value is unknown
+    \item Everyone starts with equal cash and position
+    \item Players send bids and asks, which get matched by the engine
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Information}
+  \begin{itemize}
+    \item Partial information about the true value is revealed over rounds
+    \item Players update their estimates and trade accordingly
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Scoring}
+  \begin{itemize}
+    \item At the end, true value is revealed, and all positions are liquidated at this price.
+    \item Final Cash Position = cash + (position $\times$ true value)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Trading Game Example}
+  \textbf{``The stock value is the volume of the tallest building in the world.’’}
+
+  \vspace{0.3cm}
+  \textbf{Round 1}: ``The height of this building is 828 meters.’’
+  \begin{itemize}
+    \item Players estimate volume and trade
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Round 2}: ``The base area is 8,000 m$^2$.’’
+  \begin{itemize}
+    \item Players refine estimates and trade
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{End}: True volume revealed, positions liquidated.
+\end{frame}
+
+\begin{frame}{Trading Game Formats}
+  \textbf{How We Play}
+  \begin{itemize}
+    \item \textbf{Open outcry}: verbal, shouting quotes, manually tracking position on paper
+    \item \textbf{Electronic}: enter orders into a simulated exchange
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Why They Matter}
+  \begin{itemize}
+    \item Build intuition for markets, orderbooks, and spreads
+    \item Improve estimation \& mental math skills
+    \item Appears in interviews at some trading firms (Jane Street, Optiver)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Open Outcry Rules}
+  There are many variations of how you can play trading games without an electronic system.
+
+  Any player can shout a quote at any time:
+  \begin{itemize}
+    \item \textbf{Bid [bid]} (i.e. insert bid at [bid])
+    \item \textbf{Offer [offer]} (i.e. insert offer at [offer])
+    \item \textbf{``[bid] at [offer]''} (i.e. insert both bid and offer)
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Trading against passive orders:
+  \begin{itemize}
+    \item \textbf{``Yours''}: trade against the highest bid (the asset is now ``yours'')
+    \item \textbf{``Mine''}: trade against the lowest offer (the asset is now ``mine'')
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Example Markets}
+  \textbf{Make a market on...}
+  \begin{itemize}
+    \item Number of sheep in New Zealand
+    \item Distance from Sydney to Perth in inches
+    \item Number of 7-Elevens in Tokyo
+  \end{itemize}
+
+  \vspace{0.3cm}
+  Extra information can be released as the market develops.
+
+  \vspace{0.3cm}
+  \textcolor{sqt-question}{Keep track of your own PnL!}
+\end{frame}
+
 \section{Trading Industry}
 
-\begin{frame}{The Exchange Business Model}
-  Exchanges make money by charging a fee per trade.
+\begin{frame}{What can be Traded?}
+  \begin{sqt:definition}
+    An \textbf{instrument} is any tradable financial asset or contract.
+  \end{sqt:definition}
+  \vspace{0.3cm}
+  Examples of instruments/securities:
+  \begin{itemize}
+    \item \textbf{Equity Securities} (common stocks)
+    \item \textbf{Fixed Income} (debt, bonds, MBSs, CDOs)
+    \item \textbf{Derivative Contracts} (futures, options, swaps, BTIC)
+    \item \textbf{Pooled Investment Vehicle} (ETFs, mutual funds)
+  \end{itemize}
+\end{frame}
 
-  Exchanges benefit from high trading volume, so they have an incentive to attract participants to their platform.
+\begin{frame}{Types of Firms}
+  \textbf{Proprietary Trading Firms}
+  \begin{itemize}
+    \item Trade using the firm's own money (no outside investors)
+    \item Examples: Optiver, Jane Street, IMC, SIG
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Hedge Funds}
+  \begin{itemize}
+    \item Manage money from outside investors
+    \item Examples: Citadel, Two Sigma, DE Shaw, Qube Research \& Technologies
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \textbf{Banks}
+  \begin{itemize}
+    \item Quants (often called ``Strats'') price products, run trading desks, build risk systems
+    \item Examples: Goldman Sachs, JP Morgan
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Types of Firms}
+  \textbf{Asset Managers}
+  \begin{itemize}
+    \item Manage retirement funds, ETFs, etc.
+    \item Focus on long-term growth rather than short-term trading
+    \item Examples: BlackRock, Vanguard
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The Exchange Business Model}
+  \begin{itemize}
+    \item Exchanges make money by charging a fee per trade.
+    \item Benefit from high trading volume, thus have an incentive to attract participants.
+  \end {itemize}
 
   \begin{sqt:result}
     To attract customers, exchanges:
@@ -384,64 +519,46 @@
     A \textbf{market maker} is a participant in an exchange who provides liquidity by continuously quoting buy and sell prices for a security.
   \end{sqt:definition}
 
-  Market makers must fulfill obligations to the exchange, and maintain a good relationship with them.
+  Market makers must fulfill obligations, and maintain a good relationship with exchanges:
 
   \begin{itemize}
-    \item Quote a minimum size at all times.
-    \item Quote within a certain spread.
-    \item Don't do disorderly or manipulative trading.
+    \item Quote a minimum size at all times
+    \item Quote within a certain spread
+    \item Don't do disorderly or manipulative trading
   \end{itemize}
 
   In return, the exchange rewards market makers with:
 
   \begin{itemize}
-    \item fee rebates
-    \item not getting banned
+    \item Fee rebates
+    \item Not getting blacklisted
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Automated Trading}
-  Programs run on machines that receive information from the exchange.
-  The information allows them to build a view of the orderbook.
-  They send messages to the exchange
+  \begin{itemize}
+    \item Programs run on machines that receive information from the exchange.
+    \item The information allows them to build a view of the orderbook.
+    \item They send messages to the exchange (insert, cancel, amend).
+  \end{itemize}
 
   TODO: diagram
 
 \end{frame}
 
 \begin{frame}{High Frequency Trading}
-  Any exchange activity that reacts to orderbook activity quicky.
-  Medium Frequency is order of magnitude from milliseconds to seconds.
-
-  TODO: talk about queue position
-  TODO: talk about adverse selection
-  TODO: finish
-
-  Then talk about colocation.
-\end{frame}
-
-\begin{frame}{Buy Side and Sell Side}
   \begin{sqt:definition}
-    \begin{itemize}
-      \item The \textbf{buy side} consists of traders who buy exchange services. \\
-      Liquidity is one of the most important of these services.
-      \item The \textbf{sell side} consists of entities that provide these services.
-    \end{itemize}
+    \textbf{High frequency trading} (HFT) uses low latency infrastructure, to react
+    quickly to changing market conditions within micros.
   \end{sqt:definition}
 
-  TODO: give an example
-\end{frame}
+  \begin{sqt:definition}
+    \textbf{Colocation} is when you rent a rack at the exchange to place your autotraders.
+  \end{sqt:definition}
 
-\begin{frame}{The Buy Side}
-  TODO: investors, borrowers, hedgers, gamblers
-  \begin{itemize}
-    \item stuff
-  \end{itemize}
-  NOTE: they probably do not understand what hedging would mean
-\end{frame}
-
-\begin{frame}{The Sell Side}
-  TODO: brokers, dealers, market makers
+  TODO: what are the advantages of low latency?\\
+  TODO: talk about queue position\\
+  TODO: talk about adverse selection\\
 \end{frame}
 
 \begin{frame}{Hedge Funds}
@@ -451,62 +568,121 @@
     taking fees.
   \end{sqt:definition}
 
-  Examples of hedge funds:
   \begin{itemize}
-    \item Citadel
-    \item QRT
+    \item Examples: Citadel, Two Sigma, DE Shaw, Qube Research \& Technologies, Antipodes Partners, 
+    Hyperion Asset Management, Plato Investment Management
   \end{itemize}
 \end{frame}
 
-\section{Trading \& Research}
+\begin{frame}{Buy Side and Sell Side}
+  \begin{sqt:definition}
+    \begin{itemize}
+      \item The \textbf{buy side} wants to trade (buy or sell assets).
+      \item The \textbf{sell side} provides services that enable trading.
+    \end{itemize}
+  \end{sqt:definition}
+
+  \vspace{0.3cm}
+  \begin{sqt:tip}
+    A pension fund (buy side) wants to buy \$10M of shares.
+    They go to a broker (sell side) who executes the trade for them.
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}{The Buy Side}
+  Entities that want to invest, speculate, or manage risk.
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \textbf{Asset managers}: invest client money (pension funds, mutual funds)
+    \item \textbf{Hedge funds}: invest client money, seeking returns uncorrelated with the market
+    \item \textbf{Corporations}: hedge business risks (e.g., airlines hedging fuel prices with futures)
+    \item \textbf{Retail investors}: individuals trading their own money
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{The Sell Side}
+  Entities that provide trading services to the buy side.
+
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \textbf{Brokers}: execute trades on behalf of clients
+    \begin{itemize}
+      \item Examples: Interactive Brokers, Charles Schwab
+    \end{itemize}
+    \item \textbf{Dealers / Market makers}: provide liquidity by quoting prices
+    \begin{itemize}
+      \item Examples: Citadel Securities, Jane Street, Optiver
+    \end{itemize}
+    \item \textbf{Research}: produce equity research reports to buy-side clients
+    \begin{itemize}
+      \item Examples: Macquarie
+    \end{itemize}
+    \item \textbf{Investment Banking}: underwrite securities, advise on deals
+    \begin{itemize}
+      \item Examples: Goldman Sachs, Morgan Stanley
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+
+\section{Roles in Trading}
 
 \begin{frame}{Trader Roles}
   \begin{sqt:definition}
-    Traders make decisions TODO: finish
+    Traders make the trading decisions.
   \end{sqt:definition}
+  
+  \begin{itemize}
+    \item Somewhere on a scale between fully systematic and fully manual
+    \begin{itemize}
+      \item Systematic: adjusting strategies, closer to research role
+      \item Manual: reacting to news, morning macro meeting
+    \end{itemize}
 
-  In HFT, traders adjust the parameters of the autotrader.
-  They also write a lot of random scripts.
+    \item In HFT, traders adjust the parameters of autotraders
+    \item They also write a lot of random scripts.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Trader Interviews}
-  Mental math speed (OA)
-  Probability \& combinatorics
-  Estimation (``make me a market on X'')
-  Sometimes trading games (jane street definitely does this)
-  Python (Jane Street definitely)
+  \begin{itemize}
+    \item Mental math (OA)
+    \item Probability \& combinatorics (technical interview)
+    \item Estimation / trading games (``make me a market on X'')
+    \item Python (numpy, pandas)
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Researcher}
-  There is much more to research than just alpha and pricing theory.
+  \begin{sqt:definition}
+    Researchers analyse data of all kinds.
+  \end{sqt:definition}
 
-  There are a wide variety of research roles, but they generally fall into the following categories:
+  There is much more to research than just alpha and pricing theory.
+  There are a wide variety of research roles across different types of firms (HFT, market makers, hedge funds).
 
   \begin{itemize}
-    \item \textbf{Alpha}: Discovering predictive signals and trading opportunities
-    \item \textbf{Pricing}: Pricing exotics (e.g. barrier options)
-    \item \textbf{Risk}: Risk
-    \item \textbf{Execution}: Transaction costs analysis, microstructure research
-    \item \textbf{Portfolio Optimization}:
+    \item Analyse past trades to see how the strategy can be improved.
+    \item Research trading patterns of counterparties and competitors.
+    \item Making interaction (placing and pulling orders) with exchange faster.
+    \item Pricing exotics.
+    \item Alpha research.
+    \item Execution research, transaction cost analysis.
+    \item Portfolio optimization, researching correlation matrices.
   \end{itemize}
-
-  Roles also look different depending on time-horizon.
-
-  TODO: finish this slide later
 \end{frame}
 
 \begin{frame}{Researcher Interviews: Core Skills}
-  These interviews also have probability questions.
-  Also may have questions about statistics or take home projects.
-
-  Linear regression, generalized linear models, time series
+  \begin{itemize}
+    \item Probability and statistics
+    \begin{itemize}
+      \item Statistical models, linear regression, generalized linear models
+      \item Machine learning, time series
+    \end{itemize}
+    \item Take home project
+  \end{itemize}
 \end{frame}
-
-\begin{frame}{Trading Interview: Question Example 1}
-  TODO: just pick something someone sent in the discord
-\end{frame}
-
-\section{Engineering}
 
 \begin{frame}{Engineering Roles}
 
@@ -518,23 +694,32 @@
 \end{frame}
 
 \begin{frame}{Software Engineering Roles}
-  \begin{sqt:result}
-    In trading firms, software engineers do much of the same work as software engineers in other industries.
-  \end{sqt:result}
+  \begin{sqt:definition}
+    \textbf{Software engineers} build the trading/risk/data/research infrastructure \\
+    that the trading firm relies upon.
+  \end{sqt:definition}
+
   \begin{itemize}
     \item \textbf{Application Development}
     \item \textbf{UI Development}
     \item \textbf{Data Engineering}
   \end{itemize}
+
+  Sometimes there is a greater focus on
+  \begin{itemize}
+    \item latency (optimising hotpath)
+    \item data throughput
+  \end{itemize}
+  while in big tech there is a bigger focus on graceful error handling and uptime.
 \end{frame}
 
 \begin{frame}{Software Engineering Interviews}
   Skills assessed:
   \begin{itemize}
-    \item \textbf{Data Structures \& Algorithms}: binary search, graphs, complexity analysis
+    \item \textbf{Data Structures \& Algorithms}: implementation, complexity/speed analysis
     \item \textbf{Design Skills}: System design, API design, OOP
     \item \textbf{General Knowledge}: Databases, Networks, OS, Concurrency, Compilers
-    \item \textbf{Testing}: Unit tests, mock objects, designing for testability
+    \item \textbf{Testing}: Unit tests, mocks, designing for testability
   \end{itemize}
 \end{frame}
 
@@ -542,30 +727,35 @@
   Many firms separate candidates into specialized tracks early in the process.
 
   \vspace{0.3cm}
-  \textbf{Low-Latency Track}
-  \begin{itemize}
-    \item C++
-    \item Operating Systems
-    \item Computer Architecture
-  \end{itemize}
-
-  \vspace{0.3cm}
-  \textit{Example firms: Citadel Securities, QRT}
-\end{frame}
-
-\begin{frame}{Software Engineering Specialized Tracks}
-  \textbf{Python Track}
-  \begin{itemize}
-    \item Probability and statistics
-    \item Data manipulation (NumPy, Pandas, SQL)
-    \item Other stats (machine learning, data science)
-  \end{itemize}
-
-  \textit{Example firms: Citadel Securities}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \textbf{Low-Latency Track}
+      \begin{itemize}
+        \item C++
+        \item Operating Systems
+        \item Networks
+        \item Computer Architecture
+      \end{itemize}
+      \textit{Example firms: Citadel Securities, QRT}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \textbf{Python Track}
+      \begin{itemize}
+        \item Probability and statistics
+        \item Data manipulation (Pandas, SQL)
+        \item Other stats (machine learning)
+      \end{itemize}
+      \textit{Example firms: Citadel Securities}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Quantitative Development}
-  Half developer, half researcher.
+
+  \begin{sqt:definition}
+    A \textbf{quant dev} is half developer, half researcher.\\
+    They are developers who also contribute to the trading strategies.
+  \end{sqt:definition}
 
   \vspace{0.3cm}
   \textbf{Math/Stats Skills}
@@ -582,13 +772,95 @@
   \end{itemize}
 
   \vspace{0.3cm}
-  \textit{Example firms: Citadel Securities}
+  \textit{Example firms: Citadel Securities, Optiver}
 \end{frame}
 
-\section{Interview Questions}
+\section{Interviews}
 
-\begin{frame}{Probability Question 1}
-  stuff...
+\begin{frame}{Interview Process Overview}
+  \begin{enumerate}
+    \item \textbf{Online Assessment}
+    \begin{itemize}
+      \item Mental maths, probability, sequences, aim trainer
+    \end{itemize}
+    \item \textbf{Behavioural Interview}
+    \begin{itemize}
+      \item Motivations (why trading), typical culture fit questions
+    \end{itemize}
+    \item \textbf{Technical Interviews} (1--3 rounds)
+    \begin{itemize}
+      \item Typically 1-on-1 with a trader
+      \item Probability, brainteasers, market making
+    \end{itemize}
+    \item \textbf{Final Round (Superday)}
+    \begin{itemize}
+      \item Full day of interviews
+      \item Interactive trading games, creative problems
+      \item Behaviourals with head of trading / team leads
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+% everything below is AI generated
+
+\begin{frame}{Example Problem: The Die Game}
+  \begin{sqt:tip}
+    You have a 10-sided die with faces 0--9. You can roll as many times as you want.
+    Each roll, the value is added to your score. However, if you roll a 0, you go
+    \textbf{bankrupt}: your score resets to 0 and the game is over.
+    You can choose to stop at any time and keep your current score.
+  \end{sqt:tip}
+
+  \vspace{0.5cm}
+  \textcolor{sqt-question}{What is the optimal strategy? What is your expected payout?}
+
+  \vspace{0.3cm}
+  \textit{Typically no calculators, pen and paper allowed.}
+\end{frame}
+
+\begin{frame}{Die Game: Solution Strategy}
+  Let current bankroll be $x$.
+
+  \vspace{0.3cm}
+  \textbf{Expected value of rolling:}
+  \[
+    \text{EV(roll)} = \frac{1}{10}(-x) + \frac{9}{10}(5) = -\frac{x}{10} + 4.5
+  \]
+
+  \textbf{Expected value of stopping:} $0$
+
+  \vspace{0.3cm}
+  Take action with higher EV. Equate to find optimal stopping point:
+  \[
+    -\frac{x}{10} + 4.5 = 0 \implies x = 45
+  \]
+
+  \begin{sqt:result}
+    \textbf{Optimal strategy}: Keep rolling while $x < 45$. Stop when $x \geq 45$.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}{Die Game: Estimating Expected Value}
+  Calculating exact EV requires Markov chain analysis. In interviews,
+  estimation is valuable.
+
+  \vspace{0.3cm}
+  \textbf{Quick estimation:}
+  \begin{itemize}
+    \item Expected number of rolls before stopping $\approx 45/5 = 9$
+    \item Probability of surviving 9 rolls $= (9/10)^9$
+    \item $(1 - 1/n)^n \approx e^{-1}$ for large $n$
+    \item So $(9/10)^{10} \approx e^{-1} \approx 0.37$
+    \item Therefore $(9/10)^9 \approx 0.4$
+  \end{itemize}
+
+  \vspace{0.3cm}
+  \begin{sqt:result}
+    $\text{EV} \approx 0.4 \times 45 = 18$
+
+    \vspace{0.2cm}
+    \textit{Actual answer (Markov simulation): 17.68}
+  \end{sqt:result}
 \end{frame}
 
 \section{Resources}
@@ -602,16 +874,25 @@
 
   \textbf{Trading Interview Prep}
   \begin{itemize}
-    \item Green book
-    \item Dice problems
+    \item \textit{A Practical Guide to Quantitative Finance Interviews - Xinfeng Zhou} (Green book)
+    \item \textit{A Collection of Dice Problems - Matthew M. Conroy}
+    \item Jane Street Puzzles
+    \item Quantguide
+    \item Quantprof
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Resources}
-  \textbf{Math} (I might just be a Botev glazer)
+  \textbf{Probability and Statistics}
   \begin{itemize}
+    \item \textit{A First Course in Probability - Sheldon M. Ross}
     \item \textit{An Advanced Course in Probability and Stochastic Processes - Zravko Botev}
     \item \textit{Data Science and Machine Learning - Zdravko Botev}
+  \end{itemize}
+
+  \textbf{Math}
+  \begin{itemize}
+    \item \textit{Linear Algebra Done Right - Sheldon Axler} (LADR)
   \end{itemize}
 \end{frame}
 
@@ -630,7 +911,9 @@
 
   \textbf{Blogs, Websites, Videos}
   \begin{itemize}
-    \item \href{https://agner.org}{Agner Fog Website}
+    \item \href{https://agner.org}{agner.org (Agner Fog Website)}
+    \item \href{https://beej.us/guide/}{beej.us (Beej's Guides)}
+    \item \href{https://pdos.csail.mit.edu/6.828/2025/}{pdos.csail.mit.edu/6.828/2025/ (Operating Systems Course)}
   \end{itemize}
 \end{frame}
 

@@ -1,2 +1,10 @@
 build/
 */build/
+
+# Claude Code files
+CLAUDE.md
+CODEBASE.md
+COMPONENTS.md
+DECISIONS.md
+FEATURES.md
+claude-memory-strategy.md
