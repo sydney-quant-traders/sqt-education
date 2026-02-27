@@ -29,14 +29,28 @@
     \textbf{Quantitative finance} is the use of mathematical models, statistics, data,
     and algorithms to make trading decisions.
   \end{sqt:definition}
+
+  \begin{itemize}
+    \item Quantitative finance is a broad term, encompassing a wide range of activities and roles.
+    \item Different types of firms in the trading industry incorporate quantitative finance.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Why the Trading Industry?}
   \begin{itemize}
     \item Intellectually challenging
+    \begin{itemize}
+      \item Fast paced environment, complex and ambiguous problems, interdisciplinary work
+    \end{itemize}
     \item High agency and ownership
-    \item High compensation
+    \begin{itemize}
+      \item Smaller teams, flatter hierarchies, less bureaucracy
+    \end{itemize}
     \item Benefit to society 
+    \begin{itemize}
+      \item Liquidity provision, making markets more efficient, price discovery
+    \end{itemize}
+    \item High compensation
   \end{itemize}
 \end{frame}
 
@@ -112,7 +126,6 @@
   considered part of the \textbf{post-trade life-cycle}.
 \end{frame}
 
-% TODO: finish
 \begin{frame}{Holdings and Position}
   At each point in time, each participant has a \textbf{holdings} and a \textbf{position} in each asset.
   \begin{sqt:definition}
@@ -339,7 +352,6 @@
   \end{center}
 \end{frame}
 
-% TODO: finish this today
 \begin{frame}{Limit Orderbook Examples}
   \begin{columns}[T]
     \begin{column}{0.4\textwidth}
@@ -542,8 +554,9 @@
     \item They send messages to the exchange (insert, cancel, amend).
   \end{itemize}
 
-  TODO: diagram
-
+  \begin{center}
+    \input{assets/autotrader.tex}
+  \end{center}
 \end{frame}
 
 \begin{frame}{High Frequency Trading}
@@ -556,9 +569,10 @@
     \textbf{Colocation} is when you rent a rack at the exchange to place your autotraders.
   \end{sqt:definition}
 
-  TODO: what are the advantages of low latency?\\
-  TODO: talk about queue position\\
-  TODO: talk about adverse selection\\
+  \begin{itemize}
+    \item Low latency allows you to react faster and mitigate \textbf{adverse selection}
+    \item Improved queue positions allows for more fills and better prices
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Hedge Funds}
@@ -801,9 +815,68 @@
   \end{enumerate}
 \end{frame}
 
+\begin{frame}{Car Crash}
+  From: \href{https://www.quantguide.io/questions/car-crash}{https://www.quantguide.io/questions/car-crash}
+
+  \begin{sqt:tip}
+    \begin{itemize}
+      \item $N$ cars placed on a line, and given an initial rightward velocity i.i.d.
+      \item When a faster car catches up to a slower car, it assumes the speed of the slower car.
+      \item Eventually, the cars have settled into $K$ clusters.
+      \item What is the expectation of $K$ when $N=10$?
+    \end{itemize}
+  \end{sqt:tip}
+  % \only<1>{}
+  % \only<2>{
+  %   \begin{itemize}
+  %     \item interesting that they don't give the density function for the velocity
+  %     \item can we prove that all permutations of order statistics are equally likely?
+  %   \end{itemize}
+  % }
+\end{frame}
+
+\begin{frame}{Car Crash: Solution with Order Statistics}
+  \begin{itemize}
+    \item Let $S_n$ be the set of all $n!$ possible rankings $\sigma_i$ of $n$ cars.
+    \item Since the speeds of the cars are i.i.d., each ranking is an equally likely outcome.
+    \item The ranking completely determines $K$.
+  \end{itemize}
+  
+  \begin{center}
+    \input{assets/car_crash_diagram.tex}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Car Crash: Solution with Order Statistics}
+  \begin{itemize}
+    \item Let $f$ map a ranking $\sigma$ to the resultant $K$.
+    \item Let $A_n$ be the sum of $f(\sigma)$ over all $\sigma \in S_n$, given by
+    $$A_n = \sum_{\sigma \in S_n} f(\sigma).$$
+    \item The expectation of $K$ (answer) is given by 
+    $$\mathbb E(K)=\frac{A_N}{N!}.$$
+  \end{itemize}
+
+  \vspace{0.3cm}
+
+  Can we find a formula/pattern for $A_n$?
+\end{frame}
+
+\begin{frame}{Car Crash: Solution with Order Statistics}
+  \begin{center}
+    \input{assets/car_crash_counting_tree.tex}
+  \end{center}
+
+  We can eventually show that
+
+  \begin{sqt:result}
+    $$A_n = nA_{n-1} + (n-1)!.$$
+  \end{sqt:result}
+  $$\left[\frac{A_n}{n!}\right] = \left[\frac{A_{n-1}}{(n-1)!}\right] + \frac{1}{n}.$$
+\end{frame}
+
 % everything below is AI generated
 
-\begin{frame}{Example Problem: The Die Game}
+\begin{frame}{Die Game}
   \begin{sqt:tip}
     You have a 10-sided die with faces 0--9. You can roll as many times as you want.
     Each roll, the value is added to your score. However, if you roll a 0, you go
@@ -863,6 +936,7 @@
   \end{sqt:result}
 \end{frame}
 
+
 \section{Resources}
 
 \begin{frame}{Resources}
@@ -913,7 +987,6 @@
   \begin{itemize}
     \item \href{https://agner.org}{agner.org (Agner Fog Website)}
     \item \href{https://beej.us/guide/}{beej.us (Beej's Guides)}
-    \item \href{https://pdos.csail.mit.edu/6.828/2025/}{pdos.csail.mit.edu/6.828/2025/ (Operating Systems Course)}
   \end{itemize}
 \end{frame}
 
