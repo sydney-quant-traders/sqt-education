@@ -872,6 +872,41 @@
   $$\left[\frac{A_n}{n!}\right] = \left[\frac{A_{n-1}}{(n-1)!}\right] + \frac{1}{n}.$$
 \end{frame}
 
+\begin{frame}{Car Crash: Solution with Arbitrary Distribution}
+  \begin{itemize}
+    \item The answer should be the same regardless of the distribution of the velocities,\\
+    as long as the car velocities are i.i.d. and continuous.\\
+    \item We will assume that all the velocities are $X_i \sim \mathrm{Unif}[0,1]$.
+  \end{itemize}
+
+  \vspace{0.3cm}
+
+  Notice that the event $B_k := \{X_k > \min (X_{k+1}, \dots, X_n)\}$\\
+  is the event that the $k$-th car will crash into a slower car ahead of it.\\
+  Let $I_k := \mathbf{1}_{B_k}$ be the indicator variable for this event.
+  \begin{itemize}
+    \item $I_k = 0$ if the $k$-th car does not crash into any slower car ahead of it.
+    \item $I_k = 1$ if the $k$-th car crashes into a slower car ahead of it.
+  \end{itemize}
+  \begin{sqt:result}
+    $$\mathbb E(I_k) = \mathbb P(I_k = 1) = 1 - \frac{1}{n-k+1}.$$
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}{Car Crash: Solution with Arbitrary Distribution}
+  \begin{sqt:result}
+    Each time a car crashes into a slower car ahead of it, the number of clusters $K$ decreases by 1.
+    $$K = N - \sum_{i=k}^N I_k$$
+  \end{sqt:result}
+
+  \begin{align*}
+    \mathbb E(K)
+    &= N - \sum_{k=1}^N \mathbb E(I_k) \\
+    &= N - \sum_{k=1}^N \left(1-\frac{1}{n-k+1} \right)\\
+    &= \sum_{j=1}^N \frac{1}{j} = H_N.
+  \end{align*}
+\end{frame}
+
 % everything below is AI generated
 
 \begin{frame}{Die Game}
