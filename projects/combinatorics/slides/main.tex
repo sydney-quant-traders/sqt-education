@@ -118,6 +118,54 @@
   \end{center}
 \end{frame}
 
+\section{Group Actions}
+\begin{frame}{Group Actions}
+  \begin{sqt:definition}[Definition: Action]
+    An action on a configuration $x \in S$ is a "movement"(or symmetry) that maps one configuration to another.
+  \end{sqt:definition}
+  \textbf{Example:} denote $g_1, g_2, g_3 $ to be the actions that rotate a configuration clockwise $0,120,240$ degrees.\\
+  \begin{center}
+    %insert image consisting of a configuration, its first rotation, its second rotation.
+  \end{center}
+  Notice we can combine group actions $g_2 \circ g_3 = g_1 $\\
+\end{frame}
+
+\begin{frame}{Group Actions}
+  \begin{sqt:definition}[Definition:A Group of Actions]
+    A set of actions can be considered a group if it obeys the following\\
+    The set has to have the "do nothing" action (identity)\\
+    Composing any two actions must produce an action that is in the set(closure)\\
+    For an action in the set, there must also be the action that undoes it in the set(Inverse)\\
+    Composing actions must be associative. so from before $g_2 \circ (g_3 \circ g_1) = (g_2 \circ g_3) \circ g_1  $\\
+  \end{sqt:definition}
+
+\end{frame}
+
+
+% script notes: In not all instances will we find the do nothing action the only action leaving things unchanged
+\begin{frame}{Stabiliser}
+
+  \begin{sqt:definition}[\textbf{Definition:} Stabiliser]
+    For $S$ the set of all configurations, A stabiliser of $x \in S$, under equivalence, is
+    the collection of actions that leaves the position $x$ unchanged.
+  \end{sqt:definition}
+  In our example the only action that leaves a configuration unchanged is the "do nothing" action.
+  
+
+\end{frame}
+
+\begin{frame}{Back to the Example}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
+  }
+  We can systematically answer this example.
+
+  In our configurations, what arrangements are considered equivalent with an "action"?\\
+  What is the size of the quotient set under this equivalence?\\
+
+  Note that it is a coincidence that the equivalence classes are of equal size.
+\end{frame}
+
 \begin{frame}{Counting Problems}
   \begin{sqt:definition}[Definition: counting problem]
     Determining the size of the quotient set of a specified set $X$ of configurations,
@@ -125,58 +173,14 @@
   \end{sqt:definition}
 \end{frame}
 
-\section{Group Actions}
-
 \begin{frame}{Back to the Example}
   \textcolor{sqt-question}{
     \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
-    Two arrangements are identical if one can be obtained
-    from the other by rotation.
   }
-
-
-  Note that it is a coincidence that the equivalence classes are of equal size.
+  It can be noticed that
 \end{frame}
 
-\begin{frame}{What are Group Actions}
-  What does it mean to "do something" to an object and call it an action?
-  Do these actions have to form an underlying structure?
-  Is doing nothing to an object also considered an action?
-\end{frame}
-
-\begin{frame}{What are Group Actions}
-
-\end{frame}
-
-
-\begin{frame}{An Example}
-
-  \begin{sqt:definition}[\textbf{Definition:} Orbits]
-    For $S$ the set of all configuration, The orbit of $x \in S$, under the action of rotation, is
-    the set of configurations that are reachable by performing our action.
-  \end{sqt:definition}
-
-\end{frame}
-
-\begin{frame}{Orbit}
-
-  \begin{sqt:definition}[\textbf{Definition:} Orbits]
-    For $S$ the set of all configuration, The orbit of $x \in S$, under the action of rotation, is
-    the set of configurations that are reachable by performing our action.
-  \end{sqt:definition}
-
-\end{frame}
-
-\begin{frame}{Stabiliser}
-
-  \begin{sqt:definition}[\textbf{Definition:} Stabiliser]
-    For $S$ the set of all configuration, A stabiliser of $x \in S$, under the action of rotation, is
-    the collection of actions leaves the position $x$ unchanged.
-  \end{sqt:definition}
-
-\end{frame}
-
-\begin{frame}{Orbits, Stabilisers and the Number of Arrangements}
+\begin{frame}{Relating quotient sets, Stabilisers and Configurations}
 \end{frame}
 
 \begin{frame}{Burnside's Lemma}
@@ -186,7 +190,6 @@
   How many bracelets can be made with 3 white and 3 black beads?
   ...(more frames)
 \end{frame}
-
 
 \begin{frame}{An Example}
   How many colorings of a graph with the colors \{red, green, blue\}
