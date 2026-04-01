@@ -70,6 +70,27 @@
 \end{frame}
 
 %--------------------------------------ADI
+\begin{frame}{When Counting Goes Wrong}
+  Sometimes we count the same object multiple times.
+
+  \textbf{Example:}
+  Circular arrangements
+
+  \begin{itemize}
+    \item Rotating a seating arrangement does not create a new arrangement
+  \end{itemize}
+
+  \textbf{Problem:}
+  \begin{itemize}
+    \item Our counting method overcounts
+  \end{itemize}
+
+  \textbf{Solution:}
+  \begin{itemize}
+    \item Group equivalent configurations together
+  \end{itemize}
+\end{frame}
+
 \section{Foundational Concepts}
 \begin{frame}{Equivalence Relation}
   \textcolor{sqt-question}{
@@ -93,6 +114,9 @@
     evaluates to $\mathrm{TRUE}$ if $x_1$ should be considered equivalent to $x_2$
     in the context of the counting problem.
   \end{sqt:definition}
+  \begin{itemize}
+    \item We define when two configurations should be considered "the same"
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Equivalence Class}
@@ -133,31 +157,37 @@
 \begin{frame}{Group Actions}
   \begin{sqt:definition}[Definition:A Group of Actions]
     A set of actions can be considered a group if it obeys the following\\
-    The set has to have the "do nothing" action (identity)\\
-    Composing any two actions must produce an action that is in the set(closure)\\
-    For an action in the set, there must also be the action that undoes it in the set(Inverse)\\
-    Composing actions must be associative. so from before $g_2 \circ (g_3 \circ g_1) = (g_2 \circ g_3) \circ g_1  $\\
+    \begin{itemize}
+      \item The set has to have the "do nothing" action (identity)\\
+      \item Composing any two actions must produce an action that is in the set(closure)\\
+      \item For an action in the set, there must also be the action that undoes it in the set(Inverse)\\
+      \item Composing actions must be associative. so from before $g_2 \circ (g_3 \circ g_1) = (g_2 \circ g_3) \circ g_1  $\\
+    \end{itemize}
+
   \end{sqt:definition}
 
 \end{frame}
 
 
 % script notes: In not all instances will we find the do nothing action the only action leaving things unchanged
-\begin{frame}{Stabiliser}
+\begin{frame}{Fix}
 
-  \begin{sqt:definition}[\textbf{Definition:} Stabiliser]
-    For $S$ the set of all configurations, A stabiliser of $x \in S$, under equivalence, is
-    the collection of actions that leaves the position $x$ unchanged.
+  \begin{sqt:definition}[\textbf{Definition:} Fix]
+    For $G$ the set of all group actions on $S$, A fix of an action $g \in G$, is
+    the set of all elements $s\inS$ that \textbf{remain unchanged} after g is applied.
   \end{sqt:definition}
+  This set of elements is denoted by $fix(g)$
+
   In our example the only action that leaves a configuration unchanged is the "do nothing" action.
-  
+
 
 \end{frame}
 
 \begin{frame}{Back to the Example}
   \textcolor{sqt-question}{
-    \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
+    \textbf{Example:} How many ways to arrange 3 people on a circular table?
   }
+
   We can systematically answer this example.
 
   In our configurations, what arrangements are considered equivalent with an "action"?\\
@@ -181,9 +211,25 @@
 \end{frame}
 
 \begin{frame}{Relating quotient sets, Stabilisers and Configurations}
+   Let $G$ be a group of actions on $X$
+
+  \textbf{Key idea:}
+  \begin{itemize}
+    \item Instead of counting configurations directly
+    \item Count how symmetries act on them
+  \end{itemize}
+
+  \textbf{Goal:}
+  \[|X / \sim| = \text{number of distinct configurations}\]
+
+  This leads to a powerful counting tool...
 \end{frame}
 
 \begin{frame}{Burnside's Lemma}
+  \begin{sqt:definition}[Definition: Burnside's Lemma]
+    The number of objects modulo equivalence is said to be\\
+    $$|G/\sim| = \frac{1}{|G|} \sum_{g \in G} |fix(g)|$$
+  \end{sqt:definition}
 \end{frame}
 
 \begin{frame}{An Example}
