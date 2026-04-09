@@ -1,19 +1,8 @@
-// 01_maybe_without_templates.cpp
-//
-// MOTIVATION: Why do we need templates?
-//
-// This file shows what happens when you need the same wrapper logic
-// for multiple unrelated types. Each maybe_T struct is nearly identical
-// — only the wrapped type differs. This violates DRY and becomes
-// unmaintainable as the number of types grows.
-//
-// Compile: g++ -std=c++17 -o 01 01_maybe_without_templates.cpp
-
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
-// --- maybe_int ---
+// --- Library Types ---
 
 struct maybe_int {
     bool has_value;
@@ -25,12 +14,10 @@ struct maybe_int {
     bool has() const { return has_value; }
 
     int get() const {
-        if (!has_value) throw std::runtime_error("maybe_int is empty");
+        if (!has_value) throw std::runtime_error("empty");
         return value;
     }
 };
-
-// --- maybe_string ---
 
 struct maybe_string {
     bool has_value;
@@ -42,12 +29,10 @@ struct maybe_string {
     bool has() const { return has_value; }
 
     std::string get() const {
-        if (!has_value) throw std::runtime_error("maybe_string is empty");
+        if (!has_value) throw std::runtime_error("empty");
         return value;
     }
 };
-
-// --- maybe_double ---
 
 struct maybe_double {
     bool has_value;
@@ -59,48 +44,47 @@ struct maybe_double {
     bool has() const { return has_value; }
 
     double get() const {
-        if (!has_value) throw std::runtime_error("maybe_double is empty");
+        if (!has_value) throw std::runtime_error("empty");
         return value;
     }
 };
 
-// Imagine also: maybe_connection, maybe_user, maybe_transaction, ...
-// Each one is copy-paste with a different type. If you want to add a
-// `value_or(default)` method, you have to add it to EVERY struct.
-
-// --- Usage ---
+// --- Database Query Functions ---
 
 maybe_int find_age(const std::string& name) {
     if (name == "Alice") return maybe_int(30);
     if (name == "Bob")   return maybe_int(25);
-    return maybe_int(); // empty
+    return maybe_int();
 }
 
 maybe_string find_email(const std::string& name) {
     if (name == "Alice") return maybe_string("alice@example.com");
-    return maybe_string(); // empty
+    return maybe_string();
 }
 
 maybe_double find_balance(const std::string& name) {
     if (name == "Alice") return maybe_double(1234.56);
-    return maybe_double(); // empty
+    return maybe_double();
 }
 
-int main() {
-    auto age   = find_age("Alice");
-    auto email = find_email("Alice");
-    auto bal   = find_balance("Bob");
+// --- Application Code ---
 
+int main() {
+    std::string input_name;
+    std::cin >> input_name;
+
+    // Fetch user data from database
+    maybe_int age = find_age(input_name);
+    maybe_string email = find_email(input_name);
+    maybe_double bal = find_balance(input_name);
+
+    // Print user data
     if (age.has())   std::cout << "Age:     " << age.get()   << "\n";
+    else             std::cout << "Age: not found\n";
+
     if (email.has()) std::cout << "Email:   " << email.get() << "\n";
+    else             std::cout << "Email: not found\n";
+
     if (bal.has())   std::cout << "Balance: " << bal.get()   << "\n";
     else             std::cout << "Balance: not found\n";
-
-    // Try accessing an empty maybe — this throws
-    try {
-        auto missing = find_email("Charlie");
-        std::cout << missing.get() << "\n";
-    } catch (const std::runtime_error& e) {
-        std::cout << "Caught: " << e.what() << "\n";
-    }
 }

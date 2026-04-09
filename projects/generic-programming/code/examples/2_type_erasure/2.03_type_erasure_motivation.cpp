@@ -11,6 +11,8 @@ int main() {
     std::cout << "Do you like deques more than lists?" << std::endl;
     bool likes_deques_more;
     std::cin >> likes_deques_more;
+
+    // COMPILE ERROR
     auto q = likes_deques_more
         ? new std::deque<int>{}
         : new std::list<int>{};
