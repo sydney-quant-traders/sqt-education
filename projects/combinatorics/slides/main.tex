@@ -224,112 +224,158 @@
 
 \begin{frame}{Burnside's Lemma}
   \begin{sqt:definition}[Definition: Burnside's Lemma]
-    The number of objects modulo equivalence is said to be\\
-    $$|S/\sim| = \frac{1}{|G|} \sum_{g \in G} |fix(g)|$$
+    The number of objects modulo equivalence is
+    \[
+      |S/\sim| = \frac{1}{|G|} \sum_{g \in G} |\operatorname{fix}(g)|.
+    \]
   \end{sqt:definition}
-  Therefore counting the number of seating arrangements from the last example we have,\\
-  $$|S/\sim| = \frac{6 + 0 + 0}{3} = 2$$
 
+  Therefore, for the seating arrangement example,
+  \[
+    |S/\sim| = \frac{6 + 0 + 0}{3} = 2.
+  \]
 \end{frame}
 
-
-\begin{frame}{Circular arrangements with repetition}
-  How many bracelets can be made with 3 white and 3 black beads?
+\begin{frame}{Circular Arrangements with Repetition}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many bracelets can be made using 3 white and 3 black beads?
+  }
 \end{frame}
 
-\begin{frame}{Circular arrangements with repetition}
-  We can start off by listing the following features of the problem
+\begin{frame}{Circular Arrangements with Repetition}
+  We begin by observing the key features of the problem:
   \begin{itemize}
-    \item In this example beads of the same color are considered the same.
-    \item Two configurations are the equal if they can be rotated into eachother.
-    \item Two configurations are also the equal if you can reflect them into eachother.
+    \item Beads of the same colour are considered identical.
+    \item Two configurations are considered the same if one can be obtained from the other by rotation.
+    \item Two configurations are also considered the same if one can be obtained from the other by reflection.
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Circular arrangements with repetition}
-  We can set up a decision strucutre to list our our total configurations.\\
-  This results in the following configuration.\\
+\begin{frame}{Circular Arrangements with Repetition}
+  We can first count all linear arrangements before accounting for symmetry.
 
-  %insert image of decision tree ( with ...s cuz there are so many)
+  \vspace{0.5em}
 
-  Finding the number of ways to arrange 3 black and white beads in a line we have
-  $\binom{6}{3} = 20$ such ways. However these do not account for our aforementioned equivalences.
+  The number of ways to arrange 3 black and 3 white beads in a line is
+  \[
+    \binom{6}{3} = 20.
+  \]
 
+  These 20 arrangements do not yet account for rotational and reflectional equivalence.
+
+  \vspace{0.5em}
+
+  % insert image of decision tree or representative linear arrangements
 \end{frame}
 
-\begin{frame}{Circular arrangements with repetition}
-  We have the following group actions under our equivelance.\\
-
-  we have rotations:
-  % 6 such rotations ( r_i)
-  we have diagonal reflections:
-  % 3 such reflections (rd_i)
-
-  we have edge reflections:
-  % 3 such reflections ( re_i)
-
-
-  Fun fact: this set of group actions is referred to as the dihedral group of order 6, $D_6$.\\
-
-\end{frame}
-
-\begin{frame}{Circular arrangements with repetition}
-  With the information established, we can use burnside's lemma.\\
-  We shall first observe the fixes of group actions involving rotations.\\
+\begin{frame}{Circular Arrangements with Repetition}
+  Under our notion of equivalence, the relevant group actions are:
   \begin{itemize}
-    \item $g_{60^{\circ}} and g_{300^{\circ}}$ rotate configurations by one left/right.The number of configs that remain\\
-    unchanged if this is applied \textbf{is zero.}\\
-
-    \item $g_{120^{\circ}} and g_{240^{\circ}}$ rotate configurations by 2 left/right.\\
-    This is fixed by confiugrations with alternating black and white beads, as they repeate at a pattern of every 3 beads.\\
-    of which there are \textbf{2 such configurations}. \\
-    %insert diagram of these two configurations
-
-    \item $g_{180^{\circ}}$  This rotates configurations by 3. For the config to be the same after rotating by 3, this means\\
-    repeating pattern of 3 beads must be in place. This is not possible as 3 black and 3 white beads must exist in the \\
-    necklace. Therefore \textbf{no configurations exist}.\\
-
-    item $g_{0^{\circ}}$  This leaves configurations unchanged. the configurations that remain the same once this is applied\\
-    are all of them. Therefore \textbf{20 configurations exist}
-
+    \item rotations,
+    \item diagonal reflections,
+    \item edge reflections.
   \end{itemize}
 
+  \vspace{0.5em}
 
+  Altogether these form the dihedral group on 6 vertices, denoted by $D_6$.
 
+  \vspace{0.5em}
+
+  Since a hexagon has 6 rotations and 6 reflections, we have
+  \[
+    |D_6| = 12.
+  \]
 \end{frame}
 
-\begin{frame}{Circular arrangements with repetition}
-  Observing the fixes of group actions involving diagonal reflections.\\
-  here are some examples of configurations that are unchanged under reflection.\\
-  In each reflection, $rd_i$, the configurations that stay the same must have the same beads across the reflecting line.\\
-  The only way to ensure this is if we chose our bipodal nodes to be different so black and white,\\
-  of which there are two ways.\\
+\begin{frame}{Circular Arrangements with Repetition}
+  We now apply Burnside's Lemma by counting the fixed configurations of each symmetry.
 
-  we also must arrange the reamaining two nodes along the side, of which there are 2 ways.\\
+  \vspace{0.5em}
 
-  Therefore for each reflection there are $2 \times 2 = 4$ such configurations that remain unchanged under it.\\
+  First consider the rotations:
+  \begin{itemize}
+    \item $g_{60^\circ}$ and $g_{300^\circ}$ rotate the bracelet by one position.
+    No configuration remains unchanged, so each contributes \textbf{0} fixed configurations.
 
-  therefore $fix(rd_i) = 4$.
+    \item $g_{120^\circ}$ and $g_{240^\circ}$ rotate by two positions.
+    These fix exactly the alternating patterns, so each contributes \textbf{2} fixed configurations.
 
+    \item $g_{180^\circ}$ rotates by three positions.
+    For a configuration to remain unchanged, opposite beads must match, which would force an even number of each colour in opposite pairs. This is impossible with 3 black and 3 white beads, so this contributes \textbf{0}.
 
+    \item $g_{0^\circ}$ is the identity.
+    It fixes all configurations, so it contributes \textbf{20}.
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Circular arrangements with repetition}
-  Observing the fixes of group actions involving edge reflections.\\
-  For a reflection to be unchanging it must have the same arrangement of black and white beads across the reflecting line.\\
-  by parity since there are an odd number of pairs we cannot have any arrangements that satisfy this.\\
-  therefore $fix(re_i) = 0$
+\begin{frame}{Circular Arrangements with Repetition}
+  Now consider the diagonal reflections.
+
+  \vspace{0.5em}
+
+  For a configuration to remain unchanged under a diagonal reflection, corresponding beads on either side of the reflection axis must match.
+
+  \vspace{0.5em}
+
+  In such a reflection:
+  \begin{itemize}
+    \item the two beads lying on the axis can be chosen as one black and one white in 2 ways,
+    \item the remaining four beads are arranged in symmetric pairs,
+    \item choosing the colour of one pair determines its reflected partner, giving 2 possibilities.
+  \end{itemize}
+
+  Hence each diagonal reflection fixes
+  \[
+    2 \times 2 = 4
+  \]
+  configurations.
+
+  Therefore,
+  \[
+    |\operatorname{fix}(r_d)| = 4
+  \]
+  for each diagonal reflection.
 \end{frame}
 
-\begin{frame}{Circular arrangements with repetition}
-  Now applying burnsides lemma finally we see that,\\
+\begin{frame}{Circular Arrangements with Repetition}
+  Finally, consider the edge reflections.
 
-  $$|G/\sim| = frac{1}{|G|} \sigma_{g\in G} fix(g) $$
+  \vspace{0.5em}
 
-  $$|G/\sim| = \frac{0+2+2+0+20+4+4+4+0+0+0}{12} =  3$$.
+  For a configuration to remain unchanged under an edge reflection, every bead must be paired with an identical reflected bead.
 
-  There are \textbf{only 3 possible} configurations. under rotation, reflection and bead repetition.
+  \vspace{0.5em}
 
+  But this would require each colour to occur an even number of times, which is impossible since we have 3 black and 3 white beads.
+
+  \vspace{0.5em}
+
+  Therefore each edge reflection fixes no configurations:
+  \[
+    |\operatorname{fix}(r_e)| = 0.
+  \]
+\end{frame}
+
+\begin{frame}{Circular Arrangements with Repetition}
+  Applying Burnside's Lemma,
+  \[
+    |S/\sim|
+    =
+    \frac{1}{|G|}
+    \sum_{g \in G} |\operatorname{fix}(g)|.
+  \]
+
+  Substituting the values,
+  \[
+    |S/\sim|
+    =
+    \frac{20 + 2 + 2 + 0 + 0 + 0 + 4 + 4 + 4 + 0 + 0 + 0}{12}
+    = \frac{36}{12}
+    = 3.
+  \]
+
+  Hence there are \textbf{3 distinct bracelets} up to rotation, reflection, and repetition of bead colours.
 \end{frame}
 
 %\begin{frame}{An Example}
@@ -339,9 +385,9 @@
 %  ...
 %\end{frame}
 
-\section{ Practical Techniques}
+\section{ PIE}
 
-\begin{frame}{The Inclusion Exclusion Principle}
+\begin{frame}{The Principle of Inclusion-Exclusion}
   The principle of inclusion--exclusion is used when a direct count \textbf{overcounts}
   because some configurations violate one or more constraints.
 
@@ -597,34 +643,572 @@
     \boxed{1}.
   \]
 \end{frame}
+%%
+\begin{frame}{What is a Derangement?}
+  \begin{sqt:definition}[\textbf{Definition:} Derangement]
+    A derangement is a permutation in which \textbf{no element appears in its original position}.
+  \end{sqt:definition}
 
+  \vspace{0.5em}
+
+  \textbf{Example:}
+  \begin{itemize}
+    \item Suppose we permute $(1,2,3)$
+    \item A derangement would be $(2,3,1)$ or $(3,1,2)$
+    \item $(1,3,2)$ is \textbf{not} a derangement since $1$ stays fixed
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Key idea:}
+  \begin{itemize}
+    \item We want permutations with \textbf{no fixed points}
+    \item These are counted using the Inclusion--Exclusion Principle
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Derangement Problem}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    An administrator writes $n$ personalised letters and prepares $n$ matching envelopes.
+  }
+
+  \vspace{0.5em}
+
+  The letters are placed randomly into the envelopes.
+
+  \vspace{0.5em}
+
+  \textbf{Question:}
+  How many ways can the administrator stuff the letters so that \textbf{no employee receives their own letter}?
+\end{frame}
+
+\begin{frame}{Step 1: Total Permutations}
+  First ignore the restriction.
+
+  \vspace{0.5em}
+
+  The number of ways to assign $n$ letters to $n$ envelopes is
+  \[
+    n!
+  \]
+
+  \vspace{0.5em}
+
+  This counts all permutations, including those where some letters are correctly placed.
+
+  \vspace{0.5em}
+
+  Our goal is to remove all permutations with \textbf{at least one fixed point}.
+\end{frame}
+
+\begin{frame}{Step 2: Define the Bad Sets}
+  For each employee $i$, define
+  \[
+    A_i = \{\text{letter $i$ is placed in the correct envelope}\}.
+  \]
+
+  \vspace{0.5em}
+
+  Then we want to count permutations outside
+  \[
+    A_1 \cup A_2 \cup \cdots \cup A_n.
+  \]
+
+  \vspace{0.5em}
+
+  So the number of derangements is
+  \[
+    n! - |A_1 \cup A_2 \cup \cdots \cup A_n|.
+  \]
+\end{frame}
+
+\begin{frame}{Step 3: Count Single Fixes}
+  Suppose exactly one letter is fixed.
+
+  \vspace{0.5em}
+
+  Fix letter $i$. Then we permute the remaining $n-1$ letters freely.
+
+  \[
+    |A_i| = (n-1)!
+  \]
+
+  \vspace{0.5em}
+
+  There are $n$ such sets, so
+  \[
+    \sum |A_i| = n (n-1)!
+  \]
+\end{frame}
+
+\begin{frame}{Step 4: Count Multiple Fixes}
+  Now consider intersections.
+
+  \vspace{0.5em}
+
+  If $k$ specific letters are fixed, then we permute the remaining $n-k$ letters:
+  \[
+    |A_{i_1} \cap \cdots \cap A_{i_k}| = (n-k)!
+  \]
+
+  \vspace{0.5em}
+
+  There are $\binom{n}{k}$ ways to choose which $k$ letters are fixed.
+
+  \vspace{0.5em}
+
+  So the total contribution is
+  \[
+    \binom{n}{k} (n-k)!
+  \]
+\end{frame}
+
+\begin{frame}{Step 5: Apply Inclusion--Exclusion}
+  Using inclusion--exclusion,
+  \[
+    D_n
+    =
+    n!
+    - \binom{n}{1}(n-1)!
+    + \binom{n}{2}(n-2)!
+    - \cdots
+    + (-1)^n \binom{n}{n}(0)!
+  \]
+
+  \vspace{0.5em}
+
+  This simplifies to
+  \[
+    D_n
+    =
+    n! \sum_{k=0}^{n} \frac{(-1)^k}{k!}
+  \]
+\end{frame}
+
+\begin{frame}{Final Answer and Insight}
+  The number of derangements of $n$ objects is
+  \[
+    D_n = n! \sum_{k=0}^{n} \frac{(-1)^k}{k!}.
+  \]
+
+  \vspace{0.5em}
+
+  \textbf{Key insight:}
+  \begin{itemize}
+    \item Derangements arise naturally from \textbf{avoiding fixed points}
+    \item Inclusion--exclusion systematically removes overcounting
+    \item For large $n$,
+    \[
+      D_n \approx \frac{n!}{e}
+    \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Exactly \(k\) Correct Tests}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    A teacher has graded the tests of \(n\) students and wants to hand them back.
+  }
+
+  \vspace{0.5em}
+
+  In how many different ways can the teacher return the tests such that
+  \begin{itemize}
+    \item exactly \(k\) students receive their own correct test, and
+    \item the remaining \(n-k\) students receive someone else's test?
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Step 1: Choose the Fixed Points}
+  We want \textbf{exactly \(k\)} students to get their own test back.
+
+  \vspace{0.5em}
+
+  First choose which \(k\) students these are.
+
+  \[
+    \binom{n}{k}
+  \]
+
+  ways.
+
+  \vspace{0.5em}
+
+  Once these \(k\) students are chosen, their tests are fixed in place.
+\end{frame}
+
+\begin{frame}{Step 2: Derange the Remaining Tests}
+  After fixing those \(k\) students, there are \(n-k\) students left.
+
+  \vspace{0.5em}
+
+  None of these remaining students are allowed to receive their own test.
+
+  \vspace{0.5em}
+
+  So we must count a \textbf{derangement} of the remaining \(n-k\) tests.
+
+  \[
+    D_{n-k}
+  \]
+
+  ways.
+
+  \vspace{0.5em}
+
+  Recall:
+  \[
+    D_m = m!\sum_{i=0}^{m}\frac{(-1)^i}{i!}.
+  \]
+\end{frame}
+
+\begin{frame}{Final Count}
+  By the multiplication principle,
+
+  \[
+    \text{number of ways}
+    =
+    \binom{n}{k} D_{n-k}.
+  \]
+
+  \vspace{0.8em}
+
+  So the number of ways to return the tests so that
+  \textbf{exactly \(k\) students} get the correct test is
+
+  \[
+    \boxed{\binom{n}{k}D_{n-k}}.
+  \]
+
+  \vspace{0.8em}
+
+  \textbf{Interpretation:}
+  \begin{itemize}
+    \item choose who is correct,
+    \item derange everyone else.
+  \end{itemize}
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Derangements}
-  The basic format of a derangement question involves
-\end{frame}
 
-\begin{frame}{Double counting}
-  Framing a problem in two different ways to prove an equality
-\end{frame}
+\section{Double Counting}
 
+\begin{frame}{Double Counting}
+  \begin{sqt:definition}[\textbf{Definition:} Double Counting]
+    Double counting is the technique of counting the same set of objects in \textbf{two different ways} to obtain an equality.
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \textbf{Core idea:}
+  \begin{itemize}
+    \item Identify a quantity that can be counted in two perspectives
+    \item Equate the two expressions
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Common pattern:}
+  \begin{itemize}
+    \item Count by \textbf{objects}
+    \item Count by \textbf{features / contributions}
+  \end{itemize}
+\end{frame}
 
 \begin{frame}{The Handshaking Lemma}
-  at a party with 11 people every person claims they shook hands with exactly 5 other people, is this possible?
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    At a party with 11 people, each person claims they shook hands with exactly 5 others.
+  }
 
+  \vspace{0.5em}
+
+  \textbf{Question:} Is this possible?
 \end{frame}
 
-\begin{frame}{Commitee selection}
-  count number of ways to form a committee of any size from n people where 1 person is designated as the chariperson
+\begin{frame}{The Handshaking Lemma}
+  Let us count the total number of handshakes in two ways.
+
+  \vspace{0.5em}
+
+  \textbf{Method 1: Sum of degrees}
+
+  Each of the 11 people shakes hands with 5 others:
+  \[
+    \text{total handshakes counted} = 11 \cdot 5 = 55
+  \]
+
+  \vspace{0.5em}
+
+  \textbf{Method 2: Count each handshake once}
+
+  Each handshake involves \textbf{two people}, so:
+  \[
+    \text{total handshakes} = \frac{55}{2}
+  \]
+
+  \vspace{0.5em}
+
+  This is not an integer $\Rightarrow$ \textbf{impossible}.
 \end{frame}
+
+\begin{frame}{Handshaking Lemma (General Form)}
+  In any graph,
+  \[
+    \sum_{v \in V} \deg(v) = 2|E|.
+  \]
+
+  \vspace{0.5em}
+
+  \textbf{Interpretation:}
+  \begin{itemize}
+    \item LHS: count edges by summing degrees
+    \item RHS: each edge contributes exactly 2
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Consequence:}
+  \begin{itemize}
+    \item The sum of degrees is always even
+    \item Therefore, an odd total (like 55) is impossible
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Committee Selection}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    Count the number of ways to form a committee of any size from \(n\) people,
+    where one member is designated as the chairperson.
+  }
+\end{frame}
+
+\begin{frame}{Committee Selection: Method 1}
+  \textbf{Method 1: Choose chair first}
+
+  \vspace{0.5em}
+
+  \begin{itemize}
+    \item Choose the chairperson: \(n\) ways
+    \item For the remaining \(n-1\) people:
+    \begin{itemize}
+      \item each person either joins or not
+    \end{itemize}
+  \end{itemize}
+
+  \[
+    \Rightarrow 2^{n-1} \text{ choices}
+  \]
+
+  \vspace{0.5em}
+
+  Total:
+  \[
+    n \cdot 2^{n-1}
+  \]
+\end{frame}
+
+\begin{frame}{Committee Selection: Method 2}
+  \textbf{Method 2: Choose committee first}
+
+  \vspace{0.5em}
+
+  \begin{itemize}
+    \item Choose a committee of size \(k\): \(\binom{n}{k}\)
+    \item Choose a chair from that committee: \(k\) ways
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  Summing over all possible sizes:
+  \[
+    \sum_{k=0}^{n} \binom{n}{k} k
+  \]
+\end{frame}
+
+\begin{frame}{Equating the Two Counts}
+  Both methods count the same quantity.
+
+  \vspace{0.5em}
+
+  Therefore,
+  \[
+    \sum_{k=0}^{n} \binom{n}{k} k = n \cdot 2^{n-1}.
+  \]
+
+  \vspace{0.8em}
+
+  \textbf{Key takeaway:}
+  \begin{itemize}
+    \item Double counting turns a combinatorial argument into an identity
+    \item This is a powerful technique for proofs and simplifications
+  \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Bijections}
 
 \begin{frame}{Bijections}
-  what is a bijection?
+  \begin{sqt:definition}[\textbf{Definition:} Bijection]
+    A bijection is a one-to-one correspondence between two sets,
+    meaning every element in one set matches with exactly one element in the other.
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \textbf{Key idea:}
+  \begin{itemize}
+    \item If there exists a bijection between sets \(A\) and \(B\),
+    then
+    \[
+      |A| = |B|.
+    \]
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Strategy:}
+  \begin{itemize}
+    \item Instead of counting a complicated set directly,
+    \item map it to a simpler set we already know how to count.
+  \end{itemize}
 \end{frame}
 
-\begin{frame}{Path counting}
-  Here we discuss an example with a grid walk from bottom leeft to top right st graph below line.
+\begin{frame}{Bijections in Counting}
+  Bijections allow us to \textbf{reframe problems}.
+
+  \vspace{0.5em}
+
+  \textbf{Typical approach:}
+  \begin{itemize}
+    \item Identify a set of complicated objects
+    \item Find a way to encode them as simpler objects
+    \item Count the simpler objects instead
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Common targets:}
+  \begin{itemize}
+    \item Binary strings
+    \item Sequences of moves
+    \item Subsets
+  \end{itemize}
 \end{frame}
 
+\begin{frame}{Path Counting}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    How many paths are there from the bottom-left corner to the top-right corner
+    of a grid, moving only right or up?
+  }
+
+  \vspace{0.5em}
+
+  Additionally, paths must stay \textbf{below the diagonal}.
+\end{frame}
+
+\begin{frame}{Encoding Paths}
+  Each path consists of:
+  \begin{itemize}
+    \item \(R\): move right
+    \item \(U\): move up
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  A path from \((0,0)\) to \((n,n)\) consists of:
+  \[
+    n \text{ rights and } n \text{ ups}.
+  \]
+
+  \vspace{0.5em}
+
+  So each path corresponds to a sequence of length \(2n\) with:
+  \[
+    n \text{ R's and } n \text{ U's}.
+  \]
+
+  \vspace{0.5em}
+
+  Total number of such sequences:
+  \[
+    \binom{2n}{n}.
+  \]
+\end{frame}
+
+\begin{frame}{Applying the Constraint}
+  We now impose the constraint: stay \textbf{below the diagonal}.
+
+  \vspace{0.5em}
+
+  This means at every point:
+  \[
+    \#U \le \#R.
+  \]
+
+  \vspace{0.5em}
+
+  So valid paths correspond to sequences where
+  the number of up moves never exceeds the number of right moves.
+
+  \vspace{0.5em}
+
+  These are known as \textbf{Dyck paths}.
+\end{frame}
+
+\begin{frame}{Using a Bijection}
+  We count valid paths by relating them to all paths.
+
+  \vspace{0.5em}
+
+  \textbf{Idea:}
+  \begin{itemize}
+    \item Count all paths: \(\binom{2n}{n}\)
+    \item Subtract invalid paths (those crossing the diagonal)
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  There exists a bijection between:
+  \begin{itemize}
+    \item paths that cross the diagonal
+    \item paths from \((0,0)\) to \((n-1,n+1)\)
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  Number of such paths:
+  \[
+    \binom{2n}{n+1}.
+  \]
+\end{frame}
+
+\begin{frame}{Final Answer}
+  Therefore, the number of valid paths is
+  \[
+    \binom{2n}{n} - \binom{2n}{n+1}.
+  \]
+
+  \vspace{0.5em}
+
+  This simplifies to
+  \[
+    \frac{1}{n+1}\binom{2n}{n}.
+  \]
+
+  \vspace{0.8em}
+
+  \textbf{This is the \(n\)-th Catalan number.}
+
+  \vspace{0.5em}
+
+  \textbf{Key takeaway:}
+  \begin{itemize}
+    \item Bijections allow us to transform constraints into countable structures
+    \item Many complex problems reduce to known combinatorial objects
+  \end{itemize}
+\end{frame}
 %------------------------------JED
 
 \begin{frame}{Recursion}
