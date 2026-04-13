@@ -26,6 +26,7 @@ struct double_inserter : public processor {
 
 void process_vector(std::vector<int> nums, processor *p) {
     for (auto e : nums) {
+        // dynamic dispatch
         p->process(e);
     }
 }
@@ -41,12 +42,17 @@ int main() {
 
     // print all elements of src
     process_vector(src, &p);
+    // static dispatch
+    p.process(6);
     std::cout << "\n";
 
     // insert all elements of src twice into dst
     process_vector(src, &d);
+    // static dispatch
+    d.process(7);
     for (auto e : dst) {
         std::cout << e << " ";
     }
     std::cout << "\n";
+
 }

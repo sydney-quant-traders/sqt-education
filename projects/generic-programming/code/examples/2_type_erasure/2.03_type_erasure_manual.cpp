@@ -3,6 +3,8 @@
 #include <list>
 #include <deque>
 
+// --- Polymorphic Wrappers ---
+
 class base {
 public:
     virtual void push_back(int val) = 0;
@@ -47,6 +49,8 @@ public:
 private: 
     std::deque<int> elems_;
 };
+
+// --- Application Code ---
 
 int main() {
     std::cout << "Do you like deques more than lists?" << std::endl;

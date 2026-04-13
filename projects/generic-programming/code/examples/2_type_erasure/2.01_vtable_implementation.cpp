@@ -67,7 +67,7 @@ struct double_inserter {
 
 void process_vector(std::vector<int> nums, processor *p) {
     for (auto e : nums) {
-        // Call site of a virtual function
+        // dynamic dispatch
         p->_virtual_process(e);
     }
 }
@@ -83,14 +83,19 @@ int main() {
 
     // print all elements of src
     process_vector(src, reinterpret_cast<processor *>(&p));
+    // static dispatch
+    p.process(6);
     std::cout << "\n";
 
     // insert all elements of src twice into dst
     process_vector(src, reinterpret_cast<processor *>(&d));
+    // static dispatch
+    d.process(7);
     for (auto e : dst) {
         std::cout << e << " ";
     }
     std::cout << "\n";
+
 }
 
 // --- Global vtable instances ---
