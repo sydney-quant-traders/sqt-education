@@ -1,8 +1,3 @@
-
-// here we introduce move and copy constructors
-// move SEMANTICS
-// you can write
-
 /*
 There are a bunch of CONVENTIONS to follow when implementing a class.
 The compiler enforces none of this.
