@@ -174,7 +174,7 @@ private:
     free_header *free_;
 };
 
-// --- Polymorphic Allocator (concrete value type) ---
+// --- Polymorphic Allocator (relies on type erased memory resource) ---
 
 template <typename T>
 class polymorphic_allocator {
