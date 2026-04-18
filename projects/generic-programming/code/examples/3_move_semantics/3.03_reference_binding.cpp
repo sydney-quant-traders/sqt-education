@@ -1,7 +1,6 @@
 #include <iostream>
 #include <utility>
 
-
 struct intbox {
     intbox(int x) : data_{new int(x)} {
         std::cout << "constructor" << std::endl;
@@ -28,16 +27,14 @@ struct intbox {
     int *data_;
 };
 
-// remember to disable NVRO using -fno-elide-constructors
 intbox get_three() {
     // construct `a` in this stack frame
     intbox a{3};
-    // move construct `a` into the return slot
+    // move construct `a` into the return slot (provided NVRO is disabled)
     return a;
 }
 
 int main() {
-    // extending lifetimes
     {
         std::cout << "Demonstration: extending lifetimes" << std::endl;
 
@@ -52,13 +49,17 @@ int main() {
         // const lvalue references can bind and extend lifetimes of temporaries
         const intbox& lref = get_three();
         std::cout << "Const lvalue reference binds to temporary!" << std::endl;
+
+        // we have seen this in previous examples
+        // there is no temporary, the return slot is simply set as the storage of a
+        intbox x = get_three();
     }
 
     {
         // tell the compiler we want to extend the lifetime of this temporary until the end of this scope
         intbox&& rref = get_three();
 
-        // we can treat the temporary as a normal variable
+        // play around with the temporary
         std::cout << rref.get() << std::endl;
         rref.get() *= 10;
         std::cout << rref.get() << std::endl;
@@ -67,9 +68,8 @@ int main() {
     {
         std::cout << "UNDEFINED BEHAVIOR" << std::endl;
         auto& data = get_three().get(); 
-        // temporary is destroyed after this expression, leaving a dangling reference
 
-        std::cout << "now attempting to access data" << std::endl;
+        // temporary is destroyed after this expression, leaving a dangling reference
         std::cout << data << std::endl;
     }
 

@@ -28,7 +28,6 @@ struct intbox {
         std::cout << "destructor" << std::endl;
     }
 
-    // these functions obey move and ownership semantics
     intbox(const intbox& other) : data_{new int(*(other.data_))} {
         std::cout << "copy constructor" << std::endl;
     };
