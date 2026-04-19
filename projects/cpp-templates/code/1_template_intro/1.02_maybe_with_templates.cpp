@@ -6,17 +6,17 @@
 
 template <typename T>
 struct maybe {
-    bool has_value;
-    T value;
+    bool has_value_;
+    T value_;
 
-    maybe() : has_value(false), value{} {}
-    maybe(T v) : has_value(true), value(v) {}
+    maybe() : has_value_(false), value_{} {}
+    maybe(T v) : has_value_(true), value_(v) {}
 
-    bool has() const { return has_value; }
+    bool has() const { return has_value_; }
 
     const T& get() const {
-        if (!has_value) throw std::runtime_error("maybe is empty");
-        return value;
+        if (!has_value_) throw std::runtime_error("maybe is empty");
+        return value_;
     }
 };
 

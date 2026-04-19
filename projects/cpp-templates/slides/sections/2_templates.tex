@@ -1,0 +1,41 @@
+\section{Templates}
+
+\begin{frame}[fragile]{Maybe - Manual Solution}
+  \begin{minted}{cpp}
+    /* 1.01 */
+    struct maybe_int {
+        bool has_value_; int value_;
+
+        maybe_int() : has_value_(false), value_{} {}
+        maybe_int(int v) : has_value_(true), value_(v) {}
+
+        bool has() const { return has_value_; }
+        int get() const {
+            if (!has_value_) throw std::runtime_error("empty");
+            return value_;
+        }
+    };
+  \end{minted}
+
+  \begin{itemize}
+    \item ``Database Query Functions'' mock out some database logic.
+    \item Notice that there is a lot of repeated code.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Maybe - Templated Solution}
+  \begin{sqt:result}
+    We can generate the exact same code
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    /* 1.02 */
+    template <typename T>
+    struct maybe {
+        bool has_value_; T value_;
+        /* ... */
+    };
+  \end{minted}
+
+  Verify this with \verb|cppinsights.io|.
+\end{frame}

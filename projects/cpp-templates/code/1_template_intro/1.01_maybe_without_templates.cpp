@@ -5,47 +5,47 @@
 // --- Library Types ---
 
 struct maybe_int {
-    bool has_value;
-    int value;
+    bool has_value_;
+    int value_;
 
-    maybe_int() : has_value(false), value{} {}
-    maybe_int(int v) : has_value(true), value(v) {}
+    maybe_int() : has_value_(false), value_{} {}
+    maybe_int(int v) : has_value_(true), value_(v) {}
 
-    bool has() const { return has_value; }
+    bool has() const { return has_value_; }
 
     int get() const {
-        if (!has_value) throw std::runtime_error("empty");
-        return value;
+        if (!has_value_) throw std::runtime_error("empty");
+        return value_;
     }
 };
 
 struct maybe_string {
-    bool has_value;
-    std::string value;
+    bool has_value_;
+    std::string value_;
 
-    maybe_string() : has_value(false), value{} {}
-    maybe_string(std::string v) : has_value(true), value(std::move(v)) {}
+    maybe_string() : has_value_(false), value_{} {}
+    maybe_string(std::string v) : has_value_(true), value_(std::move(v)) {}
 
-    bool has() const { return has_value; }
+    bool has() const { return has_value_; }
 
     std::string get() const {
-        if (!has_value) throw std::runtime_error("empty");
-        return value;
+        if (!has_value_) throw std::runtime_error("empty");
+        return value_;
     }
 };
 
 struct maybe_double {
-    bool has_value;
-    double value;
+    bool has_value_;
+    double value_;
 
-    maybe_double() : has_value(false), value{} {}
-    maybe_double(double v) : has_value(true), value(v) {}
+    maybe_double() : has_value_(false), value_{} {}
+    maybe_double(double v) : has_value_(true), value_(v) {}
 
-    bool has() const { return has_value; }
+    bool has() const { return has_value_; }
 
     double get() const {
-        if (!has_value) throw std::runtime_error("empty");
-        return value;
+        if (!has_value_) throw std::runtime_error("empty");
+        return value_;
     }
 };
 

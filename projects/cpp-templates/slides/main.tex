@@ -1,69 +1,17 @@
 \input{style/sqtbeamer.tex}
 
-\title{Is it a Duck?}
-\subtitle{Intro to C++ Templates \& Type Erasure}
-\institute{Sydney Quant Traders}
+\title{C++ Templates}
+\subtitle{Programming Workshop}
+\institute{Sydney Quant Traders + SYNCS}
 \date{}
 
 \begin{document}
-
 \maketitle
-
-\section{Templates}
-
-\begin{frame}[fragile]{Motivation}
-  Here is a function that returns either a valid value, or an empty.
-
-
-  \begin{minted}{cpp}
-    struct maybe_int {
-        maybe_int(int val) : val_{val} has_{true} {}
-        maybe_int() : has_{false} {}
-        bool has() const {return has_;}
-        bool get() const {return has_ ? val_ : throw ex();}
-
-        int val_;
-        bool has_;
-    };
-
-    maybe_int database_version() {
-        if (DB.connected()) return maybe_int(DB.get_version());
-        else return maybe_int();
-    }
-  \end{minted}
-\end{frame}
-
-\section{Inheritance}
-\begin{frame}[fragile]{Inheritance}
-  \begin{sqt:definition}[\textbf{Definition:} Inheritance]
-    A class (e.g. \verb|ClassA|) can inherit from another class (e.g. \verb|ClassB|).\\
-    This means that \verb|ClassA| has all the members and methods of \verb|ClassB|,\\
-    as well as any additional members and methods defined in \verb|ClassA|.\\
-    Methods in \verb|ClassA| can also override methods in \verb|ClassB|.
-  \end{sqt:definition}
-
-  Suppose that class \verb|Base| exists.
-  To define a class \verb|Derived| that inherits from \verb|Base|:
-  \begin{itemize}
-    \item The first member variable of \verb|Derived| must be an instance of \verb|Base|
-    \item The constructor of \verb|Derived| must first call the constructor of \verb|Base|
-    \item The destructor of \verb|Derived| must lastly call the destructor of \verb|Base|
-  \end{itemize}
-\end{frame}
-
-\section{Polymorphism}
-
-\section{Resources}
-\begin{frame}[fragile]{What's Next?}
-  We have only covered some practical use cases.
-  To go deeper:
-  \begin{itemize}
-    \item The compilation / overload resolution process / substitution vs instantiation
-    \item Template specialization
-    \item Type traits
-    \item Using SFINAE to enforce concept requirements
-    \item Using C++20 concepts to enforce concept requirements
-    \item constexpr, consteval, constidk
-  \end{itemize}
-\end{frame}
+\input{sections/1_intro.tex}
+\input{sections/2_templates.tex}
+\input{sections/3_dynamic_dispatch.tex}
+\input{sections/4_type_erasure.tex}
+\input{sections/5_move_semantics.tex}
+\input{sections/6_variadic_templates.tex}
+\input{sections/7_conclusion.tex}
 \end{document}
