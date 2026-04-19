@@ -74,6 +74,12 @@ public: // modifiers
         size_++;
     }
 
+    void emplace_back() requires std::is_default_constructible_v<T> {
+        assert(size_ < Capacity);
+        new (data_ + size_) T();
+        size_++;
+    }
+
     template <typename F1>
     void emplace_back(F1&& arg1) {
         assert(size_ < Capacity);
