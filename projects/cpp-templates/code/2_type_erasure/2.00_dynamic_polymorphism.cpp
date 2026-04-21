@@ -24,7 +24,7 @@ struct double_inserter : public processor {
 
 // --- Code that depends on Base class ---
 
-void process_vector(std::vector<int> nums, processor *p) {
+void process_vector(const std::vector<int>& nums, processor *p) {
     for (auto e : nums) {
         // dynamic dispatch
         p->process(e);
