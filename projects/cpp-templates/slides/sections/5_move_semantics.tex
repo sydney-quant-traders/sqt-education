@@ -1,5 +1,20 @@
 \section{Move Semantics}
 
-\begin{frame}[fragile]{Constructors Revision}
-  Stuff
+% TODO: finish slide
+\begin{frame}[fragile]{Object Model Revision}
+  \begin{itemize}
+    \item C++ deals entirely with objects.
+    \item Objects can be constructed in storage (their lifetime begins).
+    \item Objects can be destroyed (their lifetime ends).
+  \end{itemize}
+
+  Automatic storage duration (stack allocated objects)
+  \begin{itemize}
+    \item Storage is allocated at compile time (we know where it will be constructed)
+    \item Lifetime begins when the constructor runs.
+    \item Have a lifetime known at compile-time (end of scope)
+    \item Compiler generates calls to destructors at scope ends.
+  \end{itemize}
 \end{frame}
+
+% TODO: put Krish's slides in here

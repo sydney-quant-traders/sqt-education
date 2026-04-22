@@ -10,6 +10,7 @@ public:
     virtual void push_back(int val) = 0;
     virtual void pop_front() = 0;
     virtual int front() = 0;
+    virtual ~base();
 };
 
 // wrapper around a list
@@ -66,4 +67,6 @@ int main() {
     q->push_back(67);
     auto x = q->front();
     q->pop_front();
+
+    delete q;
 }

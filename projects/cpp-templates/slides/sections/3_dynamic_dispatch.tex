@@ -1,7 +1,27 @@
 \section{Dynamic Dispatch}
 
+% TODO: replace with Jackson's slides
+
 \begin{frame}[fragile]{Vtable Dispatch}
-  \begin{sqt:definition}[\textbf{Definition:} Inheritance]
-    Stuff
-  \end{sqt:definition}
+  These terms are interchangeable in C++:
+  \begin{itemize}
+    \item subtype polymorphism
+    \item dynamic/runtime polymorphism
+    \item dynamic/runtime dispatch
+  \end{itemize}
+
+  This is when 
+  \begin{itemize}
+    \item you refer to a \emph{derived class instance} via a \emph{base class pointer}
+    \item invoking a method through this pointer should invoke the \emph{derived class's methods}
+  \end{itemize}
+
+  \begin{sqt:result}
+    Virtual table (vtable) dispatch is how C++ implements subtype polymorphism.
+  \end{sqt:result}
 \end{frame}
+
+\begin{frame}{Vtable Dispatch}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/vtable.drawio.svg}
+\end{frame}
+

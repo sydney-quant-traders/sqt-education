@@ -21,4 +21,6 @@ int main() {
     q->push_back(67);
     auto x = q->front();
     q->pop_front();
+
+    delete q;
 }

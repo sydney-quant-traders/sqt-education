@@ -1,5 +1,40 @@
 \section{Type Erasure}
 
-\begin{frame}[fragile]{Motivation}
-  Stuff
+\newcommand{\stdlist}{\mintinline{cpp}{std::list}}
+\newcommand{\stddeque}{\mintinline{cpp}{std::deque}}
+\newcommand{\base}{\mintinline{cpp}{base}}
+
+% TODO: replace with Jackson's slides
+
+\begin{frame}{List vs Deque Motivation}
+  \begin{itemize}
+    \item \stdlist and \stddeque have the methods
+    \item Depending on a runtime condition, we want to change the implementation of our app to use one or the other.
+  \end{itemize}
+
+  In an idea world, \stdlist and \stddeque inherit\\
+  from some shared base class \base.
+
+  See code example
+\end{frame}
+
+\begin{frame}{Ideal World}
+  \begin{sqt:tip}
+    In the ideal world, both 
+  \end{sqt:tip}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/inheritance_list_deque.drawio.svg}
+\end{frame}
+
+\begin{frame}{Wrappers}
+  However, in reality, \stdlist and \stddeque do NOT inherit from anything.
+  There is no way to obtain a base class pointer that can point to both a list and deque.
+  The solution is to wrap them with classes that DO shared a base class.
+\end{frame}
+
+\begin{frame}{Manual Type Erasure Solution}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/type_erasure_manual.drawio.svg}
+\end{frame}
+
+\begin{frame}{Templated Type Erasure Solution}
+  Basically the same code is generated. Verify with cpp++insights
 \end{frame}
