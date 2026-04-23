@@ -1,32 +1,32 @@
 #include <iostream>
 
-struct object {
-    object(int dummy) {
+struct gadget {
+    gadget(int dummy) {
         std::cout << "- constructor with args" << std::endl;
     }
 
-    object() {
+    gadget() {
         std::cout << "- default constructor" << std::endl;
     }
 
-    ~object() {
+    ~gadget() {
         std::cout << "- destructor" << std::endl;
     }
 
-    object(const object& other) {
+    gadget(const gadget& other) {
         std::cout << "- copy constructor" << std::endl;
     }
 
-    object& operator=(const object& other) {
+    gadget& operator=(const gadget& other) {
         std::cout << "- copy assignment operator" << std::endl;
         return *this;
     }
 
-    object(object&& other) {
+    gadget(gadget&& other) {
         std::cout << "- move constructor" << std::endl;
     }
 
-    object& operator=(object&& other) {
+    gadget& operator=(gadget&& other) {
         std::cout << "- move assignment operator" << std::endl;
         return *this;
     }
@@ -53,44 +53,44 @@ struct widget {
 
 // return value from method is rvalue
 // disable NVRO pls
-object get_object() {
-    object o{};
+gadget get_object() {
+    gadget o{};
     return o;
 }
 
 int main() {
-    object a{};
-    object& a_lref = a;
-    object&& a_rref = std::move(a);
+    gadget a{};
+    gadget& a_lref = a;
+    gadget&& a_rref = std::move(a);
 
     {
         std::cout << "construction with args examples:" << std::endl;
 
-        object c(42);
-        object d{42};
+        gadget c(42);
+        gadget d{42};
 
         // equivalent to c, d
-        auto e = object(42);
-        auto f = object{42};
+        auto e = gadget(42);
+        auto f = gadget{42};
     }
 
     {
         std::cout << "default construction examples:" << std::endl;
 
-        object b;
+        gadget b;
         // object c(); // doesn't work because of most vexing parse
-        object d{};
-        auto e = object();
-        auto f = object{};
+        gadget d{};
+        auto e = gadget();
+        auto f = gadget{};
     }
 
     {
         std::cout << "copy construction examples:" << std::endl;
 
-        object c{a};
-        object d{a_lref};
+        gadget c{a};
+        gadget d{a_lref};
         // this one may be counterintuitive
-        object e{a_rref};
+        gadget e{a_rref};
 
         // equivalent to c, d, e
         auto f = a;
@@ -104,11 +104,11 @@ int main() {
 
         // default constructor is called within get_object()
         // move constructed into return slot (which is b)
-        object b{get_object()};
+        gadget b{get_object()};
 
-        object c{std::move(a)};
-        object d{std::move(a_lref)};
-        object e{std::move(a_rref)};
+        gadget c{std::move(a)};
+        gadget d{std::move(a_lref)};
+        gadget e{std::move(a_rref)};
 
         // equivalent to c, d, e
         auto f = std::move(a);
@@ -118,7 +118,7 @@ int main() {
 
     {
         std::cout << "constructing b:" << std::endl;
-        object b;
+        gadget b;
 
         std::cout << "copy assignment operator examples:" << std::endl;
         b = a;

@@ -1,5 +1,135 @@
 \section{Variadic Templates}
 
-\begin{frame}[fragile]{Motivation}
-  Stuff
+\begin{frame}[fragile]{Analysis of \texttt{bounded\_vector::push\_back()}}
+  \begin{minted}{cpp}
+    template <typename F>
+    void bounded_vector::push_back(F&& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(std::forward<F>(obj));
+        size_++;
+    }
+    /* ... */
+    int main() {
+        bounded_vector<intbox, 8> b;
+        b.push_back(intbox{3});
+    }
+  \end{minted}
+
+  \begin{enumerate}
+    \item \texttt{intbox\{3\}} is \textbf{constructed} as a temporary in the caller's stack frame.
+    \item Inside \verb|push_back|, it is \textbf{move constructed} into the vector's storage.
+    \item The temporary is destroyed after the call to \verb|push_back()|.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Constructing In-Place with \texttt{emplace\_back()}}
+  \begin{sqt:tip}
+    Instead of passing a fully constructed object, pass the \emph{constructor arguments}
+    and construct directly in the vector's storage.
+  \end{sqt:tip}
+
+  \begin{minted}{cpp}
+    template <typename F1, typename F2>
+    void emplace_back(F1&& arg1, F2&& arg2) {
+        new (data_ + size_) T(std::forward<F1>(arg1),
+                              std::forward<F2>(arg2));
+        size_++;
+    }
+    // ... and so on for 3, 4, 5, ... arguments?
+  \end{minted}
+
+  Now only \textbf{one construction} occurs --- directly in-place.\\
+  \textcolor{sqt-question}{But we need a separate overload for every argument count!}
+\end{frame}
+
+\begin{frame}[fragile]{Type Packs}
+  \begin{sqt:definition}
+    A \emph{template parameter pack} (type pack) contains \emph{multiple} types.
+  \end{sqt:definition}
+
+  \begin{sqt:result}
+    Packs can be expanded by placing \verb|...| after the name of the pack.
+    During template instantiation, the pack expands to the contained types, separated by commas.
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void foo() {
+        using expansion = std::tuple<TypePack...>;
+    }
+
+    int main() {
+        foo<int>();
+        foo<char, int, int*>();
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Type Patterns}
+  \begin{sqt:definition}
+    A \emph{pattern} is a type expression involving a type pack.
+    Applying \texttt{...} to a pattern \emph{expands} it once for each element of the pack.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    struct example {
+        using ptrs = tuple<TypePack*...>;    // pattern: TypePack*
+        // TypePack = int, double  =>  tuple<int*, double*>
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Object Packs}
+  \begin{sqt:definition}
+    An \emph{object pack} (function parameter pack) is a function parameter that accepts
+    zero or more arguments. It is created by expanding a type pack pattern
+    in a function's parameter list.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void foo(TypePack... obj_pack) {
+        // TypePack = type pack
+        // obj_pack = object pack (each element typed by TypePack)
+    }
+  \end{minted}
+
+  \pause
+  Combining with forwarding references:
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void bar(TypePack&&... obj_pack) {
+        baz(std::forward<TypePack>(obj_pack)...);
+        // pattern: std::forward<TypePack>(obj_pack)
+        // expands each element with perfect forwarding
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{emplace\_back()} with Variadic Templates}
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void emplace_back(TypePack&&... obj_pack) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(std::forward<TypePack>(obj_pack)...);
+        size_++;
+    }
+  \end{minted}
+
+  \pause
+  A single function handles any number of constructor arguments:
+  \begin{minted}{cpp}
+    bounded_vector<widget, 8> w_vec;
+    int x = 0;
+    w_vec.emplace_back(x, 0);     // widget(int&, int)
+
+    bounded_vector<gadget, 8> g_vec;
+    g_vec.emplace_back(0, std::move(x), 0); // gadget(int, int&&, int&&)
+  \end{minted}
+
+  \begin{sqt:result}
+    One construction. No overloads. Perfect forwarding preserves
+    the value category of every argument.
+  \end{sqt:result}
 \end{frame}
