@@ -27,7 +27,7 @@
 
 \begin{frame}[fragile]{Maybe - Templated Solution}
   \begin{sqt:result}
-    We can generate the exact same code
+    We can generate the exact same code by writing a \emph{template class}.
   \end{sqt:result}
 
   \begin{minted}{cpp}
@@ -40,4 +40,45 @@
   \end{minted}
 
   Verify this with \verb|cppinsights.io|.
+\end{frame}
+
+\begin{frame}[fragile]{Template Instantiation}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      \input{snippets/1.02_snippet.tex}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+      \vspace{1cm}
+      For each type (\texttt{int, std::string, double}) that is substituted for
+      the template type parameter \texttt{T}, 
+      an \emph{instantiation} is generated.
+
+      Based on the code, the compiler determines which instantiations are necessary,
+      and will only generate those which are used.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Array Maximum and Average}
+  \begin{minted}{cpp}
+    /* 1.03 */
+    struct array_int_8 {
+        using T = int;
+        static constexpr std::size_t N = 8;
+
+        T data_[N];
+
+        // set array element to a value by index
+        void set(std::size_t index, T val) {
+            assert(index < N);
+            data_[index] = val;
+        }
+
+        // get const reference to array element by index
+        const T& at(std::size_t index) const {
+            assert(index < N);
+            return data_[index];
+        }
+    };
+  \end{minted}
 \end{frame}

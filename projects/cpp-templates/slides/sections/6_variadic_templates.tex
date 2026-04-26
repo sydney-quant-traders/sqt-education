@@ -31,15 +31,18 @@
   \begin{minted}{cpp}
     template <typename F1, typename F2>
     void emplace_back(F1&& arg1, F2&& arg2) {
-        new (data_ + size_) T(std::forward<F1>(arg1),
-                              std::forward<F2>(arg2));
+        new (data_ + size_) T(std::forward<F1>(arg1), std::forward<F2>(arg2));
         size_++;
-    }
-    // ... and so on for 3, 4, 5, ... arguments?
+    } // ... and so on for 3, 4, 5, ... arguments?
   \end{minted}
 
-  Now only \textbf{one construction} occurs --- directly in-place.\\
-  \textcolor{sqt-question}{But we need a separate overload for every argument count!}
+  \textcolor{sqt-question}{
+    Discussion:\\
+    \begin{itemize}
+      \item if we call the constructor with \texttt{arg}
+    \end{itemize}
+  }
+
 \end{frame}
 
 \begin{frame}[fragile]{Type Packs}
@@ -71,18 +74,24 @@
     Applying \texttt{...} to a pattern \emph{expands} it once for each element of the pack.
   \end{sqt:definition}
 
+  Instantiate this template in cppinsights.io to understand how patterns are expanded.
   \begin{minted}{cpp}
     template <typename... TypePack>
-    struct example {
-        using ptrs = tuple<TypePack*...>;    // pattern: TypePack*
-        // TypePack = int, double  =>  tuple<int*, double*>
-    };
+    void foo() {
+        using expansion = std::tuple<std::pair<int, TypePack*>...>;
+        expansion x;
+    }
+  \end{minted}
+
+  In this example, \textcolor{blue}{\texttt{std::pair<int, TypePack*>}} is the pattern which expands to
+  \begin{minted}{cpp}
+    std::pair<int, Type1*>, std::pair<int, Type2*>, std::pair<int, Type3*>
   \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Object Packs}
   \begin{sqt:definition}
-    An \emph{object pack} (function parameter pack) is a function parameter that accepts
+    An \emph{function parameter pack} (object pack) is a function parameter that accepts
     zero or more arguments. It is created by expanding a type pack pattern
     in a function's parameter list.
   \end{sqt:definition}
@@ -90,19 +99,12 @@
   \begin{minted}{cpp}
     template <typename... TypePack>
     void foo(TypePack... obj_pack) {
-        // TypePack = type pack
-        // obj_pack = object pack (each element typed by TypePack)
+        std::tuple<TypePack...> x{obj_pack...};
+        std::tuple<TypePack*...> y{(&obj_pack)...};
     }
-  \end{minted}
 
-  \pause
-  Combining with forwarding references:
-  \begin{minted}{cpp}
-    template <typename... TypePack>
-    void bar(TypePack&&... obj_pack) {
-        baz(std::forward<TypePack>(obj_pack)...);
-        // pattern: std::forward<TypePack>(obj_pack)
-        // expands each element with perfect forwarding
+    int main() {
+        foo(5, 'q', "t");
     }
   \end{minted}
 \end{frame}
@@ -117,19 +119,52 @@
     }
   \end{minted}
 
-  \pause
-  A single function handles any number of constructor arguments:
+  This single function definition handles:
+  \begin{itemize}
+    \item any number of constructor arguments (due to use of variadics)
+    \item any combination of types (use of templates)
+    \item any combination of value categories (use of forwarding reference)
+  \end{itemize}
+  And perfectly forwards these arguments through to the actual constructor\\ 
+  (use of \texttt{std::forward}).
+\end{frame}
+
+\begin{frame}[fragile]{Unique Pointer}
+  \verb|std::unique_ptr<T>| is a template class defined in \texttt{<memory>}.\\
+  It contains a single \texttt{T*} raw pointer, which is passed in during construction.\\
+  Methods \texttt{get()}, \texttt{release()}, \texttt{reset()} are ways to managing this pointer.\\
+  The destructor calls \texttt{delete} on the raw pointer.\\
+  Copy construction and assignment is disabled, trying to enforce \emph{unique ownership}.
+  
   \begin{minted}{cpp}
-    bounded_vector<widget, 8> w_vec;
-    int x = 0;
-    w_vec.emplace_back(x, 0);     // widget(int&, int)
-
-    bounded_vector<gadget, 8> g_vec;
-    g_vec.emplace_back(0, std::move(x), 0); // gadget(int, int&&, int&&)
+    int main() {
+        // construct a smart pointer that takes ownership of [42]
+        int *raw_ptr1 = new int{42}; 
+        std::unique_ptr<int> smart_ptr1{raw_ptr};
+        // returns the pointer to [42], const operation
+        auto p = smart_ptr1.get();
+        // returns the pointer to [42], smart_ptr1 now points to nullptr
+        p = smart_ptr1.release();
+        // give smart_ptr ownership of [42] again
+        smart_ptr1.reset(p);
+        // end of scope: smart_ptr1 destructor runs, deleting [42]
+    }
   \end{minted}
+\end{frame}
 
-  \begin{sqt:result}
-    One construction. No overloads. Perfect forwarding preserves
-    the value category of every argument.
-  \end{sqt:result}
+\begin{frame}[fragile]{Make Unique}
+  % TODO: finish this explanation
+  We want a function that allows us to 
+  without having to 
+
+  \begin{minted}{cpp}
+    int main() {
+        // construct an object on the heap, construct smart_ptr1 using the raw pointer
+        int *raw_ptr1 = new std::vector<char>(16, 'C'); 
+        auto smart_ptr1 = std::unique_ptr<std::vector<char>>{raw_ptr1};
+
+        // use smart_ptr2 as return slot and call function std::make_unique
+        auto smart_ptr2 = std::make_unique<std::vector<char>>(16, 'C');
+    }
+  \end{minted}
 \end{frame}

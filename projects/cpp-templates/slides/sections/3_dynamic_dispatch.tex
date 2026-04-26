@@ -1,6 +1,47 @@
 \section{Type Erasure}
 
-% TODO: replace with Jackson's slides
+\begin{frame}[fragile]{Inheritance Revision}
+  \begin{sqt:result}
+    When \texttt{Derived} inherits from \texttt{Base}, each instance of 
+    \texttt{Derived} contains an instance of \texttt{Base} embedded inside it.
+  \end{sqt:result}
+  \begin{minted}{cpp}
+    struct Base { int a; char *b; };
+    struct Derived : public Base { int c; Widget d; };
+  \end{minted}
+
+  \begin{center}
+    \includesvg[inkscapelatex=false, width=12cm]{assets/inheritance.drawio.svg}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Inheritance Revision}
+  Given a pointer to a \texttt{printer}, you can \texttt{static\_cast} it 
+  to a pointer to a \texttt{processor}.
+  \begin{minted}{cpp}
+    struct Base { /* */ };
+    struct Derived1 : public Base { /* */ };
+    struct Derived2 : public Base { /* */ };
+
+    int main() {
+      std::vector<Base *> v = {new Derived1(), new Derived2(), new Derived1(), nullptr};
+    }
+  \end{minted}
+  \begin{center}
+    \includesvg[inkscapelatex=false, width=10cm]{assets/vector_of_base_ptr.drawio.svg}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Virtual and non-virtual methods}
+  \begin{sqt:definition}
+    A member function of \texttt{Widget}
+    is a function that implicitly takes \texttt{Widget *this} as its first argument,
+    and whos body is allowed to make reference 
+  \end{sqt:definition}
+
+  The \texttt{virtual} keyword tells the compiler that anytime the 
+  \texttt{process(int)} method is called on a p
+\end{frame}
 
 \begin{frame}[fragile]{Vtable Dispatch}
   These terms are interchangeable in C++:
@@ -19,6 +60,14 @@
   \begin{sqt:result}
     Virtual table (vtable) dispatch is how C++ implements subtype polymorphism.
   \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Vtable Dispatch}
+  \begin{minted}{cpp}
+    struct processor { virtual void process(int input) {}; };
+    struct printer : public processor {/* ... */};
+    struct double_inserter : public processor {/* ... */};
+  \end{minted}
 \end{frame}
 
 \begin{frame}{Vtable Dispatch}

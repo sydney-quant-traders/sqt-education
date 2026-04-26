@@ -14,11 +14,28 @@ public:
     unique_ptr& operator=(const unique_ptr& other) = delete;
     unique_ptr(unique_ptr&& other) : data_{std::exchange(other.data_, nullptr)} {}
     unique_ptr& operator=(unique_ptr&& other) {
-        std::swap(data_, other.data_);
+        reset(other.release());
         return *this;
     }
 
-    T *get() {
+    // delete the raw pointer, take ownership of a new raw pointer
+    void reset(T *new_ptr = nullptr) {
+        auto tmp = data_;
+        data_ = new_ptr;
+        if (tmp) {
+            delete tmp;
+        }
+    }
+
+    // give up ownership of, and return the raw pointer
+    T *release() {
+        auto tmp = data_;
+        data_ = nullptr;
+        return tmp;
+    }
+
+    // return the raw pointer
+    T *get() const {
         return data_;
     }
     
