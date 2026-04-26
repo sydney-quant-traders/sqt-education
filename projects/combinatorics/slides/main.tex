@@ -150,6 +150,7 @@
   \textbf{Example:} denote $g_1, g_2, g_3 $ to be the actions that rotate a configuration clockwise $0,120,240$ degrees.\\
   \begin{center}
     %insert image consisting of a configuration, its first rotation, its second rotation.
+    \includegraphics[width=9cm]{assets/group_actions.pdf}
   \end{center}
   Notice we can combine group actions $g_2 \circ g_3 = g_1 $\\
 \end{frame}
@@ -236,13 +237,13 @@
   \]
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   \textcolor{sqt-question}{
     \textbf{Example:} How many bracelets can be made using 3 white and 3 black beads?
   }
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   We begin by observing the key features of the problem:
   \begin{itemize}
     \item Beads of the same colour are considered identical.
@@ -251,7 +252,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   We can first count all linear arrangements before accounting for symmetry.
 
   \vspace{0.5em}
@@ -268,7 +269,7 @@
   % insert image of decision tree or representative linear arrangements
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklae Problem}
   Under our notion of equivalence, the relevant group actions are:
   \begin{itemize}
     \item rotations,
@@ -288,7 +289,7 @@
   \]
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   We now apply Burnside's Lemma by counting the fixed configurations of each symmetry.
 
   \vspace{0.5em}
@@ -309,7 +310,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   Now consider the diagonal reflections.
 
   \vspace{0.5em}
@@ -338,7 +339,7 @@
   for each diagonal reflection.
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   Finally, consider the edge reflections.
 
   \vspace{0.5em}
@@ -357,7 +358,7 @@
   \]
 \end{frame}
 
-\begin{frame}{Circular Arrangements with Repetition}
+\begin{frame}{Necklace Problem}
   Applying Burnside's Lemma,
   \[
     |S/\sim|
@@ -378,12 +379,17 @@
   Hence there are \textbf{3 distinct bracelets} up to rotation, reflection, and repetition of bead colours.
 \end{frame}
 
-%\begin{frame}{An Example}
-%  How many colorings of a graph with the colors \{red, green, blue\}
-%  such that no edge connects two vertices of the same color.
+\begin{frame}{Your Turn}
+  How many ways are there of arranging 8 rooks on an 8x8 chess board, such that no rooks are attaching eachother?
 
-%  ...
-%\end{frame}
+\end{frame}
+
+\begin{frame}{}
+  How many ways are there of arranging 8 rooks on an 8x8 chess board, such that no rooks are attaching eachother?\\
+  Hint: a chess board is the same after a 180 degree rotation
+
+\end{frame}
+
 
 \section{ PIE}
 
@@ -764,8 +770,8 @@
   \]
 \end{frame}
 
-\begin{frame}{Step 5: Apply Inclusion--Exclusion}
-  Using inclusion--exclusion,
+\begin{frame}{Step 5: Apply Inclusion-Exclusion}
+  Using inclusion-exclusion,
   \[
     D_n
     =
@@ -1100,7 +1106,7 @@
   \textcolor{sqt-question}{
     \textbf{Example:}
     How many paths are there from the bottom-left corner to the top-right corner
-    of a grid, moving only right or up?
+    of a n by n grid, moving only right or up?
   }
 
   \vspace{0.5em}
@@ -1208,6 +1214,89 @@
     \item Bijections allow us to transform constraints into countable structures
     \item Many complex problems reduce to known combinatorial objects
   \end{itemize}
+\end{frame}
+
+\begin{frame}{Your Turn: Position-Constrained Dyck Paths}
+  \textcolor{sqt-question}{
+    \textbf{Quant-style Question:}
+    A market maker tracks inventory over \(16\) trades.
+  }
+
+  \vspace{0.5em}
+
+  Each trade changes inventory by:
+  \[
+    +1 \quad \text{or} \quad -1.
+  \]
+
+  The market maker starts with inventory \(0\), ends with inventory \(0\), and must satisfy the risk limits:
+  \[
+    0 \le I_t \le 3
+  \]
+  at every time \(t\).
+
+  \vspace{0.8em}
+
+  \textbf{Question:} How many valid inventory paths are possible?
+\end{frame}
+
+\begin{frame}{Your Turn: Hint}
+  This is not just the usual Catalan number.
+
+  \vspace{0.5em}
+
+  The path must:
+  \begin{itemize}
+    \item never go below \(0\),
+    \item never go above \(3\),
+    \item return to \(0\) after \(16\) steps.
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  Think of the inventory levels as states:
+  \[
+    0,1,2,3.
+  \]
+
+  Count paths of length \(16\) that start and end at state \(0\).
+\end{frame}
+
+\begin{frame}{Your Turn: Solution}
+  Let \(a_t(k)\) be the number of ways to be at inventory level \(k\)
+  after \(t\) trades.
+
+  \vspace{0.5em}
+
+  Start with:
+  \[
+    a_0(0)=1,
+    \qquad
+    a_0(1)=a_0(2)=a_0(3)=0.
+  \]
+
+  The recurrence is:
+  \[
+    a_{t+1}(k)
+    =
+    a_t(k-1)+a_t(k+1),
+  \]
+  where values outside \(\{0,1,2,3\}\) are treated as \(0\).
+
+  \vspace{0.5em}
+
+  After applying this recurrence for \(16\) steps:
+  \[
+    a_{16}(0)=34.
+  \]
+
+  \vspace{0.8em}
+
+  Therefore, there are
+  \[
+    \boxed{34}
+  \]
+  valid inventory paths.
 \end{frame}
 %------------------------------JED
 
