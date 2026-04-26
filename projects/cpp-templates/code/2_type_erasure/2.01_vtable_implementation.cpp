@@ -10,7 +10,7 @@ struct processor_vtable_t {
 
 extern processor_vtable_t _processor_vtable;
 extern processor_vtable_t _printer_vtable;
-extern processor_vtable_t _double_inserter_vtable;
+extern processor_vtable_t _inserter_vtable;
 
 // --- Library Types ---
 
@@ -46,11 +46,11 @@ struct printer {
     }
 };
 
-struct double_inserter {
-    processor base_{&_double_inserter_vtable};
+struct inserter {
+    processor base_{&_inserter_vtable};
 
     std::vector<int>& dst_;
-    double_inserter(std::vector<int>& dst) : dst_(dst) {}
+    inserter(std::vector<int>& dst) : dst_(dst) {}
     void process(int input) {
         dst_.push_back(input);
         dst_.push_back(input);
@@ -58,7 +58,7 @@ struct double_inserter {
 
     // static wrapper for process()
     static void _process(processor *this_base, int input) {
-        auto _this = (double_inserter *) this_base;
+        auto _this = (inserter *) this_base;
         _this->process(input);
     }
 };
@@ -77,7 +77,7 @@ void process_vector(const std::vector<int>& nums, processor *p) {
 int main() {
     std::vector<int> dst;
     auto p = printer{};
-    auto d = double_inserter{dst};
+    auto d = inserter{dst};
 
     std::vector<int> src = {1, 2, 3, 4};
 
@@ -108,6 +108,6 @@ processor_vtable_t _printer_vtable {
     .process = printer::_process,
 };
 
-processor_vtable_t _double_inserter_vtable {
-    .process = double_inserter::_process,
+processor_vtable_t _inserter_vtable {
+    .process = inserter::_process,
 };

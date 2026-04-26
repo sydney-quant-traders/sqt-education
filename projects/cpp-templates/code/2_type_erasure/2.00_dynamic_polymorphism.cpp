@@ -13,9 +13,9 @@ struct printer : public processor {
     }
 };
 
-struct double_inserter : public processor {
+struct inserter : public processor {
     std::vector<int>& dst_;
-    double_inserter(std::vector<int>& dst) : dst_(dst) {}
+    inserter(std::vector<int>& dst) : dst_(dst) {}
     void process(int input) override {
         dst_.push_back(input);
         dst_.push_back(input);
@@ -36,7 +36,7 @@ void process_vector(const std::vector<int>& nums, processor *p) {
 int main() {
     std::vector<int> dst;
     auto p = printer{};
-    auto d = double_inserter{dst};
+    auto d = inserter{dst};
 
     std::vector<int> src = {1, 2, 3, 4};
 

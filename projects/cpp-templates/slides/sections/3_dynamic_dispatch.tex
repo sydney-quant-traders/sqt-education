@@ -1,4 +1,4 @@
-\section{Type Erasure}
+\section{Dynamic Dispatch}
 
 \begin{frame}[fragile]{Inheritance Revision}
   \begin{sqt:result}
@@ -23,24 +23,70 @@
     struct Derived1 : public Base { /* */ };
     struct Derived2 : public Base { /* */ };
 
-    int main() {
-      std::vector<Base *> v = {new Derived1(), new Derived2(), new Derived1(), nullptr};
-    }
+    std::vector<Base *> v = {new Derived1(), new Derived2(), new Derived1(), nullptr};
   \end{minted}
   \begin{center}
     \includesvg[inkscapelatex=false, width=10cm]{assets/vector_of_base_ptr.drawio.svg}
   \end{center}
 \end{frame}
 
-\begin{frame}[fragile]{Virtual and non-virtual methods}
+\begin{frame}[fragile]{Non-virtual methods}
   \begin{sqt:definition}
     A member function of \texttt{Widget}
-    is a function that implicitly takes \texttt{Widget *this} as its first argument,
-    and whos body is allowed to make reference 
+    is a function that implicitly receives \texttt{Widget *this} as its first argument,
+    and whose body is allowed to make reference to members variables of \texttt{Widget}.
   \end{sqt:definition}
 
-  The \texttt{virtual} keyword tells the compiler that anytime the 
-  \texttt{process(int)} method is called on a p
+  \begin{minted}{cpp}
+    struct Base {
+        int base_info_;
+        void set(int x) { this->base_info_ = x; }
+    };
+
+    Base b = new Base{};
+    b->set(5); // Base::set(b, 5);
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Non-virtual methods}
+  Non-virtual methods are inherited by derived classes so that they can be used. 
+  Passing a derived instance into the base member function is valid, since the derived
+  instance has an embedded base instance within it.
+  \begin{minted}{cpp}
+    struct Base {
+        int base_info_;
+        void set(int x) { this->base_info_ = x; }
+        void get(int x) { this->base_info_ = x; }
+    };
+    struct Derived : public Base { 
+        int derived_info_; 
+        void set(int x) { this->base_info_ = 10 * x; this->derived_info_ = x; }
+    };
+
+    Derived d = new Derived{};
+    d->set(5);               // Derived::set(d, 5);
+    std::cout << d->get(5);  // Base::get(static_cast<Base *>(d));
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Virtual methods}
+  At runtime, a \code{Base *} may point to a \code{Derived1} or \code{Derived2} 
+  instance and so on. \\
+  This \emph{runtime type} may depend on runtime conditions (unknowable by compiler).\\
+  \begin{minted}{cpp}
+    struct Base {
+        virtual void foo() {}
+        void bar () {}
+    };
+    struct Derived1 : public Base {
+        virtual void foo() override {}
+        void bar () {}
+    };
+    /* define Derived2 similarly */
+    Base *b = get_mystery_object();
+    b->foo();         // virtual dispatch:  MYSTERY::foo(static_cast<MYSTERY*>(b));
+    b->bar();         // static dispatch:   Base::bar(b);
+  \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Vtable Dispatch}
@@ -63,14 +109,104 @@
 \end{frame}
 
 \begin{frame}[fragile]{Vtable Dispatch}
+  The base class \code{processor} has a virtual method \code{process}.\\
+  The function \code{process\_vector} runs the processor against a vector.
   \begin{minted}{cpp}
-    struct processor { virtual void process(int input) {}; };
-    struct printer : public processor {/* ... */};
-    struct double_inserter : public processor {/* ... */};
+    /* 2.00 */
+    struct processor { virtual void process(int input) {} };
+
+    void process_vector(const std::vector<int>& nums, processor *p) {
+        for (auto e : nums) {
+            // dynamic dispatch: MYSTERY::process(static_cast<MYSTERY*>(p), e);
+            p->process(e); 
+        }
+    }
   \end{minted}
+  The derived classes are \code{printer} and \code{inserter}.
+  \begin{itemize}
+    \item \code{printer} processes an int by printing it.
+    \item \code{inserter} processes an int by inserting it twice into a dst vector.
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Vtable Dispatch}
   \includesvg[inkscapelatex=false, width=\textwidth]{assets/vtable.drawio.svg}
 \end{frame}
 
+\begin{frame}[fragile]{Godbolt Output}
+  3.00 - godbolt output
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+\begin{minted}{asm}
+vtable for inserter:
+    .quad   0
+    .quad   typeinfo for inserter
+    .quad   inserter::process(int)
+vtable for printer:
+    .quad   0
+    .quad   typeinfo for printer
+    .quad   printer::process(int)
+vtable for processor:
+    .quad   0
+    .quad   typeinfo for processor
+    .quad   processor::process(int)
+\end{minted}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+\begin{minted}{asm}
+processor::processor() [base object constructor]:
+    # ... #
+    # insert vptr
+    mov     edx, OFFSET FLAT:vtable for processor+16
+    # ... #
+
+inserter::inserter(std::vector<int>&):
+    # ... #
+    # construct embedded base class
+    call    processor::processor()
+    # then swap out the vptr
+    mov     edx, OFFSET FLAT:vtable for inserter+16
+\end{minted}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Vtable Implementation}
+  We can emulate the behavior of virtual dispatch using function pointers. \\
+  This is just for the sake of understanding how it works.
+
+  \begin{minted}{cpp}
+    /* 2.01 */
+    struct processor_vtable_t {
+        void(* process)(processor *, int);
+    };
+
+    struct processor {
+        processor_vtable_t *vptr_; // may point to one of three vtables
+        /* ... */
+        void _virtual_process(int input) {
+            auto process_fn_ptr = vptr_->process;
+            process_fn_ptr(this, input);
+        }
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Vtable Implementation}
+  \begin{minted}{cpp}
+    /* 2.01 */
+    // --- Global vtable instances ---
+    processor_vtable_t _processor_vtable { .process = processor::_process };
+    processor_vtable_t _printer_vtable { .process = printer::_process };
+    processor_vtable_t _inserter_vtable { .process = inserter::_process };
+
+    // --- Printer definition ---
+    struct printer {
+        processor base_{&_printer_vtable};
+
+        // process() virtual method override and its static wrapper
+        void process(int input) { std::cout << input << " "; }
+        static void _process(processor *this_base, int input) {/* */}
+    };
+  \end{minted}
+\end{frame}
