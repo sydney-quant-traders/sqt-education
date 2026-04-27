@@ -40,17 +40,17 @@
   gadget d(c); // Copy Constructed
   gadget e = c; // Copy Constructed
 
-  d = c // Coppy Assigned
+  d = c // Copy Assigned
   \end{minted}
 
-  Copy constructors/assignments are typically implemented as deep copies. Meaning, a new area of memory is typically allocated, and corresponding
+  For classes managing heap memory, copies are typically implemented as deep copies. Meaning, a new area of memory is typically allocated, and corresponding
   members are copied byte by byte.
 \end{frame}
 
 \begin{frame}[fragile]{Issue 1: Unnecessary Copies}
   Consider the example below. 
   
-  \emph{(Assume for the sake of this example that copy elission has been turned off, and the gadget class does not have
+  \emph{(Assume for the sake of this example that copy elision has been turned off, and the gadget class does not have
   a move constructor.)}
   \begin{minted}{cpp}
   gadget makeGadget() {
@@ -105,11 +105,11 @@
       gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
       
       ~gadgetWrapper() {
-        if (gadget_) delete gadget_;
+        delete gadget_;
       }
 
     private:
-      int* gadget_;
+      gadget* gadget_;
     }
   \end{minted}
 \end{frame}
@@ -136,7 +136,7 @@ Who is actually responsible for destroying c? The above will result in Undefined
 \begin{frame}[fragile]{Issue 1: Unnecessary Copies}
   Consider the example below. 
   
-  \emph{(Assume for the sake of this example that copy elission has been turned off, and the gadget class does not have
+  \emph{(Assume for the sake of this example that copy elision has been turned off, and the gadget class does not have
   a move constructor.)}
   \begin{minted}{cpp}
   gadget makeGadget() {
@@ -167,7 +167,7 @@ Who is actually responsible for destroying c? The above will result in Undefined
       size = n;
     }
     
-    gadget(gadget& other) { 
+    gadget(const gadget& other) { 
       // Copy Logic
     }
 
