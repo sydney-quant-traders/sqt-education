@@ -14,32 +14,6 @@ public:
     virtual bool  is_equal(const memory_resource& other) const noexcept = 0;
 };
 
-// --- Memory Resource Wrapper (type erasure layer) ---
-
-template <typename Resource>
-class memory_resource_wrapper : public memory_resource {
-public:
-    template <typename... Args>
-    explicit memory_resource_wrapper(Args&&... args) {
-        // TODO:
-    }
-
-private:
-    void* allocate(size_t bytes, size_t align) override {
-        // TODO:
-        return nullptr;
-    }
-
-    void deallocate(void* p, size_t bytes, size_t align) override {
-        // TODO:
-    }
-
-    bool is_equal(const memory_resource& other) const noexcept override {
-        // TODO:
-        return false;
-    }
-
-};
 
 // --- Malloc Resource ---
 
@@ -212,18 +186,72 @@ private:
     memory_resource* resource_;
 };
 
+// --- Manual Wrappers ---
+
+class memory_resource_wrapper_free_list : public memory_resource {
+    public:
+        template <typename... Args>
+        explicit memory_resource_wrapper_free_list(Args&&... args)
+        : resource_(std::forward<Args>(args)...) {}
+    
+    private:
+        void* allocate(size_t bytes, size_t align) override {
+            /* ... */
+            return nullptr;
+        }
+    
+        void deallocate(void* p, size_t bytes, size_t align) override {
+            /* ... */
+        }
+    
+        bool is_equal(const memory_resource& other) const noexcept override {
+            auto* o = dynamic_cast<const memory_resource_wrapper_free_list*>(&other);
+            return o && &resource_ == &o->resource_;
+        }
+    
+    private:
+        free_list_resource resource_;
+};
+
+class memory_resource_wrapper_malloc : public memory_resource {
+    public:
+        template <typename... Args>
+        explicit memory_resource_wrapper_malloc(Args&&... args)
+        : resource_(std::forward<Args>(args)...) {}
+    
+    private:
+        void* allocate(size_t bytes, size_t align) override {
+            /* ... */
+            return nullptr;
+        }
+    
+        void deallocate(void* p, size_t bytes, size_t align) override {
+            /* ... */
+        }
+    
+        bool is_equal(const memory_resource& other) const noexcept override {
+            auto* o = dynamic_cast<const memory_resource_wrapper_malloc*>(&other);
+            return o && &resource_ == &o->resource_;
+        }
+    
+    private:
+        malloc_resource resource_;
+};
+
+
 // --- Application Code ---
 
 int main() {
-    memory_resource_wrapper<malloc_resource> malloc_res;
+    // define the memory resource objects
+    memory_resource_wrapper_malloc malloc_res;
     alignas(16) char buf[4096];
-    memory_resource_wrapper<free_list_resource> fl_res{buf, sizeof(buf)};
+    memory_resource_wrapper_free_list fl_res{buf, sizeof(buf)};
 
     // Same allocator type, different underlying resources
     polymorphic_allocator<int> a1{&malloc_res};
     polymorphic_allocator<int> a2{&fl_res};
 
-    // Can use with std::vector — polymorphic_allocator is a proper value type
+    // Can use with std::vector
     std::vector<int, polymorphic_allocator<int>> v1(a1);
     std::vector<int, polymorphic_allocator<int>> v2(a2);
 

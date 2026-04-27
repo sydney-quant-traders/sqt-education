@@ -214,6 +214,7 @@ private:
 // --- Application Code ---
 
 int main() {
+    // define the memory resource objects
     memory_resource_wrapper<malloc_resource> malloc_res;
     alignas(16) char buf[4096];
     memory_resource_wrapper<free_list_resource> fl_res{buf, sizeof(buf)};
@@ -222,7 +223,7 @@ int main() {
     polymorphic_allocator<int> a1{&malloc_res};
     polymorphic_allocator<int> a2{&fl_res};
 
-    // Can use with std::vector — polymorphic_allocator is a proper value type
+    // Can use with std::vector
     std::vector<int, polymorphic_allocator<int>> v1(a1);
     std::vector<int, polymorphic_allocator<int>> v2(a2);
 

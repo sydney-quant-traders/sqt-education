@@ -110,162 +110,144 @@
 
 \begin{frame}[fragile]{Allocators}
   \begin{sqt:definition}
-    An \textbf{allocator} is an object that a container uses to acquire and release memory.
-    STL containers accept an allocator as a template parameter.
+    An \textbf{allocator} keeps track of which regions of memory are free/allocated.\\
+    The allocator decides \emph{where} memory comes from: \\
+    the heap, a pre-allocated buffer, a pool, etc.
   \end{sqt:definition}
+  Clients can ask the allocator to allocate them a region of some specified size.\\
+  The client can later ask the allocator to deallocate the region.
 
   \begin{minted}{cpp}
-    // std::allocator<int> is the default — calls new/delete
-    std::vector<int> v1;
+    int main() {
+        std::vector<int> vec1;
 
-    // equivalent to:
-    std::vector<int, std::allocator<int>> v2;
+        // equivalent code:
+        std::allocator<int> allocator_instance = std::allocator<int>{};
+        std::vector<int, std::allocator<int>> vec2(allocator_instance);
+    }
   \end{minted}
+\end{frame}
 
-  The allocator decides \emph{where} memory comes from: the heap, a pre-allocated buffer, a pool, etc.
-
-  TODO: diagram with a grid showing allocated and free spots.
+\begin{frame}[fragile]{Allocators}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/vector_reserve_alloc.drawio.svg}
 \end{frame}
 
 \begin{frame}[fragile]{Memory Resources}
   \begin{sqt:definition}
-    A \textbf{memory resource} is an object that implements an allocation strategy.
-    It provides \code{allocate()} and \code{deallocate()} methods.
+    A \textbf{memory resource} is an object that implements an allocation strategy.\\
+    It provides \code{allocate()} and \code{deallocate()} methods.\\
+    It deals only with bytes, and is unaware of what types are being constructed.
   \end{sqt:definition}
-
-  Different resources use different strategies:
   \begin{itemize}
     \item \code{malloc\_resource} --- calls \code{std::aligned\_alloc} / \code{std::free}.
     \item \code{free\_list\_resource} --- manages a pre-allocated buffer with a free list.
-    \item Pool allocators, arena allocators, stack allocators, \ldots
   \end{itemize}
+  Consistent \emph{interface} but \textbf{might not inherit from a common base class}.
 
-  Resources have the same interface but \textbf{do not inherit from a common base class}.
+  \begin{sqt:result}
+    The consistent interface allows \emph{allocators} to interact with them,
+    in order to adapt them to allocate memory for specified types.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Example Allocator}
+  \begin{minted}{cpp}
+    struct malloc_resource {
+        void *allocate(size_t bytes, size_t align) {/* */}
+        void  deallocate(void* p, size_t bytes, size_t align) {/* */}
+        bool  is_equal(const memory_resource& other) const noexcept {/* */}
+    };
+
+    template <typename T>
+    struct malloc_allocator {
+        malloc_resource resource_;
+        T* allocate(size_t n) {
+            return static_cast<T*>(resource_.allocate(n * sizeof(T), alignof(T)));
+        }
+        void deallocate(T *p, size_t n) {
+            resource_.deallocate(p, n * sizeof(T), alignof(T)));
+        }
+    };
+  \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{The Problem}
   Since the allocator is a template parameter, changing the allocator changes the type:
-  \begin{minted}{cpp}
-    std::vector<int, MallocAllocator<int>>   v1;  // one type
-    std::vector<int, FreeListAllocator<int>> v2;  // different type!
-  \end{minted}
-
   \begin{itemize}
     \item You cannot store \code{v1} and \code{v2} in the same container.
     \item You cannot pass them to the same function.
-    \item \textcolor{sqt-question}{Sound familiar?} Same problem as \code{std::list} vs \code{std::deque}.
   \end{itemize}
-
-  \textbf{Solution:} apply the same type erasure pattern to memory resources,
-  so a single allocator type can use \emph{any} resource at runtime.
-
-  TODO: diagram showing allocator pointing to a resource
+  \begin{minted}{cpp}
+    std::vector<int, malloc_allocator<int>>   v1;  // one type
+    std::vector<int, free_list_allocator<int>> v2;  // different type
+  \end{minted}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/allocators_different.drawio.svg}
 \end{frame}
 
-\begin{frame}[fragile]{Memory Resource Interface}
-  TODO: this is contained by the allocator. The allocator invokes virtual methods.
+\begin{frame}[fragile]{Not a Solution}
+  This doesn't solve our problem;
+  \begin{minted}{cpp}
+    template <typename T, typename Resource>
+    class templated_allocator {
+        Resource resource_;
+        T* allocate(size_t n) {
+            return static_cast<T*>(resource_.allocate(n * sizeof(T), alignof(T)));
+        }
+        /* ... */
+    };
+    /* ... */
+    std::vector<int, templated_allocator<int, malloc_resource>>   v1;   // one type
+    std::vector<int, templated_allocator<int, free_list_resource>> v2;  // different type
+  \end{minted}
+\end{frame}
 
-  Define an abstract base class for all memory resources:
+\begin{frame}[fragile]{The Polymorphic Allocator}
   \begin{minted}{cpp}
     /* 2.05 */
     class memory_resource {
     public:
         virtual ~memory_resource() = default;
-        virtual void* allocate(size_t bytes, size_t align) = 0;
+        virtual void *allocate(size_t bytes, size_t align) = 0;
         virtual void  deallocate(void* p, size_t bytes, size_t align) = 0;
         virtual bool  is_equal(const memory_resource& other) const noexcept = 0;
     };
-  \end{minted}
-\end{frame}
 
-\begin{frame}[fragile]{Memory Resource Wrapper}
-  Concrete resources (e.g. \code{malloc\_resource}) do not inherit from \code{memory\_resource}.
-  We wrap them with the same templated wrapper pattern:
-  \begin{minted}{cpp}
-    /* 2.06 */
-    template <typename Resource>
-    class memory_resource_wrapper : public memory_resource {
-    public:
-        template <typename... Args>
-        explicit memory_resource_wrapper(Args&&... args)
-            : resource_(std::forward<Args>(args)...) {}
-
-    private:
-        void* allocate(size_t bytes, size_t align) override {
-            return resource_.allocate(bytes, align);
-        }
-        void deallocate(void* p, size_t bytes, size_t align) override {
-            resource_.deallocate(p, bytes, align);
-        }
-        Resource resource_;
-    };
-  \end{minted}
-\end{frame}
-
-\begin{frame}[fragile]{Concrete Resources}
-  Concrete resources are plain classes --- no inheritance required.
-  \begin{minted}{cpp}
-    /* 2.05 */
-    class malloc_resource {
-    public:
-        void* allocate(size_t bytes, size_t align) {
-            void* p = std::aligned_alloc(align, /* ... */);
-            if (!p) throw std::bad_alloc{};
-            return p;
-        }
-        void deallocate(void* p, size_t bytes, size_t) {
-            std::free(p);
-        }
-    };
-  \end{minted}
-  Similarly, \code{free\_list\_resource} manages a pre-allocated buffer with a free list,
-  but exposes the same \code{allocate}/\code{deallocate} interface.
-\end{frame}
-
-\begin{frame}[fragile]{Polymorphic Allocator}
-  The allocator holds a \code{memory\_resource*} and delegates to it.
-  Since all wrapped resources share the same base, a single allocator type works with any resource.
-  \begin{minted}{cpp}
-    /* 2.05 */
     template <typename T>
     class polymorphic_allocator {
-    public:
-        using value_type = T;
-        polymorphic_allocator(memory_resource* r) noexcept : resource_(r) {}
+        memory_resource *resource_;
 
         T* allocate(size_t n) {
-            return static_cast<T*>(
-                resource_->allocate(n * sizeof(T), alignof(T)));
+            // invokes vtable dispatch on the underlying resource
+            return static_cast<T*>(resource_->allocate(n * sizeof(T), alignof(T)));
         }
-        void deallocate(T* p, size_t n) noexcept {
-            resource_->deallocate(p, n * sizeof(T), alignof(T));
-        }
-    private:
-        memory_resource* resource_;
+        /* ... */
     };
   \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{Polymorphic Allocator in Action}
+
+
+\begin{frame}[fragile]{Wrappers}
+  We have partially implemented type erasure using manually rolled wrappers.
+
   \begin{minted}{cpp}
     /* 2.05 */
+    class memory_resource_wrapper_free_list : public memory_resource {/* */};
+    class memory_resource_wrapper_free_malloc : public memory_resource {/* */};
+    /* ... */
     int main() {
-        memory_resource_wrapper<malloc_resource> malloc_res;
+        // define the memory resource objects
+        memory_resource_wrapper_malloc malloc_res;
         alignas(16) char buf[4096];
-        memory_resource_wrapper<free_list_resource> fl_res{buf, sizeof(buf)};
+        memory_resource_wrapper_free_list fl_res{buf, sizeof(buf)};
 
+        // Same allocator type, different underlying resources
         polymorphic_allocator<int> a1{&malloc_res};
         polymorphic_allocator<int> a2{&fl_res};
 
-        // Same vector type, different underlying resources!
+        // Can use with std::vector
         std::vector<int, polymorphic_allocator<int>> v1(a1);
         std::vector<int, polymorphic_allocator<int>> v2(a2);
-
-        for (auto* v : {&v1, &v2}) {
-            v->push_back(10);
-            v->push_back(20);
-        }
     }
   \end{minted}
 \end{frame}
-
