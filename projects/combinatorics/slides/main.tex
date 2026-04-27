@@ -1,5 +1,5 @@
 \input{style/sqtbeamer.tex}
-
+\usepackage{tikz}
 \title{How to Count}
 \subtitle{Combinatorics Revisited}
 \institute{Sydney Quant Traders}
@@ -106,7 +106,7 @@
 
 \begin{frame}{Equivalence Relations}
   Let $X$ be the set of configurations.
-  A counting quesiton may specify what it means for two configurations $x_1, x_2\in X$ to be considered equal.\\
+  A counting question may specify what it means for two configurations $x_1, x_2\in X$ to be considered equal.\\
   In other words, it provides an equivalence relation on the set $X$ of configurations.
 
   \begin{sqt:definition}[\textbf{Definition:} equivalence relation]
@@ -1300,14 +1300,551 @@
 \end{frame}
 %------------------------------JED
 
-\begin{frame}{Recursion}
-  example text
-\end{frame}
-
-\begin{frame}{Generating functions}
-  example text
-\end{frame}
-
 \begin{Miscellaneous questions}
+
+\section{Recursion}
+
+\begin{frame}{Recursion in Counting}
+
+\begin{sqt:definition}[\textbf{Definition:} Recursion]
+A recursive description expresses the number of configurations of size $n$
+in terms of the number of configurations of smaller sizes.
+\end{sqt:definition}
+
+\medskip
+
+Typically, we define a sequence $(a_n)_{n\geq 0}$ where $a_n$ counts the number of valid configurations of size $n$.
+
+\medskip
+
+A recursive solution consists of:
+\begin{itemize}
+    \item A \textbf{recurrence relation} (e.g. $a_n = f(a_{n-1}, a_{n-2}, \dots)$)
+    \item \textbf{Base cases} (e.g. $a_0, a_1$)
+\end{itemize}
+
+\medskip
+
+\textbf{Key idea:} Construct configurations of size $n$ by analysing their final step or component.
+
+\end{frame}
+
+\begin{frame}{Example: Misdelivered Letters}
+
+\textcolor{sqt-question}{
+\textbf{Problem:} In how many ways can a postman deliver $n$ letters to $n$ addresses such that no letter is delivered to the correct address?
+}
+
+\medskip
+
+Equivalently, how many permutations $\sigma$ of $\{1,\dots,n\}$ satisfy
+\[
+\sigma(i) \neq i \quad \text{for all } i?
+\]
+
+\medskip
+
+Let $D_n$ denote the number of such configurations. Can you find an expression for $D_n$
+in terms of smaller instances of the problem?
+
+\end{frame}
+
+\begin{frame}{Solution via Recursion}
+
+Consider letter $1$. It must be delivered to some address $j \neq 1$.
+
+\medskip
+
+There are $(n-1)$ choices for $j$.
+
+\medskip
+
+We split into two cases:
+\begin{itemize}
+    \item[(1)] Letter $j$ is delivered to address $1$ \\
+    $\Rightarrow$ reduces to a problem on $n-2$ letters: $D_{n-2}$
+
+    \medskip
+
+    \item[(2)] Letter $j$ is not delivered to address $1$ \\
+    $\Rightarrow$ reduces to a problem on $n-1$ letters: $D_{n-1}$
+\end{itemize}
+
+\medskip
+
+Thus,
+\[
+D_n = (n-1)(D_{n-1} + D_{n-2})
+\]
+
+\medskip
+
+Base cases: $D_1 = 0, \quad D_2 = 1$
+
+\end{frame}
+
+\begin{frame}{Example: Tiling a \(2\times n\) Board}
+
+\textcolor{sqt-question}{
+\textbf{Problem:} How many ways are there to tile a \(2\times n\) board using
+dominoes and L-shaped trominoes?
+}
+
+\medskip
+
+Let \(T_n\) denote the number of tilings of a full \(2\times n\) board.
+
+\medskip
+
+A direct recurrence is not immediate: placing a tromino may leave a board
+with one square missing near the end.
+
+\medskip
+
+To account for this, we will also define an auxiliary quantity \(G_n\).
+
+\end{frame}
+
+\begin{frame}{Some Example Tilings}
+
+\centering
+
+\textbf{Examples for small \(n\)}
+
+\medskip
+
+\begin{columns}[T]
+\column{0.32\textwidth}
+\centering
+\(T_1=1\)
+
+\medskip
+
+\begin{tikzpicture}[scale=0.6]
+  \draw (0,0) rectangle (1,2);
+  \draw (0,1)--(1,1);
+  \fill[blue!20] (0,0) rectangle (1,2);
+\end{tikzpicture}
+
+\medskip
+
+\small One vertical domino
+
+\column{0.32\textwidth}
+\centering
+\(T_2=2\)
+
+\medskip
+
+\begin{tikzpicture}[scale=0.6]
+  % first tiling
+  \draw (0,0) rectangle (2,2);
+  \draw (0,1)--(2,1);
+  \draw (1,0)--(1,2);
+  \fill[blue!20] (0,0) rectangle (1,2);
+  \fill[green!20] (1,0) rectangle (2,2);
+
+  % second tiling
+  \begin{scope}[xshift=3.2cm]
+    \draw (0,0) rectangle (2,2);
+    \draw (0,1)--(2,1);
+    \draw (1,0)--(1,2);
+    \fill[orange!20] (0,1) rectangle (2,2);
+    \fill[red!20] (0,0) rectangle (2,1);
+  \end{scope}
+\end{tikzpicture}
+
+\medskip
+
+\small Two vertical dominoes \qquad Two horizontal dominoes
+
+\column{0.32\textwidth}
+\centering
+\(\,T_3\) includes:
+
+\medskip
+
+\begin{tikzpicture}[scale=0.55]
+  % board 1
+  \draw (0,0) rectangle (3,2);
+  \draw (0,1)--(3,1);
+  \draw (1,0)--(1,2);
+  \draw (2,0)--(2,2);
+  \fill[blue!20] (0,0) rectangle (1,2);
+  \fill[green!20] (1,0) rectangle (2,2);
+  \fill[yellow!20] (2,0) rectangle (3,2);
+
+  % board 2
+  \begin{scope}[xshift=4.3cm]
+    \draw (0,0) rectangle (3,2);
+    \draw (0,1)--(3,1);
+    \draw (1,0)--(1,2);
+    \draw (2,0)--(2,2);
+    \fill[orange!20] (0,1) rectangle (2,2);
+    \fill[red!20] (0,0) rectangle (2,1);
+    \fill[blue!20] (2,0) rectangle (3,2);
+  \end{scope}
+\end{tikzpicture}
+
+\medskip
+
+\small Some tilings made up of just dominos
+\end{columns}
+
+\medskip
+
+\begin{center}
+\begin{tikzpicture}[scale=0.55]
+  % tromino example 1
+  \draw (0,0) rectangle (3,2);
+  \draw (0,1)--(3,1);
+  \draw (1,0)--(1,2);
+  \draw (2,0)--(2,2);
+
+  \fill[purple!20] (0,0) rectangle (1,1);
+  \fill[purple!20] (1,0) rectangle (2,1);
+  \fill[purple!20] (0,1) rectangle (1,2);
+
+  \fill[teal!20] (1,1) rectangle (2,2);
+  \fill[teal!20] (2,1) rectangle (3,2);
+  \fill[teal!20] (2,0) rectangle (3,1);
+
+  \node at (1.5,-0.8) {\small a tiling using two L-trominoes};
+\end{tikzpicture}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+\begin{frame}{States}
+
+\textbf{Let $T_n$:} tilings of a full $2 \times n$ board
+
+\medskip
+
+\begin{center}
+\begin{tikzpicture}[scale=0.6]
+  \draw (0,0) rectangle (4,2);
+  \draw (0,1)--(4,1);
+  \draw (1,0)--(1,2);
+  \draw (2,0)--(2,2);
+  \draw (3,0)--(3,2);
+\end{tikzpicture}
+
+\small full board
+\end{center}
+
+\medskip
+
+\textbf{Let $G_n$:} tilings with one square missing at the end
+
+\medskip
+
+\begin{center}
+\begin{tikzpicture}[scale=0.6]
+  \draw (0,0) rectangle (4,2);
+  \draw (0,1)--(4,1);
+  \draw (1,0)--(1,2);
+  \draw (2,0)--(2,2);
+  \draw (3,0)--(3,2);
+  \fill[black] (3,1) rectangle (4,2);
+\end{tikzpicture}
+
+\small gap at the end
+\end{center}
+
+\end{frame}
+
+
+
+\begin{frame}{Recurrence relations}
+
+\textbf{Full board:}
+
+\begin{itemize}
+    \item vertical domino \(\Rightarrow T_{n-1}\)
+    \item two horizontal dominoes \(\Rightarrow T_{n-2}\)
+    \item tromino creating/filling a gap \(\Rightarrow 2G_{n-1}\)
+\end{itemize}
+
+\[
+T_n = T_{n-1} + T_{n-2} + 2G_{n-1}
+\]
+
+\medskip
+
+\textbf{Gap at the end:}
+
+\begin{itemize}
+    \item extend the gap \(\Rightarrow G_{n-1}\)
+    \item fill the gap with a tromino \(\Rightarrow T_{n-2}\)
+\end{itemize}
+
+\[
+G_n = G_{n-1} + T_{n-2}
+\]
+
+\end{frame}
+
+
+\section{Example Problems}
+\begin{frame}{Example Problem: Splitting Ones}
+
+\textbf{Problem:}
+Start with
+\[
+111111111111111 \quad (15\ \text{ones})
+\]
+
+Insert $+$ signs between digits (or not), then evaluate the resulting sum.
+
+\medskip
+
+\textcolor{sqt-question}{
+\textbf{Question:} How many such expressions are divisible by $30$?
+}
+
+\medskip
+
+\textbf{Examples:}
+\begin{itemize}
+    \item $111111111111111$ \hfill $\not\equiv 0 \pmod{30}$
+    \item $111 + 111111 + 111111111 = 111111333$ \hfill $\not\equiv 0 \pmod{30}$
+    \item $11 + 11 + 11 + 11 + 11 + 1 + 1 + 1 + 1 + 1 = 60$ \hfill $\equiv 0 \pmod{30}$
+    \item $11 + 11 + 11 + 11 + 11 + 11 + 11 + 11 = 88$ \hfill $\not\equiv 0 \pmod{30}$
+\end{itemize}
+
+\medskip
+
+\textbf{Key idea:} We are choosing where to place $+$ signs.
+
+\end{frame}
+
+
+
+
+
+\begin{frame}{Structure of the Problem}
+
+\textbf{Each expression splits the 15 ones into blocks:}
+
+\[
+1,\ 11,\ 111,\ 1111,\ \dots
+\]
+
+\medskip
+
+\textbf{Think in terms of gaps:}
+
+\[
+1 \ \_ \ 1 \ \_ \ 1 \ \_ \ \cdots \ \_ \ 1
+\]
+
+\medskip
+
+There are \textbf{14 gaps}.
+
+\medskip
+
+\textbf{Each configuration is determined by the chosen gaps.}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Solution: Key Insight}
+
+Let $m$ be the number of terms we are summing up.
+
+\medskip
+
+\textbf{We need divisibility by $30 = 10 \times 3$.}
+
+\medskip
+
+\textbf{Divisible by $10$:}
+The number must end in $0$.
+
+\medskip
+
+Each block ends in $1$ $\Rightarrow$ sum ends in $m$.
+
+\[
+\Rightarrow m \equiv 0 \pmod{10}.
+\]
+
+\medskip
+
+\textbf{Divisible by $3$:}
+So we recall a number k is divisible by 3 $\iff$ the sum of the digits of k are divisible by 3
+
+Thus the digits must sum to a multiple of $3$.
+
+
+\medskip
+
+\textbf{Conclusion:} We notice that both condition hold $\iff$ $m=10$
+
+\end{frame}
+
+\begin{frame}{Solution: Counting the Configurations}
+
+From the previous slide, we must have:
+\[
+m = 10.
+\]
+
+\medskip
+
+\textbf{Interpretation}
+
+We split $15$ ones into $10$ blocks.
+
+\medskip
+
+Equivalently, we choose where to place $+$ signs.
+
+\medskip
+
+\textbf{There are $14$ gaps between digits:}
+
+\[
+1 \ \_ \ 1 \ \_ \ 1 \ \_ \ \cdots \ \_ \ 1
+\]
+
+\medskip
+
+To form $10$ terms, we need $9$ plus signs.
+
+\medskip
+
+\textbf{Choose $9$ gaps out of $14$:}
+
+\[
+\binom{14}{9} = 2002.
+\]
+
+\medskip
+
+\[
+\boxed{2002}
+\]
+
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}{Example Problem: Binary Strings}
+
+\textbf{Problem}
+
+\medskip
+
+How many binary strings of length $n$ contain exactly $k$ ones, with no two ones adjacent?
+
+\medskip
+
+\textbf{Examples (for $n=5,\ k=2$):}
+\begin{itemize}
+    \item 10100
+    \item 10010
+    \item 01010
+\end{itemize}
+
+\medskip
+
+\textbf{Invalid examples:}
+\begin{itemize}
+    \item 11000 \quad (adjacent 1s)
+    \item 01100 \quad (adjacent 1s)
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Insight}
+
+\textbf{Key idea: enforce spacing}
+
+\medskip
+
+If we place $k$ ones with no two adjacent, they must be separated by at least one zero.
+
+\medskip
+
+So positions must satisfy:
+\[
+i_1 < i_2 < \cdots < i_k, \quad i_{j+1} \ge i_j + 2.
+\]
+
+\medskip
+
+\textbf{Trick: remove the gaps}
+
+Define:
+\[
+j_r = i_r - (r-1).
+\]
+
+\medskip
+
+Then:
+\[
+1 \le j_1 < j_2 < \cdots < j_k \le n-k+1.
+\]
+
+\medskip
+
+Now it’s just choosing $k$ positions from $n-k+1$.
+
+\end{frame}
+
+\begin{frame}{Solution}
+
+We transformed the problem into:
+
+\medskip
+
+\textbf{Choose $k$ positions from $n-k+1$:}
+
+\[
+\boxed{
+\binom{n-k+1}{k}
+}
+\]
+
+\medskip
+
+\textbf{Example:}
+
+For $n=7,\ k=3$:
+\[
+\binom{5}{3} = 10.
+\]
+
+\medskip
+
+\textbf{Takeaway}
+
+Spacing constraints $\Rightarrow$ transform the indices
+$\Rightarrow$ reduce to a standard counting problem.
+
+\end{frame}
+
+
 
 \end{document}
