@@ -70,35 +70,17 @@
 \end{frame}
 
 %--------------------------------------ADI
-\begin{frame}{When Counting Goes Wrong}
-  Sometimes we count the same object multiple times.
 
-  \textbf{Example:}
-  Circular arrangements
-
-  \begin{itemize}
-    \item Rotating a seating arrangement does not create a new arrangement
-  \end{itemize}
-
-  \textbf{Problem:}
-  \begin{itemize}
-    \item Our counting method overcounts
-  \end{itemize}
-
-  \textbf{Solution:}
-  \begin{itemize}
-    \item Group equivalent configurations together
-  \end{itemize}
-\end{frame}
 
 \section{Foundational Concepts}
-\begin{frame}{Equivalence Relation}
+\begin{frame}{Thinking about Equivalence Relations}
   \textcolor{sqt-question}{
     \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
     Two arrangements are identical if one can be obtained
     from the other by rotation.
   }
 
+  We shall use this example to motivate a few relevant definitions.\\
   \begin{center}
     \includegraphics[width=9cm]{assets/circular_seating.pdf}
   \end{center}
@@ -150,7 +132,7 @@
   \textbf{Example:} denote $g_1, g_2, g_3 $ to be the actions that rotate a configuration clockwise $0,120,240$ degrees.\\
   \begin{center}
     %insert image consisting of a configuration, its first rotation, its second rotation.
-    \includegraphics[width=9cm]{assets/group_actions.pdf}
+    \includegraphics{assets/group_actions.pdf}
   \end{center}
   Notice we can combine group actions $g_2 \circ g_3 = g_1 $\\
 \end{frame}
@@ -380,13 +362,23 @@
 \end{frame}
 
 \begin{frame}{Your Turn}
-  How many ways are there of arranging 8 rooks on an 8x8 chess board, such that no rooks are attaching eachother?
+
+
+
+  \begin{itemize}
+    \item 1. How many ways are there of arranging 8 rooks on an 8x8 grid such that no rooks are attaching eachother?\\
+          \textbf{Note:} arrangements that can be rotated into eachother are considered the same.\\
+    \item 2. How many ways are there to colour the 4 corners of a square using 3 colours, where rotations are considered the same?\\
+    \item 3. How many 6-bead \textbf{bracelets} are there where each bead can be either black or white.\\
+
+  \end{itemize}
 
 \end{frame}
 
-\begin{frame}{}
-  How many ways are there of arranging 8 rooks on an 8x8 chess board, such that no rooks are attaching eachother?\\
-  Hint: a chess board is the same after a 180 degree rotation
+\begin{frame}{Answers}
+  \item 1. $\frac{40320 + 2 + 384 + 12}{4} = 10182$
+  \item 2. $\frac{81+3+9+3}{4} = 24$
+  \item 3. $\frac{84 + 48 + 24}{12} = 13$
 
 \end{frame}
 
@@ -394,10 +386,23 @@
 \section{ PIE}
 
 \begin{frame}{The Principle of Inclusion-Exclusion}
-  The principle of inclusion--exclusion is used when a direct count \textbf{overcounts}
+  The principle of inclusion-exclusion is used when a direct count \textbf{overcounts}
   because some configurations violate one or more constraints.
 
-
+  \[
+  \left|\bigcup_{i=1}^{n} A_i\right|
+  =
+  \sum_{i=1}^{n} |A_i|
+  -
+  \sum_{1 \le i < j \le n} |A_i \cap A_j|
+  +
+  \sum_{1 \le i < j < k \le n} |A_i \cap A_j \cap A_k|
+  -
+  \cdots
+  +
+  (-1)^{n+1}
+  |A_1 \cap A_2 \cap \cdots \cap A_n|
+  \]
 
 \end{frame}
 
@@ -669,7 +674,7 @@
   \textbf{Key idea:}
   \begin{itemize}
     \item We want permutations with \textbf{no fixed points}
-    \item These are counted using the Inclusion--Exclusion Principle
+    \item These are counted using the Inclusion-Exclusion Principle
   \end{itemize}
 \end{frame}
 
@@ -803,7 +808,6 @@
   \textbf{Key insight:}
   \begin{itemize}
     \item Derangements arise naturally from \textbf{avoiding fixed points}
-    \item Inclusion--exclusion systematically removes overcounting
     \item For large $n$,
     \[
       D_n \approx \frac{n!}{e}
@@ -895,160 +899,35 @@
     \item derange everyone else.
   \end{itemize}
 \end{frame}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Your Turn: PIE Brain Teaser Questions}
+  \begin{enumerate}
+    \item 1. A 6-digit PIN is made using digits \(0\) to \(9\), with repetition allowed.
+    How many PINs contain at least one repeated digit?
 
-\section{Double Counting}
+    \item 2. A deck contains 52 cards. How many 5-card hands contain at least one card from every suit?
 
-\begin{frame}{Double Counting}
-  \begin{sqt:definition}[\textbf{Definition:} Double Counting]
-    Double counting is the technique of counting the same set of objects in \textbf{two different ways} to obtain an equality.
-  \end{sqt:definition}
+    \item 3. How many permutations of \(1,2,\dots,8\) have no number in its original position?
 
-  \vspace{0.5em}
+    \item 4. How many ways are there to place 8 non-attacking rooks on an \(8\times 8\) board such that no rook lies on the main diagonal? ( hint: derangement in disguise)
 
-  \textbf{Core idea:}
-  \begin{itemize}
-    \item Identify a quantity that can be counted in two perspectives
-    \item Equate the two expressions
-  \end{itemize}
+    \item 5. How many positive integer solutions are there to
+    \[
+      x_1+x_2+x_3+x_4=20
+    \]
+    where each \(x_i\le 8\)?
 
-  \vspace{0.5em}
 
-  \textbf{Common pattern:}
-  \begin{itemize}
-    \item Count by \textbf{objects}
-    \item Count by \textbf{features / contributions}
-  \end{itemize}
+  \end{enumerate}
 \end{frame}
 
-\begin{frame}{The Handshaking Lemma}
-  \textcolor{sqt-question}{
-    \textbf{Example:}
-    At a party with 11 people, each person claims they shook hands with exactly 5 others.
-  }
-
-  \vspace{0.5em}
-
-  \textbf{Question:} Is this possible?
-\end{frame}
-
-\begin{frame}{The Handshaking Lemma}
-  Let us count the total number of handshakes in two ways.
-
-  \vspace{0.5em}
-
-  \textbf{Method 1: Sum of degrees}
-
-  Each of the 11 people shakes hands with 5 others:
-  \[
-    \text{total handshakes counted} = 11 \cdot 5 = 55
-  \]
-
-  \vspace{0.5em}
-
-  \textbf{Method 2: Count each handshake once}
-
-  Each handshake involves \textbf{two people}, so:
-  \[
-    \text{total handshakes} = \frac{55}{2}
-  \]
-
-  \vspace{0.5em}
-
-  This is not an integer $\Rightarrow$ \textbf{impossible}.
-\end{frame}
-
-\begin{frame}{Handshaking Lemma (General Form)}
-  In any graph,
-  \[
-    \sum_{v \in V} \deg(v) = 2|E|.
-  \]
-
-  \vspace{0.5em}
-
-  \textbf{Interpretation:}
-  \begin{itemize}
-    \item LHS: count edges by summing degrees
-    \item RHS: each edge contributes exactly 2
-  \end{itemize}
-
-  \vspace{0.5em}
-
-  \textbf{Consequence:}
-  \begin{itemize}
-    \item The sum of degrees is always even
-    \item Therefore, an odd total (like 55) is impossible
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Committee Selection}
-  \textcolor{sqt-question}{
-    \textbf{Example:}
-    Count the number of ways to form a committee of any size from \(n\) people,
-    where one member is designated as the chairperson.
-  }
-\end{frame}
-
-\begin{frame}{Committee Selection: Method 1}
-  \textbf{Method 1: Choose chair first}
-
-  \vspace{0.5em}
-
-  \begin{itemize}
-    \item Choose the chairperson: \(n\) ways
-    \item For the remaining \(n-1\) people:
-    \begin{itemize}
-      \item each person either joins or not
-    \end{itemize}
-  \end{itemize}
-
-  \[
-    \Rightarrow 2^{n-1} \text{ choices}
-  \]
-
-  \vspace{0.5em}
-
-  Total:
-  \[
-    n \cdot 2^{n-1}
-  \]
-\end{frame}
-
-\begin{frame}{Committee Selection: Method 2}
-  \textbf{Method 2: Choose committee first}
-
-  \vspace{0.5em}
-
-  \begin{itemize}
-    \item Choose a committee of size \(k\): \(\binom{n}{k}\)
-    \item Choose a chair from that committee: \(k\) ways
-  \end{itemize}
-
-  \vspace{0.5em}
-
-  Summing over all possible sizes:
-  \[
-    \sum_{k=0}^{n} \binom{n}{k} k
-  \]
-\end{frame}
-
-\begin{frame}{Equating the Two Counts}
-  Both methods count the same quantity.
-
-  \vspace{0.5em}
-
-  Therefore,
-  \[
-    \sum_{k=0}^{n} \binom{n}{k} k = n \cdot 2^{n-1}.
-  \]
-
-  \vspace{0.8em}
-
-  \textbf{Key takeaway:}
-  \begin{itemize}
-    \item Double counting turns a combinatorial argument into an identity
-    \item This is a powerful technique for proofs and simplifications
-  \end{itemize}
+\begin{frame}{Answers}
+  \begin{enumerate}
+    \item \(\boxed{848800}\)
+    \item \(\boxed{685464}\)
+    \item \(\boxed{14833}\)
+    \item \(\boxed{14833}\)
+    \item \(\boxed{315}\)
+  \end{enumerate}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
