@@ -30,6 +30,47 @@
   \includegraphics[width=12cm]{assets/constructor_compiled.png}
 \end{frame}
 
+\begin{frame}[fragile]{Copy Construction/Assignment}
+  A copy constructor is a constructor that constructs a new object using an exisiting object of the same class. Assignment will replace the existing object
+  using another object of the same class.
+
+  \begin{minted}{cpp}
+  gadget c(42);
+
+  gadget d(c); // Copy Constructed
+  gadget e = c; // Copy Constructed
+
+  d = c // Copy Assigned
+  \end{minted}
+
+  For classes managing heap memory, copies are typically implemented as deep copies. Meaning, a new area of memory is typically allocated, and corresponding
+  members are copied byte by byte.
+\end{frame}
+
+\begin{frame}[fragile]{Issue 1: Unnecessary Copies}
+  Consider the example below. 
+  
+  \emph{(Assume for the sake of this example that copy elision has been turned off, and the gadget class does not have
+  a move constructor.)}
+  \begin{minted}{cpp}
+  gadget makeGadget() {
+    gadget temp{1000};
+
+    /*
+      Doing some work
+    */
+
+    return temp;
+  }
+
+  int main() {
+    gadget c = makeGadget(); // Unnecessary copy
+  }
+  \end{minted}
+
+  Is there way to avoid this expensive copy?
+\end{frame}
+
 % TODO: finish this slide
 \begin{frame}[fragile]{Placement New}
   \begin{sqt:definition}
@@ -49,6 +90,182 @@
     // calls the destructor gadget::~gadget() on address 123456
     ((gadget *) 123456)->~gadget();
   \end{minted}
+  
 \end{frame}
 
-% TODO: put Krish's slides in here
+
+\begin{frame}[fragile]{RAII}
+  \begin{sqt:definition}
+  \emph{From cppreference:} Resource Acquisition Is Initialization or RAII, is a C++ programming technique which binds the life cycle of a resource to the lifetime of an object. 
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    Class gadgetWrapper {
+    public:
+      gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
+      
+      ~gadgetWrapper() {
+        delete gadget_;
+      }
+
+    private:
+      gadget* gadget_;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Issue 2: Object Ownership}
+Consider the below example using the Gadget Wrapper we developed earlier
+\begin{minted}{cpp}
+  int main() {
+    gadget* c = new gadget(42);
+
+    gadgetWrapper d(c); // Binding c to d
+    gadgetWrapper e = d; // Copy Constructed e from d
+
+    // ~e; ~d; -> Double Free!
+  }
+\end{minted}
+Who is actually responsible for destroying c? The above will result in Undefined Behaviour!
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Move Semantics}
+  Move semantics can be used to solve both of these issues! Lets return our first issue.
+\end{frame}
+
+\begin{frame}[fragile]{Issue 1: Unnecessary Copies}
+  Consider the example below. 
+  
+  \emph{(Assume for the sake of this example that copy elision has been turned off, and the gadget class does not have
+  a move constructor.)}
+  \begin{minted}{cpp}
+  gadget makeGadget() {
+    gadget temp{1000};
+
+    /*
+      Doing some work
+    */
+
+    return temp;
+  }
+
+  int main() {
+    gadget c = makeGadget(); // Unnecessary copy
+  }
+  \end{minted}
+
+  Is there way to avoid this expensive copy?
+\end{frame}
+
+\begin{frame}[fragile]{Gadget Class}
+  What if the gadget class was very large?
+  \begin{minted}{cpp}
+  class gadget {
+  public:
+    gadget(int n) {
+      data_ = new int[n];
+      size = n;
+    }
+    
+    gadget(const gadget& other) { 
+      // Copy Logic
+    }
+
+
+    ~gadget() {
+      if (data_) delete[] data;
+    }
+
+  private:
+    int* data; 
+    int size;
+  }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Move Construction}
+  We add the following method to our gadget class
+  \begin{minted}{cpp}
+    gadget(gadget&& other) noexcept {
+      // 'Steal' all the data
+      this->data = other.data;
+      this->size = other.size;
+
+      // Set members of 'other' to be null/empty, ready to be destroyed
+      other.data = nullptr;
+      other.size = 0;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Returning back}
+  \begin{minted}{cpp}
+  gadget makeGadget() {
+    gadget temp{1000};
+
+    /*
+      Doing some work
+    */
+
+    return temp;
+  }
+
+  int main() {
+    gadget c = makeGadget(); // Invokes move constructor 
+  }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Moving Ownership}
+  Lets add a move constructor to our wrapper class and delete the copy constructor
+  \begin{minted}{cpp}
+    Class gadgetWrapper {
+    public:
+      gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
+
+      gadgetWrapper(const gadgetWrapper& other) = delete;
+
+      gadgetWrapper(gadgetWrapper&& other) {
+        this->gadget_ = other.gadget_;
+        other.gadget_ = nullptr;
+      }
+      
+      ~gadgetWrapper() {
+        if (gadget_) delete gadget_;
+      }
+
+    private:
+      int* gadget_;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Moving Ownership cont}
+  Now the previous example won't even compile!
+  \begin{minted}{cpp}
+  int main() {
+    gadget* c = new gadget(42);
+
+    gadgetWrapper d(c); // Binding c to d
+    gadgetWrapper e = d; // ERROR: Can't copy construct and steal data!
+  }
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Move Semantics}
+  We ask the compiler to cast d into a temporary R-Value!
+  \begin{minted}{cpp}
+  int main() {
+    gadget* c = new gadget(42);
+
+    gadgetWrapper d(c); // Binding c to d
+    gadgetWrapper e = std::move(d); // Casts d into gadgetWrapper&& type
+
+    // d is in a NULL state
+
+    // ~e frees c, ~d does nothing avoiding the double free.
+  }
+
+  \end{minted}
+
+\end{frame}
