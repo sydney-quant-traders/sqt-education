@@ -33,7 +33,7 @@
   Reality is often disappointing. In reality, \code{std::list} and \code{std::deque} 
   do not inherit from anything.
   There is no way to obtain a base class pointer that can point to both a \code{std::list} and \code{std::deque}.
-  The solution is to wrap them with classes that DO shared a base class.
+  The solution is to wrap them with classes that DO share a base class.
 
   \begin{minted}{cpp}
     /* 2.03 */
@@ -165,7 +165,7 @@
             return static_cast<T*>(resource_.allocate(n * sizeof(T), alignof(T)));
         }
         void deallocate(T *p, size_t n) {
-            resource_.deallocate(p, n * sizeof(T), alignof(T)));
+            resource_.deallocate(p, n * sizeof(T), alignof(T));
         }
     };
   \end{minted}
@@ -233,7 +233,7 @@
   \begin{minted}{cpp}
     /* 2.05 */
     class memory_resource_wrapper_free_list : public memory_resource {/* */};
-    class memory_resource_wrapper_free_malloc : public memory_resource {/* */};
+    class memory_resource_wrapper_malloc : public memory_resource {/* */};
     /* ... */
     int main() {
         // define the memory resource objects

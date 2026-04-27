@@ -23,6 +23,9 @@ It also might make your type incompatible with libraries.
 ## RAII Semantics Conventions:
 - constructor acquires [resources that the object owns]
 - destructor  releases [resources that the object owns at the time of destruction]
+- copy construction creates a "fully independent duplicate" of the managed resource.
+    - exactly what this means is subjective, and depends on the specific class
+    - the copy should be designed such that both the original and copy can be used and destroyed independently.
 
 ## Move Semantics Conventions:
 - Using a const lvalue reference to construct an object of the same type (if valid)

@@ -6,7 +6,7 @@ template<> struct maybe<int> {
   bool has_value_;
   int value_;
   /* ... */
-  inline const int & get() const
+  inline const int & get() const // ...
 };
 #endif
 
@@ -15,7 +15,7 @@ template<> struct maybe<double> {
   bool has_value_;
   double value_;
   /* ... */
-  inline const double & get() const
+  inline const double & get() const //...
 };
 #endif
 \end{minted}

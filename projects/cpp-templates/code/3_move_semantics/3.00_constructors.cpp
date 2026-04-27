@@ -125,7 +125,7 @@ int main() {
         b = a_lref;
         b = a_rref;
 
-        std::cout << "copy assignment operator examples:" << std::endl;
+        std::cout << "move assignment operator examples:" << std::endl;
         b = std::move(a);
         b = std::move(a_lref);
         b = std::move(a_rref);

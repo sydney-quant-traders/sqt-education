@@ -1,4 +1,4 @@
-\section{Move Semantics}
+\section{Object Model}
 
 % TODO: finish slide
 \begin{frame}[fragile]{Object Model Revision}
@@ -30,47 +30,6 @@
   \includegraphics[width=12cm]{assets/constructor_compiled.png}
 \end{frame}
 
-\begin{frame}[fragile]{Copy Construction/Assignment}
-  A copy constructor is a constructor that constructs a new object using an exisiting object of the same class. Assignment will replace the existing object
-  using another object of the same class.
-
-  \begin{minted}{cpp}
-  gadget c(42);
-
-  gadget d(c); // Copy Constructed
-  gadget e = c; // Copy Constructed
-
-  d = c // Copy Assigned
-  \end{minted}
-
-  For classes managing heap memory, copies are typically implemented as deep copies. Meaning, a new area of memory is typically allocated, and corresponding
-  members are copied byte by byte.
-\end{frame}
-
-\begin{frame}[fragile]{Issue 1: Unnecessary Copies}
-  Consider the example below. 
-  
-  \emph{(Assume for the sake of this example that copy elision has been turned off, and the gadget class does not have
-  a move constructor.)}
-  \begin{minted}{cpp}
-  gadget makeGadget() {
-    gadget temp{1000};
-
-    /*
-      Doing some work
-    */
-
-    return temp;
-  }
-
-  int main() {
-    gadget c = makeGadget(); // Unnecessary copy
-  }
-  \end{minted}
-
-  Is there way to avoid this expensive copy?
-\end{frame}
-
 % TODO: finish this slide
 \begin{frame}[fragile]{Placement New}
   \begin{sqt:definition}
@@ -93,179 +52,593 @@
   
 \end{frame}
 
+\begin{frame}[fragile]{Class Design Conventions}
+  \begin{itemize}
+    \item There are a bunch of \emph{conventions} to follow when implementing a class.
+    \item Most programmers will assume these conventions hold when reading code.
+    \item Most templated libraries (e.g. std::vector<T>) will assume that the type \code{T}
+    you supply it obeys some of these conventions. Non-compliant types will lead to bugs.
+  \end{itemize}
 
+  A well designed class satisfies the following conventions:
+  \begin{itemize}
+    \item Design by contract (class invariants, preconditions, postconditions)
+    \item RAII and ownership semantics (acquire resources in ctor, release in dtor)
+    \item Copy semantics (copy constructor creates an independent duplicate)
+    \item Move semantics (move constructor transfers ownership of resources)
+  \end{itemize}
+\end{frame}
+
+% TODO: MOVE THIS SLIDE SOMEWHERE ELSE
 \begin{frame}[fragile]{RAII}
   \begin{sqt:definition}
   \emph{From cppreference:} Resource Acquisition Is Initialization or RAII, is a C++ programming technique which binds the life cycle of a resource to the lifetime of an object. 
   \end{sqt:definition}
 
   \begin{minted}{cpp}
-    Class gadgetWrapper {
-    public:
-      gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
-      
-      ~gadgetWrapper() {
-        delete gadget_;
-      }
+    // Non-RAII design
+    struct intbox {
+        int *data_;
+        void acquire(int x) { data_ = new int(x); }
+        void release() { delete data_; }
+    };
 
-    private:
-      gadget* gadget_;
+    // RAII design
+    struct intbox {
+        int *data_;
+        intbox(int x) : data_{new int(x)} {}
+        ~intbox() {delete data_;}
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Copy Construction/Assignment}
+  \begin{sqt:definition}
+    A copy constructor is a constructor that takes an existing object of the same class as its argument.
+  \end{sqt:definition}
+  Defining a copy constructor allows code like this to compile:
+  \begin{minted}{cpp}
+    /* 3.00 */
+    gadget a{};
+    gadget& a_lref = a;
+    gadget&& a_rref = std::move(a);
+
+    {
+        gadget c{a};
+        gadget d{a_lref};
+        gadget e{a_rref};
+        e = a; // copy assignment - not copy construction
     }
   \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{Issue 2: Object Ownership}
-Consider the below example using the Gadget Wrapper we developed earlier
-\begin{minted}{cpp}
-  int main() {
-    gadget* c = new gadget(42);
+\begin{frame}[fragile]{Copy Construction}
+  \begin{sqt:result}
+    In a well-designed class, copy construction should create a "fully independent duplicate", such that
+    both objects can be used and destroyed independently.
+  \end{sqt:result}
 
-    gadgetWrapper d(c); // Binding c to d
-    gadgetWrapper e = d; // Copy Constructed e from d
-
-    // ~e; ~d; -> Double Free!
-  }
-\end{minted}
-Who is actually responsible for destroying c? The above will result in Undefined Behaviour!
-\end{frame}
-
-\begin{frame}[fragile]{Solution: Move Semantics}
-  Move semantics can be used to solve both of these issues! Lets return our first issue.
-\end{frame}
-
-\begin{frame}[fragile]{Issue 1: Unnecessary Copies}
-  Consider the example below. 
-  
-  \emph{(Assume for the sake of this example that copy elision has been turned off, and the gadget class does not have
-  a move constructor.)}
+  The compiler auto-generates a copy-ctor that recursively copies each member.
   \begin{minted}{cpp}
-  gadget makeGadget() {
-    gadget temp{1000};
-
-    /*
-      Doing some work
-    */
-
-    return temp;
-  }
-
-  int main() {
-    gadget c = makeGadget(); // Unnecessary copy
-  }
+    struct bad_intbox {
+      int *data_;
+      bad_intbox(int x) : data_{new int(x)} {}
+      ~bad_intbox() { delete data_; }
+      // auto-generated copy constructor
+      bad_intbox(const bad_intbox& other) : data_{other.data_} {}
+    };
   \end{minted}
-
-  Is there way to avoid this expensive copy?
+  Usually, automatically generated copy constructors are NOT well-designed.\\
+  In this example, the resultant copy cannot be used nor destroyed independently.
 \end{frame}
 
-\begin{frame}[fragile]{Gadget Class}
-  What if the gadget class was very large?
+\begin{frame}[fragile]{Double Frees}
+  Double frees occur when you write buggy classes that don't handle copying properly.
+
+  Consider the below example using the \code{bad\_intbox} we developed earlier
   \begin{minted}{cpp}
-  class gadget {
-  public:
-    gadget(int n) {
-      data_ = new int[n];
-      size = n;
-    }
+    int main() {
+        bad_intbox original{42};
+        bad_intbox copy{original}; // copy.data_ = original.data_ (both point to same heap object!)
     
-    gadget(const gadget& other) { 
-      // Copy Logic
+        // ~original; ~copy; -> Double Free!
     }
+  \end{minted}
+  When the destructors run, both objects think that they are responsible for destroying
+  the heap-allocated integer and freeing it. This results in Undefined Behavior!
+  
+  To fix this, think carefully when implementing your copy constructors.\\
+  Make your class non-copyable if applicable.
+\end{frame}
 
+\begin{frame}[fragile]{Copy Construction}
+  To perform a proper \emph{deep copy} on our \code{intbox}, we want
+  \begin{itemize}
+    \item a new region of memory to be allocated on the heap
+    \item the \code{other.data\_} integer is copy constructed into this new region
+  \end{itemize}
 
-    ~gadget() {
-      if (data_) delete[] data;
+  \begin{minted}{cpp}
+    struct intbox {
+      int *data_;
+      intbox(int x) : data_{new int(x)} {}
+      ~intbox() { delete data_; }
+      intbox(const intbox& other) : data_{new int(*(other.data_))} {}
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Returning structs from functions}
+  In the following code example we have a copyable \code{intbox} class.\\
+
+  \begin{minted}{cpp}
+    /* 3.02 */
+    intbox sum(intbox& a, intbox& b) {
+        auto result = *(a.data_) + *(b.data_);
+        return intbox(result);
     }
+    intbox product(intbox& a, intbox& b) {
+        auto result = *(a.data_) * *(b.data_);
+        intbox retval{result};
+        return retval;
+    }
+    int demo() {
+      intbox a(5); intbox b(6);
+      auto sum_result = sum(a, b);
+      auto prod_result = product(a, b);
+    }
+  \end{minted}
+\end{frame}
 
-  private:
-    int* data; 
-    int size;
+\begin{frame}[fragile]{Returning structs from functions}
+  In the stack frame of the caller (\code{demo()}), the compiler allocates a \emph{return\_slot}.
+  The address of the return slot is implicitly passed as an argument.
+  \begin{itemize}
+    \item if the returned expr is a local variable, it gets copy-ctored into the return slot.
+    \item if the returned expr is a ctor call, the ctor is run directly on the return slot.
+  \end{itemize}
+
+  Conceptually, this is what happens under the hood:
+  \begin{minted}{cpp}
+/* 3.02 */
+intbox a(5); intbox b(6);
+alignas(intbox) uint8_t _storage_sum_result[sizeof(intbox)]; // allocate return slot on stack
+// inlined function
+{   intbox *_return_slot = reinterpret_cast<intbox *>(_storage_sum_result);
+    intbox& arg_a = a; intbox& arg_b = b; // argument binding
+{
+    auto result = *(arg_a.data_) + *(arg_b.data_);
+    new (_return_slot) intbox(result); // RVO: constructor runs directly in return slot
+}}
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Returning structs from functions}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/return_slots.drawio.svg}
+\end{frame}
+
+\begin{frame}[fragile]{Temporaries}
+  If the caller doesn't bind the return value to a variable,
+  it still allocates a return slot on the stack.\\
+  Methods may be called on this temporary while within the full expression.\\
+  However immediately following the full expression, the temporary is destroyed.
+  \begin{minted}{cpp}
+    /* 3.02 */
+    int demo() {
+        // return slot is to a temporary, rather than an intbox object
+        std::cout << product(a, b).get() << std::endl;
+        // _tmp.~intbox() // the compiler generates a call to the destructor here
+    }
+  \end{minted}
+
+  It is possible to bind the temporary to an r-value reference (later section),
+  for example by passing it into a function that takes an r-value reference as its argument.
+\end{frame}
+
+\begin{frame}[fragile]{Issue: Unnecessary Copies}
+  \begin{minted}{cpp}
+  intbox product(intbox& a, intbox& b) {
+      auto result = *(a.data_) * *(b.data_);
+      intbox retval{result};
+      return retval;
+  }
+
+  int main() {
+      intbox a(5); intbox b(6);
+      intbox c = product(a, b);
+      // the retval gets copied into return slot (c)
+      // then retval is destroyed (this seems wasteful!)
   }
   \end{minted}
+  Unacceptable waste, especially if we are returning something larger like a vector.\\
+  Is there a way to avoid this expensive copy?
+\end{frame}
+
+\section{Move Semantics}
+
+\begin{frame}[fragile]{Value Categories}
+  Every \emph{expression} has a \emph{value category} (lvalue or rvalue).
+  \begin{minted}{cpp}
+    struct lorem { struct ipsum { int x; } y; int z; } l;
+    int* ptr = &l.z;
+    int arr[3] = {1, 2, 3};
+  \end{minted}
+
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+    \textbf{lvalues} — has identity (an address)
+    \begin{minted}{cpp}
+l             // named variable
+l.z           // member access
+l.y.x         // nested member
+*ptr          // dereference
+arr[0]        // subscript
+    \end{minted}
+    Can appear on the \emph{left} side of assignment.\\
+    Can take the address with \code{\&}.
+
+    \column{0.48\textwidth}
+    \textbf{rvalues} — no persistent identity
+    \begin{minted}{cpp}
+42            // literal
+l.z + 1       // arithmetic result
+intbox(3)     // temporary object
+std::move(l)  // cast to rvalue
+int{}         // value-initialized tmp
+    \end{minted}
+    Cannot appear on the left side of assignment.\\
+    Cannot take the address with \code{\&}.
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{rvalue references}
+  \begin{sqt:definition}
+    An \emph{rvalue reference} is a reference that can bind to an \emph{rvalue}.
+  \end{sqt:definition}
+  \begin{sqt:result}
+    When a ref is bound to a tmp, lifetime extended until the ref goes out of scope.\\
+    i.e. the compiler postpones the dtor to the end of the scope.
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    /* 3.03 */
+    {
+        // tell compiler: we want to extend the tmp's lifetime until end of scope
+        intbox&& rref = intbox(3);
+        // play around with the temporary via the rvalue ref
+        std::cout << rref.get() << std::endl;
+        rref.get() *= 10;
+        std::cout << rref.get() << std::endl;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Arguments by rvalue ref}
+  We already know that a function can take arguments by (lvalue) reference.\\
+  It is also possible for a function to take arguments by rvalue reference.
+
+  \begin{minted}{cpp}
+/* 3.03 */
+void foo(intbox& obj) { obj.data_ += 42; }
+void foo(intbox&& obj) { obj.data_ = nullptr; }
+
+int main() {
+    // If you pass in an rvalue (e.g. the temporary result of the ctor function intbox(3)),
+    // the rvalue reference extends the lifetime of the temporary until the function returns.
+    foo(intbox(3));
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Overload resolution}
+  Given that an argument has two overloads, one taking lvalues and one taking rvalues,
+  how does the compiler determine which overload to dispatch for each call-site?
+
+  \begin{minted}{cpp}
+    {
+        intbox x{3};
+        intbox&& rref = std::move(x);
+
+        foo(x); // calls lvalue overload
+        foo(rref); // also calls lvalue overload (weird)
+        foo(intbox(3)); // calls rvalue overload
+        foo(std::move(x)); // calls rvalue overload
+        foo(std::move(rref)); // calls rvalue overload
+    }
+  \end{minted}
+
+  \begin{sqt:result}
+    The compiler picks the overload depending on the \emph{value category} of the argument.
+  \end{sqt:result}
 \end{frame}
 
 \begin{frame}[fragile]{Solution: Move Construction}
-  We add the following method to our gadget class
-  \begin{minted}{cpp}
-    gadget(gadget&& other) noexcept {
-      // 'Steal' all the data
-      this->data = other.data;
-      this->size = other.size;
+  \begin{sqt:definition}
+    A move constructor is a constructor that takes an rvalue reference
+    to an existing object of the same type.
+  \end{sqt:definition}
 
-      // Set members of 'other' to be null/empty, ready to be destroyed
-      other.data = nullptr;
-      other.size = 0;
+  \begin{minted}{cpp}
+    struct intbox {
+        /* ... */
+        intbox(intbox&& other) : data_{std::exchange(other.data_, nullptr)} {
+            std::cout << "move constructor" << std::endl;
+        }
+    };
+
+    int main() {
+        intbox a(42);
+        intbox b = std::move(a); // b.data_ = a.data_; a.data_ = nullptr; (cheap operation)
+        // a now points to nothing
+        // ~a; ~b; // b's destructor frees the heap-allocated int, a's destructor frees nullptr (no-op).
     }
   \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{Returning back}
+\begin{frame}[fragile]{Returning a local variable by moving}
   \begin{minted}{cpp}
-  gadget makeGadget() {
-    gadget temp{1000};
+    intbox product(intbox& a, intbox& b) {
+        auto result = *(a.data_) * *(b.data_);
+        intbox retval{result};
+        return std::move(retval);
+    }
 
-    /*
-      Doing some work
-    */
+    int main() {
+        intbox a(5); intbox b(6);
+        intbox c = product(a, b);
+        // retval is move constructed into the return slot c (cheap operation)
+        // retval is then destroyed (but it owns nothing at this point)
+    }
+  \end{minted}
 
-    return temp;
-  }
+  \begin{sqt:tip}
+    RVO/NRVO (constructing directly in return slot)
+    is preferable over constructing inside a local variable,
+    and then \code{std::move} into the return slot.
+  \end{sqt:tip}
+\end{frame}
 
-  int main() {
-    gadget c = makeGadget(); // Invokes move constructor 
-  }
+\section{Forwarding Refs}
+
+\begin{frame}[fragile]{Bounded Vector}
+  \begin{sqt:result}
+    When a caller passes an rvalue into a function,
+    by convention, this means that the caller is giving permission 
+    for the callee to \emph{move construct} from the ref.
+  \end{sqt:result}
+  In this code example we define a vector class with a fixed capacity.
+  \begin{minted}{cpp}
+    /* 3.05 */
+    template <typename T, std::size_t Capacity>
+    struct bounded_vector {
+        // lifetime and resource management
+        bounded_vector() {/* */}
+        ~bounded_vector() {/* */}
+        bounded_vector(const bounded_vector<T, Capacity>& other) {/* */}
+        // member functions
+        void push_back(T& obj) {/* */}
+        void push_back(T&& obj) {/* */}
+    };
   \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{Moving Ownership}
-  Lets add a move constructor to our wrapper class and delete the copy constructor
+\begin{frame}[fragile]{Why do we want the rvalue overload?}
+  What would happen if we didn't have this rvalue overload for \code{push\_back}?
+
   \begin{minted}{cpp}
-    Class gadgetWrapper {
-    public:
-      gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
+    int main() {
+        bounded_vector<intbox, 8> vec;
+        vec.push_back(intbox(3)); // COMPILE ERROR
 
-      gadgetWrapper(const gadgetWrapper& other) = delete;
+        // required either one of these to be defined:
+        // - push_back(const intbox& obj) [because const lvalue refs can bind to rvalues]
+        // - push_back(intbox&& obj)
+    }
+  \end{minted}
+\end{frame}
 
-      gadgetWrapper(gadgetWrapper&& other) {
-        this->gadget_ = other.gadget_;
-        other.gadget_ = nullptr;
-      }
+\begin{frame}[fragile]{Why do we want the rvalue overload?}
+  What would happen if we made \code{push\_back} take a \emph{const} ref instead?
+  \begin{minted}{cpp}
+    /* 3.05 */
+    template <typename T, std::size_t Capacity>
+    struct bounded_vector {
+        /* ... */
+        void push_back(const T& obj) {
+            // this function is NOT permitted to move from obj
+            // since it is a const reference
+        }
+    };
+
+    int main() {
+        bounded_vector<intbox, 8> vec;
+        vec.push_back(intbox(3));
+        // copy constructs into the vector
+        // this may be expensive if type T handled more resources
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The issue: repeated logic}
+  For this particular use case (\code{push\_back()}), we run the same logic
+  when both rvalues and lvalues are passed as arguments. 
+  We just want to \emph{forward the argument perfectly} into the constructor.
+
+  \begin{minted}{cpp}
+    /* 3.05 - bounded_vector */
+    void push_back(T& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(obj);             // calls constructor with obj (lvalue)
+        size_++;
+    }
+
+    void push_back(T&& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(std::move(obj));  // calls constructor with obj (rvalue)
+        size_++;
+    }
+
+    // note that even though decltype of obj is T&&
+    // the expression "obj" is still lvalue category, so we must std::move to make rvalue
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Invalid solution: attempt to deduce \code{F = T\&}}
+  \begin{minted}{cpp}
+    template <typename F>                             // e.g. hope that: F = T&&
+    void push_back(F obj) {                           // e.g. hope that: T&& obj
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
+        size_++;
+    }
+    /* ... */
+    vec.push_back(intbox(3));
+  \end{minted}
+
+  The idea is that we hope \code{F} can deduce to either \code{T\&} or \code{T\&\&},
+  depending on what value category we use at the call-site.
+
+  \begin{sqt:result}
+    Template argument deduction will strip references if the argument is declared as \code{(F obj)}.
+    i.e. \code{F} will always deduce to just \code{T}, not \code{T\&} or \code{T\&\&}.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Bad solution: explicit instantiation}
+  \begin{minted}{cpp}
+    template <typename F>                             // e.g. F = T&&
+    void push_back(F obj) {                           // e.g. T&& obj
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
+        size_++;
+    }
+    /* ... */
+    vec.push_back<intbox &&>(intbox(3));
+  \end{minted}
+
+  We have gotten rid of duplicate logic, at the cost of needing each call-site
+  to explicitly specify the template parameter. If you miss one, it silently
+  makes a by-value overload (which is the worst thing ever).  
+\end{frame}
+
+\begin{frame}[fragile]{The solution: forwarding references}
+  \begin{sqt:definition}
+    The \emph{forwarding reference} technique is when a function parameter has declared type
+    \code{F\&\&}, where \code{F} is a template argument of the function.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    /* 3.06 - bounded_vector */
+    template <typename F>
+    void push_back(F&& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<F&&>(obj));
+        size_++;
+    }
+  \end{minted}
+
+  At first glance, wouldn't this only produce an rvalue overload?
+\end{frame}
+
+\begin{frame}[fragile]{How does it work}
+  There is no special compiler logic that handles forwarding references.\\
+  Two parts of the C++ language come together to make forwarding references possible:
+  \begin{itemize}
+    \item Reference collapsing rules
+    \item A special rule for template argument deduction
+  \end{itemize}
+
+  Ref collapsing rules determine the resultant type when you take a ref to a ref.
+
+  \begin{minted}{cpp}
+      using L = int&;     // int &      -> int&
+        using LL = L&;    // int & &    -> int&
+        using LR = L&&;   // int & &&   -> int&   (relevant to forward refs)
+
+      using R = int&&;    // int &&     -> int&&  (relevant to forward refs)
+        using RL = R&;    // int && &   -> int&
+        using RR = R&&;   // int && &&  -> int&&
+  \end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{How does it work}
+  When called with both value categories, two instantiations are created:
+  \begin{minted}{cpp}
+    template <> // F = T
+    void push_back(T && obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<T &&>(obj));
+        size_++;
+    }
+
+    template <> // F = T&
+    void push_back(T& && obj) {                          // F&&  -> T & && -> T&
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<T& &&>(obj));  // F&&  -> T & && -> T&
+        size_++;
+    }
+  \end{minted}
+
+  \begin{sqt:definition}
+    \code{std::forward<F>} is defined as \code{static\_cast<F\&\&>}.
+  \end{sqt:definition}
+\end{frame}
+
+
+% % Used for
+% \begin{frame}[fragile]{Non-Copyable Stuff}
+%   Let's create a non-copyable int box
+
+
+%   Lets add a move constructor to our wrapper class and delete the copy constructor
+%   \begin{minted}{cpp}
+%     Class gadgetWrapper {
+%     public:
+%       gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
+
+%       gadgetWrapper(const gadgetWrapper& other) = delete;
+
+%       gadgetWrapper(gadgetWrapper&& other) {
+%         this->gadget_ = other.gadget_;
+%         other.gadget_ = nullptr;
+%       }
       
-      ~gadgetWrapper() {
-        if (gadget_) delete gadget_;
-      }
+%       ~gadgetWrapper() {
+%         if (gadget_) delete gadget_;
+%       }
 
-    private:
-      int* gadget_;
-    }
-  \end{minted}
-\end{frame}
+%     private:
+%       int* gadget_;
+%     }
+%   \end{minted}
+% \end{frame}
 
-\begin{frame}[fragile]{Moving Ownership cont}
-  Now the previous example won't even compile!
-  \begin{minted}{cpp}
-  int main() {
-    gadget* c = new gadget(42);
+% \begin{frame}[fragile]{Moving Ownership cont}
+%   Now the previous example won't even compile!
+%   \begin{minted}{cpp}
+%   int main() {
+%     gadget* c = new gadget(42);
 
-    gadgetWrapper d(c); // Binding c to d
-    gadgetWrapper e = d; // ERROR: Can't copy construct and steal data!
-  }
-\end{minted}
-\end{frame}
+%     gadgetWrapper d(c); // Binding c to d
+%     gadgetWrapper e = d; // ERROR: Can't copy construct and steal data!
+%   }
+% \end{minted}
+% \end{frame}
 
-\begin{frame}[fragile]{Solution: Move Semantics}
-  We ask the compiler to cast d into a temporary R-Value!
-  \begin{minted}{cpp}
-  int main() {
-    gadget* c = new gadget(42);
+% \begin{frame}[fragile]{Solution: Move Semantics}
+%   We ask the compiler to cast d into a temporary R-Value!
+%   \begin{minted}{cpp}
+%   int main() {
+%     gadget* c = new gadget(42);
 
-    gadgetWrapper d(c); // Binding c to d
-    gadgetWrapper e = std::move(d); // Casts d into gadgetWrapper&& type
+%     gadgetWrapper d(c); // Binding c to d
+%     gadgetWrapper e = std::move(d); // Casts d into gadgetWrapper&& type
 
-    // d is in a NULL state
+%     // d is in a valid state but owns nothing.
 
-    // ~e frees c, ~d does nothing avoiding the double free.
-  }
+%     // ~e frees c, ~d does nothing avoiding the double free.
+%   }
 
-  \end{minted}
-
-\end{frame}
+%   \end{minted}
+% \end{frame}

@@ -153,9 +153,8 @@
 \end{frame}
 
 \begin{frame}[fragile]{Make Unique}
-  % TODO: finish this explanation
-  We want a function that allows us to 
-  without having to 
+  We want a function that allows us to construct the underlying object,
+  and construct the \code{unique\_ptr} that takes ownership of it, in one go.
 
   \begin{minted}{cpp}
     int main() {
@@ -166,5 +165,131 @@
         // use smart_ptr2 as return slot and call function std::make_unique
         auto smart_ptr2 = std::make_unique<std::vector<char>>(16, 'C');
     }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Make Unique: Solution}
+  \begin{minted}{cpp}
+    template <typename T, typename... Args>
+    unique_ptr<T> make_unique(Args&&... args) {
+        return unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+
+    int main() {
+        int x = 5;
+        unique_ptr<widget> w1 = make_unique<widget>(6, x, 8);
+        auto w2 = std::move(w1);
+    }
+
+    template </* T = widget, Args = [int, int&, int] */> 
+    unique_ptr<widget> make_unique(int&& arg1, int& arg2, int&& arg3) {
+        return unique_ptr<widget>(new widget(
+            std::forward<int>(arg1),        // int a = static_cast<int&&>(arg1);
+            std::forward<int&>(arg2),       // int& b = static_cast<int&>(arg2);
+            std::forward<int>(arg3)));      // int&& c = static_cast<int&&>(arg3);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Callables and Lambdas}
+  \begin{sqt:definition}
+    A callable object is an instance of a class with an overloaded \emph{call} operator,
+    which allows the object to be \emph{called} with args as if it was a function.
+  \end{sqt:definition}
+  \begin{minted}{cpp}
+    int main() {
+        struct callable {
+            int operator()(int a, int b) { return a + b; }
+        };
+        callable instance;
+        std::cout << instance(3, 4) << std::endl;
+
+        // the type of a lambda is chosen by the compiler
+        auto lambda = [](int a, int b) {
+            return a + b;
+        };
+        std::cout << lambda(1, 2) << std::endl;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The Problem}
+  Different callable and lambda types don't share a base class.
+  Therefore by default we cannot store them in a single container, or 
+  dynamically dispatch over it, unless we employ type erasure.
+  \begin{minted}{cpp}
+    struct call_t {
+        int operator()(int a) { return 2 * a};
+    };
+    call_t callable1; // one type
+    auto callable2 = [](int a){return a;} // another type
+    auto callable3 = [](int a){return a + 3;} // another type!
+
+    auto vec = std::vector{&callable1, &callable2, &callable3}; // ERROR: don't share a base class
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Type Erased Function}
+  We want this function class to wrap any callable with the correct signature.
+  \begin{minted}{cpp}
+    template <typename Ret, typename... Args>
+    class function {
+        /* ... */
+        // DO NOT make this a virtual method
+        // we will be passing functions around by value (instead of by pointer)
+        Ret operator()(Args... args) {
+            // TODO: implement
+        }
+    };
+
+    int main() {
+        function<int, int, int> func1 = [](int a, int b) { return a + b; }
+        function<int, int, int> func2 = [](int a, int b) { return a + b; }
+        auto vec = std::vector{std::move(func1), std::move(func2)};
+        for (auto& f : vec) std::cout << f(3, 4) << std::endl;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  \begin{minted}{cpp}
+    template <typename Ret, typename... Args>
+    struct type_erased_callable {
+        virtual ~type_erased_callable() {}
+        virtual Ret operator()(Args... args) = 0;
+    };
+
+    template <typename T, typename Ret, typename... Args>
+    class callable_wrapper : public type_erased_callable<Ret, Args...> {
+    public:
+        template <typename F>
+        callable_wrapper(F&& callable) : callable_{std::forward<F>(callable)} {}
+
+        Ret operator()(Args... args) override {
+            return callable_(std::forward<Args>(args)...);
+        }
+    private:
+        T callable_;
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  \begin{minted}{cpp}
+template <typename Ret, typename... Args>
+struct function {
+    template <typename T> // T is a callable
+    function(T&& callable) 
+    : impl_{
+      std::make_unique<
+        detail::callable_wrapper<std::decay_t<T>, Ret, Args...>>(std::forward<T>(callable))} 
+    {}
+
+    Ret operator()(Args... args) {
+        // dynamic dispatch via base class pointer
+        return impl_->operator()(std::forward<Args>(args)...);
+    }
+    std::unique_ptr<detail::type_erased_callable<Ret, Args...>> impl_;
+};
   \end{minted}
 \end{frame}

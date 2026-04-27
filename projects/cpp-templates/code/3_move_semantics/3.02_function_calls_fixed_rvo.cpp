@@ -1,4 +1,4 @@
-// clang++ -std=c++20 -fno-elide-constructors 3.00_binding.cpp
+// clang++ -std=c++20 -fno-elide-constructors 3.02_function_calls_fixed_rvo.cpp
 
 #include <utility>
 #include <cstdint>
@@ -32,10 +32,6 @@ struct intbox {
         std::cout << "copy constructor" << std::endl;
     };
     intbox& operator=(const intbox& other) = delete;
-    intbox(intbox&& other) : data_{std::exchange(other.data_, nullptr)} {
-        std::cout << "move constructor" << std::endl;
-    }
-    intbox& operator=(intbox&& other) = delete;
 
     // returns a reference to the data contained
     int& get() {
@@ -67,14 +63,14 @@ int demo() {
     intbox a(5);
     intbox b(6);
 
-    // RVO: return slot is to sum_result storage
+    // RVO, return slot points to sum_result storage
     auto sum_result = sum(a, b);
 
-    // No RVO: return slot is STILL to product_result storage
+    // No RVO, return slot points to product_result storage
     // - however an extra move occurs in the function body
     auto product_result = product(a, b);
 
-    // No RVO: return slot is to a temporary, rather than an intbox object
+    // No RVO, return slot points to a temporary, not a named variable
     std::cout << product(a, b).get() << std::endl;
 
     return 0;
@@ -108,8 +104,8 @@ int demo_expanded() {
     {
         auto result = *(arg_a.data_) * *(arg_b.data_);
         intbox retval{result};
-        // No RVO: move constructed into storage
-        new (_return_slot) intbox(std::move(retval));
+        // No RVO: copy constructed into storage
+        new (_return_slot) intbox(retval);
     }}
     intbox& product_result = *std::launder(reinterpret_cast<intbox *>(_storage_product_result));
     scope_exit _product_result_guard([&]{product_result.~intbox();});

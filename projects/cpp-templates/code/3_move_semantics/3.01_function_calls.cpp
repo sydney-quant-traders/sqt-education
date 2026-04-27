@@ -1,4 +1,4 @@
-// clang++ -std=c++20 -fno-elide-constructors 3.00_binding.cpp
+// clang++ -std=c++20 -fno-elide-constructors 3.01_function_calls.cpp
 
 #include <utility>
 #include <cstdint>
@@ -71,7 +71,7 @@ int demo() {
     // creates a temporary that is destroyed when expression ends
     std::cout << product(a, b).get() << std::endl;
 
-    // equivalent to intbox product_result{product(a, get_three())};
+    // equivalent to intbox product_result{product(a, b)};
     auto product_result = product(a, b);
 
     // Do whatever we want with product_result
