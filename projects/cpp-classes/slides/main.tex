@@ -253,4 +253,153 @@
 
 \section{Polymorphism}
 
+\section{Generic Programming}
+
+% Intro to templates
+\begin{frame}{C++ Templates}
+  \begin{sqt:definition}[\textbf{Definition:} Generic Programming]
+    Writing algorithms and data structures \textbf{once}, usable with \textbf{any type}.
+  \end{sqt:definition}
+
+  Generic programming promotes:
+  \begin{itemize}
+    \item \textbf{Reusability} -- no need to rewrite code multiple times
+    \item \textbf{Type safety} -- errors caught at compile time
+    \item \textbf{Efficiency} -- no runtime overhead
+  \end{itemize}
+
+  In C++, this is achieved with \textbf{templates}.
+\end{frame}
+
+
+\begin{frame}[fragile]{C++ Templates}
+  \begin{minted}{cpp}
+    template <typename T>
+    // ^ declares T as a placeholder type
+  \end{minted}
+
+  \texttt{typename} and \texttt{class} are interchangeable in template declarations.
+
+  \vspace{0.4cm}
+  Templates can be used to define:
+  \begin{itemize}
+    \item \textbf{Function templates}: generic functions over any type
+    \item \textbf{Class templates}: generic data structures over any type
+    \item \textbf{Variable templates}: generic constants over any type (C++14)
+  \end{itemize}
+\end{frame}
+
+% Function templates
+\begin{frame}[fragile]{Example: \texttt{max()} without function templates}
+  \begin{minted}{cpp}
+    int max(int x, int y) {
+        return (x > y) ? x : y;
+    }
+    double max(double x, double y) {
+        return (x > y) ? x : y;
+    }
+    char max(char x, char y) {
+        return (x > y) ? x : y;
+    }
+  \end{minted}
+
+  Same logic, repeated for every type. Can we do better?
+\end{frame}
+
+
+\begin{frame}[fragile]{Example: \texttt{max()} with function templates}
+  \begin{minted}{cpp}
+    #include <iostream>
+
+    // "Template parameter declaration"
+    template <typename T> 
+    T max(T x, T y) {
+        return (x > y) ? x : y;
+    }
+
+    int main(){
+      std::cout << max(1, 2) << '\n'; // "2"
+      std::cout << max(3.5, 7.5) << '\n'; // "7.5"
+      std::cout << max('a', 'b') << '\n';  // "b"
+      return 0;
+    }
+
+  \end{minted}
+
+  \texttt{T} is a naming convention for a template type parameter (as in "type"). \\
+  What about \texttt{max(1, 2.1)}?
+\end{frame}
+
+\begin{frame}[fragile]{Example: Multiple type parameters}
+  \begin{minted}{cpp}
+    #include <iostream>
+
+    template <typename T, typename U> // additional types follow the same pattern
+    auto max(T x, U y) {
+        return (x > y) ? x : y;
+    }
+
+    int main(){
+      std::cout << max(1, 2.1) << '\n'; // "2.1"
+      return 0;
+    }
+
+  \end{minted}
+
+  Using the \texttt{auto} keyword, the compiler will deduce what the return type should be.
+\end{frame}
+
+\begin{frame}[fragile]{Where have we seen function templates?}
+  \texttt{std::sort} from \texttt{<algorithm>} works on any container of any type:
+  \begin{minted}{cpp}
+    std::vector<int> ints = {3, 1, 2};
+    std::vector<double> doubles = {3.5, 1.1, 2.2};
+    std::vector<std::string> strings = {"banana", "apple", "cherry"};
+
+    std::sort(ints.begin(), ints.end());
+    std::sort(doubles.begin(), doubles.end());
+    std::sort(strings.begin(), strings.end());
+  \end{minted}
+  Under the hood, \texttt{std::sort} is a function template -- the same code,
+  compiled for each type it is called with.
+\end{frame}
+
+% Class templates
+\begin{frame}[fragile]{Example: Class templates}
+  \begin{minted}{cpp}
+    #include <iostream>
+    template <typename T>
+    class Pair {
+      public:
+        T x_;
+        T y_;
+        Pair(T x, T y) : x_(x), y_(y) {}
+        void print() const {
+            std::cout << x_ << " " << y_ << '\n';
+        }
+    };
+    int main() {
+        Pair<int> ints(10, 20);
+        Pair<double> doubles(3.14, 6.28);
+        ints.print();    // 10 20
+        doubles.print(); // 3.14 6.28
+        return 0;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Where have we seen class templates?}
+  \texttt{std::vector} from \texttt{<vector>} works with any type:
+  \begin{minted}{cpp}
+    std::vector<int> ints = {1, 2, 3};
+    std::vector<double> doubles = {1.1, 2.2, 3.3};
+    std::vector<std::string> strings = {"a", "b", "c"};
+  \end{minted}
+
+  \texttt{std::vector} is a class template -- the same data structure,
+  compiled for each type it is instantiated with. \vspace{4pt}
+
+  In fact, all standard library containers (e.g. \texttt{queue}, \texttt{stack}, \texttt{map}) are class templates.
+\end{frame}
+
 \end{document}
