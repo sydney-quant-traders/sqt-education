@@ -323,8 +323,8 @@ void foo(intbox& obj) { obj.data_ += 42; }
 void foo(intbox&& obj) { obj.data_ = nullptr; }
 
 int main() {
-    // If you pass in an rvalue (e.g. the temporary result of the ctor function intbox(3)),
-    // the rvalue reference extends the lifetime of the temporary until the function returns.
+    // If you pass in an rvalue (e.g. the tmp result of the ctor function intbox(3)),
+    // the rvalue ref extends the lifetime of the tmp until the function returns.
     foo(intbox(3));
 }
   \end{minted}
@@ -370,7 +370,8 @@ int main() {
         intbox a(42);
         intbox b = std::move(a); // b.data_ = a.data_; a.data_ = nullptr; (cheap operation)
         // a now points to nothing
-        // ~a; ~b; // b's destructor frees the heap-allocated int, a's destructor frees nullptr (no-op).
+        // ~b; // b's dtor frees the heap-allocated int
+        // ~a; // a's destructor frees nullptr (no-op).
     }
   \end{minted}
 \end{frame}
