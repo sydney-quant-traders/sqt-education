@@ -12,18 +12,6 @@
 %%-----------------EAMON
 \section{Fundamentals}
 
-\begin{frame}{Counting Problem Examples}
-  \begin{itemize}
-    \item How many outfits can be made from 4 shirts and 3 hats?
-    \item How many ways to arrange 4 people on a circular table?
-    \item How many ways to choose a set of 3 cards out of a deck?
-    \item How many ways to divide 10 students into 3 teams of non-zero size?
-    \item How many bracelets can be made with 3 white and 3 black beads?
-    \item How many colorings of a graph with the colors \{red, green, blue\}
-    such that no edge connects two vertices of the same color.
-  \end{itemize}
-\end{frame}
-
 \begin{frame}{Introductory Problem}
   \textcolor{sqt-question}{
     \textbf{Example:} How many outfits can be made from 4 shirts and 3 hats?}\\
@@ -49,24 +37,202 @@
 %%would be cool if you could explain in a similar fashion to http://youtube.com/watch?v=ggNeQUe1Hj8
 
 %TO FINISH
-\begin{frame}{Addition and Multiplication}
-  example
+\begin{frame}{The Addition Principle}
+  \begin{sqt:definition}[\textbf{Addition Principle}]
+    If two tasks are \textbf{mutually exclusive} (cannot both be done simultaneously),
+    and task A can be done in $m$ ways and task B can be done in $n$ ways,
+    then there are $m + n$ ways to do \textbf{either} A or B.
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} Prove that $\displaystyle\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$.
+  }
+
+  \pause
+
+  Fix one person from a group of $n$. Every size-$k$ subset either:
+  \begin{itemize}
+    \item \textbf{includes} them — choose the remaining $k-1$ from $n-1$ others: $\binom{n-1}{k-1}$ ways
+    \item \textbf{excludes} them — choose all $k$ from $n-1$ others: $\binom{n-1}{k}$ ways
+  \end{itemize}
+  These cases are mutually exclusive and exhaustive $\Rightarrow$ add them. $\square$
+\end{frame}
+
+\begin{frame}{The Multiplication Principle}
+  \begin{sqt:definition}[\textbf{Multiplication Principle}]
+    If two tasks are \textbf{independent}, and task A can be done in $m$ ways
+    and task B can be done in $n$ ways, then there are $m \times n$ ways to do
+    \textbf{both} A and B.
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many subsets does an $n$-element set have?
+  }
+
+  \pause
+
+  For each element, independently decide: \textbf{include} or \textbf{exclude} it.
+  \begin{itemize}
+    \item Each element contributes 2 independent choices
+    \item By the multiplication principle: $\underbrace{2 \times 2 \times \cdots \times 2}_{n} = 2^n$
+  \end{itemize}
+
+  \begin{sqt:tip}[Note]
+    The empty set and the full set are both counted — there are exactly $2^n$ subsets.
+  \end{sqt:tip}
 \end{frame}
 
 \begin{frame}{Exponentiation}
-  example
+  \begin{sqt:definition}[\textbf{Exponentiation Rule}]
+    The number of ways to form a sequence of $k$ choices, each from a set of $n$ options
+    (with repetition allowed), is $n^k$.
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many functions are there from a $k$-element set to an $n$-element set?
+  }
+
+  \pause
+
+  For each of the $k$ elements in the domain, independently choose one of $n$ outputs.
+  \begin{itemize}
+    \item Each of $k$ decisions has $n$ options, all independent
+    \item Total $= \underbrace{n \times n \times \cdots \times n}_{k} = n^k$
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Exponentiation}
-  example
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many binary strings of length $n$ contain no two consecutive 1s?
+  }
+
+  \pause
+
+  Let $a_n$ = number of valid strings of length $n$. Condition on the first bit:
+  \begin{itemize}
+    \item First bit is \textbf{0} — remaining $n-1$ bits can be any valid string: $a_{n-1}$ ways
+    \item First bit is \textbf{1} — second bit must be 0, then any valid string of length $n-2$: $a_{n-2}$ ways
+  \end{itemize}
+  So $a_n = a_{n-1} + a_{n-2}$, with $a_1 = 2$, $a_2 = 3$ — the \textbf{Fibonacci sequence}!
+
+  \begin{sqt:tip}[Key Idea]
+    Exponentiation counts unrestricted sequences; constraints force us to count more carefully via recurrences.
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}{Permutations}
+  \begin{sqt:definition}[\textbf{Permutation}]
+    An ordered selection of $k$ items from $n$ distinct items (no repetition):
+    \[
+      P(n,k) = n \times (n-1) \times \cdots \times (n-k+1) = \frac{n!}{(n-k)!}
+    \]
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can a gold, silver, and bronze medal be awarded to 3 of 8 athletes?
+  }
+
+  \pause
+
+  \begin{itemize}
+    \item 8 choices for gold, 7 for silver, 6 for bronze — order matters
+    \item $P(8,3) = 8 \times 7 \times 6 = 336$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Combinations}
+  \begin{sqt:definition}[\textbf{Combination}]
+    An unordered selection of $k$ items from $n$ distinct items:
+    \[
+      \binom{n}{k} = \frac{P(n,k)}{k!} = \frac{n!}{k!(n-k)!}
+    \]
+  \end{sqt:definition}
+
+  \begin{sqt:tip}[Why divide by $k!$?]
+    Each unordered subset is counted $k!$ times in $P(n,k)$ — once per ordering of its elements.
+  \end{sqt:tip}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can 3 athletes be chosen from 8 for a relay team (no roles)?
+  }
+
+  \pause
+
+  \begin{itemize}
+    \item Order no longer matters — divide out the $3! = 6$ orderings
+    \item $\binom{8}{3} = \frac{336}{6} = 56$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Combinations...}
+  \begin{center}
+    \includegraphics[width=0.9\textwidth, height=0.8\textheight, keepaspectratio]{assets/cmbs.pdf}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Permutations and Combinations}
-  example
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can a team of 3 be chosen from 10 people, then assigned the roles of captain, vice-captain, and treasurer?
+  }
+
+  \pause
+
+  \textbf{Method 1 — permutation directly:}
+  \begin{itemize}
+    \item Choose and assign all at once: $P(10,3) = 10 \times 9 \times 8 = 720$
+  \end{itemize}
+
+  \textbf{Method 2 — combination then arrange:}
+  \begin{itemize}
+    \item Choose 3 people: $\binom{10}{3} = 120$ ways
+    \item Assign 3 roles to them: $3! = 6$ ways
+    \item Total: $120 \times 6 = 720$ \checkmark
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Stars and Bars}
-  example
+  \begin{sqt:definition}[\textbf{Stars and Bars}]
+    The number of ways to distribute $n$ identical objects into $k$ distinct bins
+    (allowing empty bins) is:
+    \[
+      \binom{n+k-1}{k-1}
+    \]
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many solutions does $x_1 + x_2 + x_3 = 5$ have in non-negative integers?
+  }
+
+  \pause
+
+  Represent each solution as a row of 5 stars and 2 bars, e.g.\
+  $\star\star \mid \star \mid \star\star$ corresponds to $(x_1,x_2,x_3) = (2,1,2)$.
+  \begin{itemize}
+    \item Choose 2 positions for bars among $5 + 2 = 7$ positions: $\binom{7}{2} = 21$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Stars and Bars}
+  \begin{center}
+    \includegraphics[width=0.9\textwidth, height=0.85\textheight, keepaspectratio]{assets/strbrs.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Stars and Bars}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can 10 identical chocolates be distributed among 4 children if each child gets \textbf{at least 1}?
+  }
+
+  \pause
+
+  Give 1 chocolate to each child first — reduces to distributing $10 - 4 = 6$ freely among 4 children.
+  \[
+    \binom{6 + 4 - 1}{4 - 1} = \binom{9}{3} = 84
+  \]
+
+  \begin{sqt:tip}[General trick]
+    A lower bound of $m$ per bin $\Rightarrow$ subtract $m$ from each bin first, then apply stars and bars freely.
+  \end{sqt:tip}
 \end{frame}
 
 %--------------------------------------ADI
