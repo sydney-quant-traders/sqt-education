@@ -41,8 +41,8 @@ int main() {
     // ERROR: <Container, Value> = <double, int>
     // ERROR: double has no .pop_front() method
     /*
-    double not_two_sided;
-    push(not_two_sided, 1);
+    double x;
+    push(x, 1);
     */
 }
     

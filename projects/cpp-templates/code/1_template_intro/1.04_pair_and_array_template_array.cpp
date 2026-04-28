@@ -9,7 +9,7 @@ struct pair {
     S second_;
 };
 
-// an array of 8 integers
+// an array of N objects of type T
 template <typename T, std::size_t N>
 // requries: 
 // - T must be default constructible

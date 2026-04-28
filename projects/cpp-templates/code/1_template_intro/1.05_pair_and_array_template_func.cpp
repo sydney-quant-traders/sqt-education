@@ -36,11 +36,11 @@ template <typename T, std::size_t N>
 pair<T, double> get_max_and_average(const array<T, N>& nums) {
     T curr_max = nums.at(0);
     double curr_sum = 0;
-    for (std::size_t i = 0; i < 8; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         curr_max = curr_max > nums.at(i) ? curr_max : nums.at(i);
         curr_sum += nums.at(i);
     }
-    return {curr_max, curr_sum / 8};
+    return {curr_max, curr_sum / N};
 }
 
 // --- Application Code ---
