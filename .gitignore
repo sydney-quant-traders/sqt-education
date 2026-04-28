@@ -8,3 +8,6 @@ COMPONENTS.md
 DECISIONS.md
 FEATURES.md
 claude-memory-strategy.md
+
+.venv/
+venv/
