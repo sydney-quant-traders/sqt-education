@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1777211819.83685 "/Users/aditya/Documents/university_resource_files/sydney_quant_traders/sqt-education/style/sqtbeamer.tex" "sqtbeamer.pdf" "sqtbeamer" 1777211820.47076 2
-  "/Users/aditya/Documents/university_resource_files/sydney_quant_traders/sqt-education/style/sqtbeamer.tex" 1777211818.85641 4764 bee9070eac0ece9aeafe21d267fc1e1e ""
+["pdflatex"] 1777373065.1926 "/Users/aditya/Documents/university_resource_files/sydney_quant_traders/sqt-education/style/sqtbeamer.tex" "sqtbeamer.pdf" "sqtbeamer" 1777373065.90864 2
+  "/Users/aditya/Documents/university_resource_files/sydney_quant_traders/sqt-education/style/sqtbeamer.tex" 1777373064.1822 4764 bee9070eac0ece9aeafe21d267fc1e1e ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmr10.tfm" 1136768653 1296 45809c5a464d5f32c8f98ba97c1bb47f ""
   "/usr/local/texlive/2026basic/texmf-dist/fonts/tfm/public/cm/cmss10.tfm" 1136768653 1316 b636689f1933f24d1294acdf6041daaa ""
@@ -155,7 +155,7 @@
   "/usr/local/texlive/2026basic/texmf-var/web2c/pdftex/pdflatex.fmt" 1774330078 3636683 79488beba68f5a7a8030e058cc90fd4a ""
   "/usr/local/texlive/2026basic/texmf.cnf" 1772405582 628 bbc09d6d38872d53c11bb48dc9b14e88 ""
   "sqtbeamer.aux" 0 -1 0 "pdflatex"
-  "sqtbeamer.tex" 1777211818.85641 4764 bee9070eac0ece9aeafe21d267fc1e1e ""
+  "sqtbeamer.tex" 1777373064.1822 4764 bee9070eac0ece9aeafe21d267fc1e1e ""
   (generated)
   "sqtbeamer.aux"
   "sqtbeamer.log"
