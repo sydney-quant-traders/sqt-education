@@ -1,10 +1,9 @@
 \section{Templates}
 
-% TODO: finish this
-
-\begin{frame}[fragile]{Maybe - Manual Solution}
+% Motivating example
+\begin{frame}[fragile]{Motivation: \texttt{maybe\_int}}
+  Suppose we want a type that either holds a value, or nothing (like a nullable int):
   \begin{minted}{cpp}
-    /* 1.01 */
     struct maybe_int {
         bool has_value_; int value_;
 
@@ -18,28 +17,33 @@
         }
     };
   \end{minted}
-
-  \begin{itemize}
-    \item ``Database Query Functions'' mock out some database logic.
-    \item Notice that there is a lot of repeated code.
-  \end{itemize}
+  What if we want \texttt{maybe\_double}? \texttt{maybe\_string}? Same logic, different type.
 \end{frame}
 
-\begin{frame}[fragile]{Maybe - Templated Solution}
-  \begin{sqt:result}
-    We can generate the exact same code by writing a \emph{template class}.
-  \end{sqt:result}
+% Generic programming definition
+\begin{frame}{Generic Programming}
+  \begin{sqt:definition}[\textbf{Definition:} Generic Programming]
+    Writing algorithms and data structures \textbf{once}, usable with \textbf{any type}.
+  \end{sqt:definition}
 
+  Generic programming promotes:
+  \begin{itemize}
+    \item \textbf{Reusability} -- no need to rewrite code multiple times
+    \item \textbf{Type safety} -- errors caught at compile time
+    \item \textbf{Efficiency} -- no runtime overhead
+  \end{itemize}
+
+  In C++, this is achieved with \textbf{templates}.
+\end{frame}
+
+% Template syntax
+\begin{frame}[fragile]{C++ Templates}
   \begin{minted}{cpp}
-    /* 1.02 */
     template <typename T>
-    struct maybe {
-        bool has_value_; T value_;
-        /* ... */
-    };
+    // ^ declares T as a placeholder type
   \end{minted}
-
-  Verify this with \verb|cppinsights.io|.
+  \texttt{T} is a naming convention for a template type parameter (as in "type"). \\
+  \texttt{typename} and \texttt{class} are interchangeable in template declarations.
 \end{frame}
 
 \begin{frame}[fragile]{Template Instantiation}
@@ -59,26 +63,166 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Array Maximum and Average}
+\begin{frame}[fragile]{What can be templated?}
+  Templates can be used to define:
+  \begin{itemize}
+    \item \textbf{Function templates}: generic functions over any type
+    \item \textbf{Class templates}: generic data structures over any type
+    \item \textbf{Variable templates}: generic constants over any type (C++14)
+  \end{itemize}
+
+  Let's take a look at some examples.
+\end{frame}
+
+% Function templates
+\begin{frame}[fragile]{Example: \texttt{max()} without function templates}
   \begin{minted}{cpp}
-    /* 1.03 */
-    struct array_int_8 {
-        using T = int;
-        static constexpr std::size_t N = 8;
+    int max(int x, int y) {
+        return (x > y) ? x : y;
+    }
+    double max(double x, double y) {
+        return (x > y) ? x : y;
+    }
+    char max(char x, char y) {
+        return (x > y) ? x : y;
+    }
+  \end{minted}
 
-        T data_[N];
+  Can we do better?
+\end{frame}
 
-        // set array element to a value by index
-        void set(std::size_t index, T val) {
-            assert(index < N);
-            data_[index] = val;
-        }
+\begin{frame}[fragile]{Example: \texttt{max()} with function templates}
+  \begin{minted}{cpp}
+    #include <iostream>
 
-        // get const reference to array element by index
-        const T& at(std::size_t index) const {
-            assert(index < N);
-            return data_[index];
+    // "Template parameter declaration"
+    template <typename T>
+    T max(T x, T y) {
+        return (x > y) ? x : y;
+    }
+
+    int main() {
+        std::cout << max(1, 2) << '\n';     // 2
+        std::cout << max(3.5, 7.5) << '\n'; // 7.5
+        std::cout << max('a', 'b') << '\n'; // b
+        return 0;
+    }
+  \end{minted}
+
+  What about \texttt{max(1, 2.1)}?
+\end{frame}
+
+\begin{frame}[fragile]{Example: Multiple type parameters}
+  \begin{minted}{cpp}
+    #include <iostream>
+
+    template <typename T, typename U>
+    auto max(T x, U y) {
+        return (x > y) ? x : y;
+    }
+
+    int main() {
+        std::cout << max(1, 2.1) << '\n'; // 2.1
+        return 0;
+    }
+  \end{minted}
+
+  Using \texttt{auto}, the compiler deduces the return type.
+\end{frame}
+
+\begin{frame}[fragile]{Where have we seen function templates?}
+  \texttt{std::sort} from \texttt{<algorithm>} works on any container of any type:
+  \begin{minted}{cpp}
+    #include <algorithm>
+    #include <vector>
+
+    std::vector<int> ints = {3, 1, 2};
+    std::vector<double> doubles = {3.5, 1.1, 2.2};
+    std::vector<std::string> strings = {"banana", "apple", "cherry"};
+
+    std::sort(ints.begin(), ints.end());
+    std::sort(doubles.begin(), doubles.end());
+    std::sort(strings.begin(), strings.end());
+  \end{minted}
+  Under the hood, \texttt{std::sort} is a function template; same code,
+  compiled for each type it is called with.
+\end{frame}
+
+% Class templates
+\begin{frame}[fragile]{\texttt{maybe} - Templated Solution}
+  \begin{sqt:result}
+    Recall \texttt{maybe\_int} from earlier. We can generate the exact same code by writing a \emph{template class}.
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    /* 1.02 */
+    template <typename T>
+    struct maybe {
+        bool has_value_; T value_;
+        /* ... */
+    };
+  \end{minted}
+
+  Verify this with \verb|cppinsights.io|. \\
+  \textit{Bonus question: what's the difference between \texttt{struct} and \texttt{class}?}
+\end{frame}
+
+\begin{frame}[fragile]{Example: \texttt{maybe} as a class template}
+  Let's fill this in:
+   \begin{minted}{cpp}
+    template <typename T>
+    struct maybe { 
+        bool has_value_; T value_;
+
+        maybe() : has_value_(false), value_{} {}
+        maybe(T v) : has_value_(true), value_(v) {}
+
+        bool has() const { return has_value_; }
+        T get() const {
+            if (!has_value_) throw std::runtime_error("empty");
+            return value_;
         }
     };
   \end{minted}
+
+  Verify the generated instantiations at \texttt{cppinsights.io}.
+\end{frame}
+
+\begin{frame}[fragile]{Example: \texttt{std::pair} with class templates}
+  Let's create a generic data structure for a pair of values.
+  \begin{minted}{cpp}
+    #include <iostream>
+    template <typename T, typename U>
+    class Pair {
+      public:
+        T x_;
+        U y_;
+        Pair(T x, U y) : x_(x), y_(y) {}
+        void print() const {
+            std::cout << x_ << " " << y_ << '\n';
+        }
+    };
+    int main() {
+        Pair<int> ints(10, 20);
+        Pair<double> doubles(3.14, 6.28);
+        ints.print();    // 10 20
+        doubles.print(); // 3.14 6.28
+        return 0;
+    }
+  \end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{Where have we seen class templates?}
+  \texttt{std::vector} from \texttt{<vector>} works with any type:
+  \begin{minted}{cpp}
+    std::vector<int> ints = {1, 2, 3};
+    std::vector<double> doubles = {1.1, 2.2, 3.3};
+    std::vector<std::string> strings = {"a", "b", "c"};
+  \end{minted}
+
+  \texttt{std::vector} is a class template -- the same data structure,
+  compiled for each type it is instantiated with.
+
+  In fact, all standard library containers (e.g. \texttt{queue}, \texttt{stack}, \texttt{map}) are class templates.
 \end{frame}
