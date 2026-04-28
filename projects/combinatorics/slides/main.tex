@@ -129,10 +129,10 @@
   \begin{sqt:definition}[Definition: Action]
     An action on a configuration $x \in S$ is a "movement"(or symmetry) that maps one configuration to another.
   \end{sqt:definition}
-  \textbf{Example:} denote $g_1, g_2, g_3 $ to be the actions that rotate a configuration clockwise $0,120,240$ degrees.\\
+  \textbf{Example:} denote $g_1, g_2, g_3 $ to be the actions that rotate a configuration clockwise $0,120,240$ degrees.
   \begin{center}
     %insert image consisting of a configuration, its first rotation, its second rotation.
-    \includegraphics{assets/group_actions.pdf}
+    \includegraphics[width=3cm]{assets/group_actions.pdf}
   \end{center}
   Notice we can combine group actions $g_2 \circ g_3 = g_1 $\\
 \end{frame}
@@ -223,6 +223,10 @@
   \textcolor{sqt-question}{
     \textbf{Example:} How many bracelets can be made using 3 white and 3 black beads?
   }
+  \begin{center}
+      %insert image consisting of a configuration, its first rotation, its second rotation.
+      \includegraphics[width=2cm]{assets/necklace/g4-2.pdf}
+    \end{center}
 \end{frame}
 
 \begin{frame}{Necklace Problem}
@@ -239,24 +243,39 @@
 
   \vspace{0.5em}
 
-  The number of ways to arrange 3 black and 3 white beads in a line is
-  \[
-    \binom{6}{3} = 20.
-  \]
-
+  The number of ways to arrange 3 black and 3 white beads in a line is $\binom{6}{3} = 20$.\\
   These 20 arrangements do not yet account for rotational and reflectional equivalence.
 
   \vspace{0.5em}
 
   % insert image of decision tree or representative linear arrangements
+  \begin{center}
+    %insert image consisting of a configuration, its first rotation, its second rotation.
+    \includegraphics[width=5cm]{assets/necklace/g95.pdf}
+    \includegraphics[width=5cm]{assets/necklace/g72.pdf}
+  \end{center}
+
 \end{frame}
 
 \begin{frame}{Necklae Problem}
   Under our notion of equivalence, the relevant group actions are:
   \begin{itemize}
-    \item rotations,
-    \item diagonal reflections,
-    \item edge reflections.
+    \item rotations
+    \begin{center}
+      %insert image consisting of a configuration, its first rotation, its second rotation.
+      \includegraphics[width=2cm]{assets/necklace/g151.pdf}
+    \end{center}
+
+    \item diagonal reflections
+    \begin{center}
+      %insert image consisting of a configuration, its first rotation, its second rotation.
+      \includegraphics[width=2cm]{assets/necklace/path1-8-3-8.pdf}
+    \end{center}
+    \item edge reflections
+     \begin{center}
+      %insert image consisting of a configuration, its first rotation, its second rotation.
+      \includegraphics[width=2cm]{assets/necklace/path1-8-3.pdf}
+    \end{center}
   \end{itemize}
 
   \vspace{0.5em}
