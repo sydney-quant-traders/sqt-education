@@ -7,6 +7,16 @@
 
 \begin{document}
 
+
+\begin{frame}
+    \makebox[\linewidth]{\includegraphics[page=1,width=\paperwidth]{assets/Combinatorics Foundations.pdf}}
+\end{frame}
+
+\begin{frame}
+    \makebox[\linewidth]{\includegraphics[page=2,width=\paperwidth]{assets/Combinatorics Foundations.pdf}}
+\end{frame}
+
+
 \maketitle
 
 %%-----------------EAMON
@@ -325,29 +335,14 @@
     For a set of group actions $G$ acting on $S$, A fix of an action $g \in G$, is
     the set of all elements $s\inS$ that \textbf{remain unchanged} after g is applied.
   \end{sqt:definition}
-  This set of elements is denoted by $fix(g)$
+  This set of elements is denoted by fix($g$)
 
   In our example the only action that leaves a configuration unchanged is the "do nothing" action.
 
 
 \end{frame}
 
-\begin{frame}{Back to the Example}
-  \textcolor{sqt-question}{
-    \textbf{Example:} How many ways to arrange 3 people on a circular table?
-  }
-
-  We can systematically answer this example.
-
-  In our configurations, what arrangements are considered equivalent with an "action"?\\
-  What is the size of the quotient set under this equivalence?\\
-
-  Note that it is a coincidence that the equivalence classes are of equal size.
-\end{frame}
-
 \begin{frame}{Counting Problems}
-  This is a specific example of a general counting problem that we can generalise with the definition.
-
   \begin{sqt:definition}[Definition: counting problem]
     Determining the size of the quotient set of a specified set $X$ of configurations,
     modulo some specified equivalence relation $\sim$.
@@ -356,7 +351,7 @@
 
 \begin{frame}{Back to the Example}
   \textcolor{sqt-question}{
-    \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
+    \textbf{Example:} How many ways to arrange 3 people on a circular table?
   }
   Through the circular arrangement forumula we know there are (2-1)! many ways.\\
   However from a more formal lense we can observe the following\\
@@ -364,7 +359,7 @@
   \begin{itemize}
     \item Our set of items that actions happen are all the configurations we listed in our tree. There are 6 of these.
     \item Under our idea of equivalence there are the group actions, $g_1,g_2, g_3$.\\
-    \item each group $fix(g_i)$ is an empty set except for the fix of $g1$. who's size is 6.
+    \item each group fix$(g_i)$ is an empty set except for the fix of $g1$. who's size is 6.
     \item the average size of the fixes under our equivalence is also 2!
   \end{itemize}
 
@@ -385,16 +380,16 @@
   \]
 \end{frame}
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{Bracelet Problem}
   \textcolor{sqt-question}{
     \textbf{Example:} How many bracelets can be made using 3 white and 3 black beads?
   }
   \begin{center}
-      \includegraphics[width=2cm]{assets/necklace/g4-2.pdf}
+      \includegraphics[width=8cm]{assets/necklace/g4-2.pdf}
     \end{center}
 \end{frame}
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{Bracelet Problem}
   We begin by observing the key features of the problem:
   \begin{itemize}
     \item Beads of the same colour are considered identical.
@@ -403,7 +398,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{The Bracelet Problem}
   We can first count all linear arrangements before accounting for symmetry.
 
   \vspace{0.5em}
@@ -421,18 +416,28 @@
 
 \end{frame}
 
-\begin{frame}{Necklae Problem}
+\begin{frame}{The Bracelet Problem}
   Under our notion of equivalence, the relevant group actions are:
   \begin{itemize}
     \item rotations
     \begin{center}
-      \includegraphics[width=4cm]{assets/necklace/g151.pdf}
+      \includegraphics[width=10cm]{assets/necklace/g151.pdf}
     \end{center}
 
+
+  \end{itemize}
+
+  \vspace{0.5em}
+
+\end{frame}
+
+\begin{frame}{The Bracelet Problem}
+  Under our notion of equivalence, the relevant group actions are:
+  \begin{itemize}
     \item diagonal reflections
     \begin{center}
 
-      \includegraphics[width=3cm]{assets/necklace/path1-8-3-8.pdf}
+      \includegraphics[width=4cm]{assets/necklace/path1-8-3-8.pdf}
     \end{center}
     \item edge reflections
     \begin{center}
@@ -457,7 +462,7 @@
 \end{frame}
 
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{Bracelet Problem}
   We now apply Burnside's Lemma by counting the fixed configurations of each symmetry.
 
   \vspace{0.5em}
@@ -478,7 +483,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{Bracelet Problem}
   Now consider the diagonal reflections.
 
   \vspace{0.5em}
@@ -507,7 +512,7 @@
   for each diagonal reflection.
 \end{frame}
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{Bracelet Problem}
   Finally, consider the edge reflections.
 
   \vspace{0.5em}
@@ -526,7 +531,7 @@
   \]
 \end{frame}
 
-\begin{frame}{Necklace Problem}
+\begin{frame}{Bracelet Problem}
   Applying Burnside's Lemma,
   \[
     |S/\sim|
@@ -562,33 +567,139 @@
 \end{frame}
 
 \begin{frame}{Answers}
-  \item 1. $\frac{40320 + 2 + 384 + 12}{4} = 10182$
+  \item 1. $\frac{40320 + 12 + 384 + 12}{4} = 10182$
   \item 2. $\frac{81+3+9+3}{4} = 24$
   \item 3. $\frac{84 + 48 + 24}{12} = 13$
 
 \end{frame}
 
+\begin{frame}{Answer for 2}
+  \textcolor{sqt-question}{
+    \textbf{Question 2.}
+    How many ways are there to colour the 4 corners of a square using 3 colours,
+    if two colourings are considered the same whenever one is a rotation of the other?
+  }
 
-\section{ PIE}
+  \vspace{0.8em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=1.1, every node/.style={font=\small}]
+      % square
+      \draw[thick] (0,0) rectangle (2,2);
+
+      % corners
+      \fill (0,0) circle (2pt) node[below left] {\(1\)};
+      \fill (2,0) circle (2pt) node[below right] {\(2\)};
+      \fill (2,2) circle (2pt) node[above right] {\(3\)};
+      \fill (0,2) circle (2pt) node[above left] {\(4\)};
+
+      % center
+      \node at (1,1) {\Large \(\circlearrowleft\)};
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.6em}
+
+  \textbf{Idea:}
+  Since rotations are treated as identical, we use \textbf{Burnside's Lemma}.\\
+
+  Here the rotation group is
+  \[
+    G=\{0^\circ,90^\circ,180^\circ,270^\circ\}.
+  \]
+\end{frame}
+
+\begin{frame}{Counting Fixed Colourings}
+  We count how many colourings are unchanged by each rotation.
+
+  \vspace{0.6em}
+
+  \begin{center}
+    \begin{tabular}{c|c|c}
+      \textbf{Rotation} & \textbf{Condition for colouring to be fixed} & \(\#\mathrm{Fix}(g)\) \\ \hline
+      \(0^\circ\) & anything works & \(3^4 = 81\) \\[0.3em]
+      \(90^\circ\) & all 4 corners same colour & \(3\) \\[0.3em]
+      \(180^\circ\) & opposite corners must match & \(3^2 = 9\) \\[0.3em]
+      \(270^\circ\) & all 4 corners same colour & \(3\)
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.8em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=0.9, every node/.style={font=\scriptsize}]
+      \draw[thick] (0,0) rectangle (1.6,1.6);
+      \fill[blue!50] (0,0) circle (3pt);
+      \fill[red!60] (1.6,0) circle (3pt);
+      \fill[blue!50] (1.6,1.6) circle (3pt);
+      \fill[red!60] (0,1.6) circle (3pt);
+      \node at (0.8,-0.4) {\(180^\circ\): opposite corners equal};
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Final Answer}
+  By Burnside's Lemma,
+  \[
+    \#\text{distinct colourings}
+    =
+    \frac{1}{4}
+    \left(
+      81 + 3 + 9 + 3
+    \right).
+    = 24
+  \]
+
+
+  \begin{sqt:definition}[\textbf{Answer}]
+    The number of ways to colour the 4 corners of a square using 3 colours,
+    up to rotation, is
+    \[
+      \boxed{24}.
+    \]
+  \end{sqt:definition}
+
+  \textbf{Takeaway:}
+  Burnside’s Lemma counts symmetry classes by averaging the number of colourings
+  fixed by each symmetry.
+\end{frame}
+
+\section{Inclusion-Exclusion}
 
 \begin{frame}{The Principle of Inclusion-Exclusion}
   The principle of inclusion-exclusion is used when a direct count \textbf{overcounts}
   because some configurations violate one or more constraints.
 
-  \[
-  \left|\bigcup_{i=1}^{n} A_i\right|
-  =
-  \sum_{i=1}^{n} |A_i|
-  -
-  \sum_{1 \le i < j \le n} |A_i \cap A_j|\\
-  +
-  \sum_{1 \le i < j < k \le n} |A_i \cap A_j \cap A_k|
-  -
-  \cdots
-  +
-  (-1)^{n+1}
-  |A_1 \cap A_2 \cap \cdots \cap A_n|
-  \]
+  \begin{sqt:definition}[Definition: Principle Of Inclusion Exclusion]
+    The principle of inclusion exclusion states for sets $A_i$ that,
+    \[
+    \left|\bigcup_{i=1}^{3} A_i\right|
+    =
+    \sum_{i=1}^{3} |A_i|
+    -
+    \sum_{1 \le i < j \le 3} |A_i \cap A_j|
+    +
+    \sum_{1 \le i < j < k \le 3} |A_i \cap A_j \cap A_k|
+    \]
+
+  \end{sqt:definition}
+
+
+
+\end{frame}
+
+\begin{frame}{A Doughnut Distribution Problem}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    A baker has 6 identical glazed doughnuts to give to 3 kids: Alex, Blake, and Charlie.
+  }
+
+  The parent constraints are:
+  \begin{itemize}
+    \item Alex can receive at most $1$
+    \item Blake can receive at most $2$
+    \item Charlie can receive at most $3$
+  \end{itemize}
 
 \end{frame}
 
@@ -848,6 +959,15 @@
 
   \vspace{0.5em}
 
+  \begin{center}
+    \includegraphics[width=6cm]{assets/derrangement/g1-9.pdf}
+  \end{center}
+
+
+\end{frame}
+
+\begin{frame}{What is a Derangement?}
+
   \textbf{Example:}
   \begin{itemize}
     \item Suppose we permute $(1,2,3)$
@@ -1014,6 +1134,9 @@
     \item exactly \(k\) students receive their own correct test, and
     \item the remaining \(n-k\) students receive someone else's test?
   \end{itemize}
+  \begin{center}
+    \includegraphics[width=5cm]{assets/derrangement/g70.pdf}
+  \end{center}
 \end{frame}
 
 \begin{frame}{Step 1: Choose the Fixed Points}
@@ -1043,13 +1166,8 @@
 
   \vspace{0.5em}
 
-  So we must count a \textbf{derangement} of the remaining \(n-k\) tests.
-
-  \[
-    D_{n-k}
-  \]
-
-  ways.
+  So we must count a \textbf{derangement} of the remaining \(n-k\) tests.\\
+  THere are $D_{n-k}$ ways of such.
 
   \vspace{0.5em}
 
@@ -1078,13 +1196,8 @@
   \]
 
   \vspace{0.8em}
-
-  \textbf{Interpretation:}
-  \begin{itemize}
-    \item choose who is correct,
-    \item derange everyone else.
-  \end{itemize}
 \end{frame}
+
 \begin{frame}{Your Turn: PIE Brain Teaser Questions}
   \begin{enumerate}
     \item 1. A 6-digit PIN is made using digits \(0\) to \(9\), with repetition allowed.
@@ -1102,18 +1215,77 @@
     \]
     where each \(x_i\le 8\)?
 
-
   \end{enumerate}
 \end{frame}
 
 \begin{frame}{Answers}
   \begin{enumerate}
-    \item \(\boxed{848800}\)
-    \item \(\boxed{685464}\)
-    \item \(\boxed{14833}\)
-    \item \(\boxed{14833}\)
-    \item \(\boxed{315}\)
+    \item \(848800\)
+    \item \(685464\)
+    \item \(14833\)
+    \item \(14833\)
+    \item \(315\)
   \end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Solution: 5-Card Hands with Every Suit}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A deck contains 52 cards. How many 5-card hands contain at least one card from every suit?
+  }
+
+  \begin{sqt:tip}[Key Idea]
+    Count all hands, then subtract hands that miss at least one suit.
+  \end{sqt:tip}
+\end{frame}
+
+
+\begin{frame}{Solution: 5-Card Hands with Every Suit}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A deck contains 52 cards. How many 5-card hands contain at least one card from every suit?
+  }
+
+  \vspace{0.4em}
+
+  Let \(A_s\) be the set of 5-card hands that are \textbf{missing suit \(s\)}.
+
+  \vspace{0.3em}
+
+  We want hands that miss no suit:
+  \[
+    \binom{52}{5} - \left|A_{\clubsuit}\cup A_{\diamondsuit}\cup A_{\heartsuit}\cup A_{\spadesuit}\right|.
+  \]
+
+  \vspace{0.3em}
+
+  By inclusion-exclusion:
+  \[
+  \begin{aligned}
+    \text{valid}
+    &=
+    \binom{52}{5}
+    - \binom{4}{1}\binom{39}{5}
+    + \binom{4}{2}\binom{26}{5}
+    - \binom{4}{3}\binom{13}{5}.
+  \end{aligned}
+  \]
+
+  \vspace{0.3em}
+
+  Therefore,
+  \[
+  \begin{aligned}
+    \text{valid}
+    &=
+    2598960
+    -4(575757)
+    +6(65780)
+    -4(1287) \\
+    &= \boxed{685464}.
+  \end{aligned}
+  \]
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1121,247 +1293,562 @@
 
 \begin{frame}{Bijections}
   \begin{sqt:definition}[\textbf{Definition:} Bijection]
-    A bijection is a one-to-one correspondence between two sets,
-    meaning every element in one set matches with exactly one element in the other.
+    A \textbf{bijection} is a one-to-one correspondence between two sets:
+    every object in one set matches exactly one object in the other.
   \end{sqt:definition}
 
-  \vspace{0.5em}
+  \vspace{0.4em}
 
-  \textbf{Key idea:}
-  \begin{itemize}
-    \item If there exists a bijection between sets \(A\) and \(B\),
-    then
-    \[
-      |A| = |B|.
-    \]
-  \end{itemize}
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Key idea}
+      \[
+        A \leftrightarrow B
+        \quad \Longrightarrow \quad
+        |A| = |B|.
+      \]
+    \end{column}
 
-  \vspace{0.5em}
-
-  \textbf{Strategy:}
-  \begin{itemize}
-    \item Instead of counting a complicated set directly,
-    \item map it to a simpler set we already know how to count.
-  \end{itemize}
+    \begin{column}{0.48\textwidth}
+      \textbf{Counting strategy}
+      \begin{itemize}
+        \item Start with a set thats difficult to count
+        \item Find a one to one correspondence to a easier set
+        \item Count the easier set
+      \end{itemize}
+    \end{column}
+  \end{columns}
 \end{frame}
 
-\begin{frame}{Bijections in Counting}
-  Bijections allow us to \textbf{reframe problems}.
-
-  \vspace{0.5em}
-
-  \textbf{Typical approach:}
-  \begin{itemize}
-    \item Identify a set of complicated objects
-    \item Find a way to encode them as simpler objects
-    \item Count the simpler objects instead
-  \end{itemize}
-
-  \vspace{0.5em}
-
-  \textbf{Common targets:}
-  \begin{itemize}
-    \item Binary strings
-    \item Sequences of moves
-    \item Subsets
-  \end{itemize}
-\end{frame}
 
 \begin{frame}{Path Counting}
   \textcolor{sqt-question}{
     \textbf{Example:}
-    How many paths are there from the bottom-left corner to the top-right corner
-    of a n by n grid, moving only right or up?
+    How many paths are there from \((0,0)\) to \((n,n)\),
+    moving only right or up, that stay below the diagonal?
   }
 
-  \vspace{0.5em}
+  \vspace{0.8em}
 
-  Additionally, paths must stay \textbf{below the diagonal}.
+  \begin{center}
+    \begin{tikzpicture}[scale=0.55]
+      \draw[step=1, gray!35, very thin] (0,0) grid (5,5);
+      \draw[->, thick] (0,0) -- (5.4,0) node[right] {\(x\)};
+      \draw[->, thick] (0,0) -- (0,5.4) node[above] {\(y\)};
+
+      \draw[thick, dashed, sqt-question] (0,0) -- (5,5)
+        node[pos=0.75, above left] {\(y=x\)};
+
+      \draw[very thick, sqt-primary]
+        (0,0) -- (1,0) -- (2,0) -- (2,1) -- (3,1)
+        -- (3,2) -- (4,2) -- (5,2) -- (5,3)
+        -- (5,4) -- (5,5);
+
+      \fill (0,0) circle (2pt) node[below left] {\((0,0)\)};
+      \fill (5,5) circle (2pt) node[above right] {\((n,n)\)};
+    \end{tikzpicture}
+  \end{center}
 \end{frame}
 
+
 \begin{frame}{Encoding Paths}
-  Each path consists of:
-  \begin{itemize}
-    \item \(R\): move right
-    \item \(U\): move up
-  \end{itemize}
-
-  \vspace{0.5em}
-
-  A path from \((0,0)\) to \((n,n)\) consists of:
+  Each path is encoded by a sequence of moves:
   \[
-    n \text{ rights and } n \text{ ups}.
+    R = \text{right},
+    \qquad
+    U = \text{up}.
   \]
 
   \vspace{0.5em}
 
-  So each path corresponds to a sequence of length \(2n\) with:
+  A path from \((0,0)\) to \((n,n)\) must contain
   \[
-    n \text{ R's and } n \text{ U's}.
+    n \text{ copies of } R
+    \qquad \text{and} \qquad
+    n \text{ copies of } U.
   \]
 
   \vspace{0.5em}
 
-  Total number of such sequences:
+  Therefore, every unrestricted path corresponds to a sequence of length \(2n\)
+  with \(n\) right moves and \(n\) up moves.
+
+  \vspace{0.6em}
+
   \[
+    \#\{\text{all paths}\}
+    =
     \binom{2n}{n}.
   \]
 \end{frame}
 
+
 \begin{frame}{Applying the Constraint}
-  We now impose the constraint: stay \textbf{below the diagonal}.
-
-  \vspace{0.5em}
-
-  This means at every point:
+  To stay below the diagonal, every prefix of the sequence must satisfy
   \[
     \#U \le \#R.
   \]
 
-  \vspace{0.5em}
+  \vspace{0.6em}
 
-  So valid paths correspond to sequences where
-  the number of up moves never exceeds the number of right moves.
+  \begin{sqt:definition}[\textbf{Definition:} Dyck Path]
+    A \textbf{Dyck path} is a path from \((0,0)\) to \((n,n)\)
+    using \(R\) and \(U\), such that at every point
+    \[
+      \#U \le \#R.
+    \]
+  \end{sqt:definition}
 
-  \vspace{0.5em}
+  \vspace{0.4em}
 
-  These are known as \textbf{Dyck paths}.
+  So our problem is asking for the number of Dyck paths of length \(2n\).
 \end{frame}
 
-\begin{frame}{Using a Bijection}
-  We count valid paths by relating them to all paths.
+
+\begin{frame}{Counting by Complement}
+  We count valid paths by subtracting invalid paths.
 
   \vspace{0.5em}
 
-  \textbf{Idea:}
-  \begin{itemize}
-    \item Count all paths: \(\binom{2n}{n}\)
-    \item Subtract invalid paths (those crossing the diagonal)
-  \end{itemize}
-
-  \vspace{0.5em}
-
-  There exists a bijection between:
-  \begin{itemize}
-    \item paths that cross the diagonal
-    \item paths from \((0,0)\) to \((n-1,n+1)\)
-  \end{itemize}
-
-  \vspace{0.5em}
-
-  Number of such paths:
   \[
+    \#\{\text{valid paths}\}
+    =
+    \#\{\text{all paths}\}
+    -
+    \#\{\text{invalid paths}\}.
+  \]
+
+  \vspace{0.8em}
+
+  We already know
+  \[
+    \#\{\text{all paths}\}
+    =
+    \binom{2n}{n}.
+  \]
+
+  \vspace{0.8em}
+
+  It remains to count paths where, at some point,
+  \[
+    \#U > \#R.
+  \]
+
+  These are exactly the paths that cross above the diagonal.
+\end{frame}
+
+
+
+\begin{frame}{The Bijection: Reflection Principle}
+  \textcolor{sqt-question}{
+    \textbf{Claim:}
+    Invalid paths from \((0,0)\) to \((n,n)\) are in bijection with paths
+    from \((0,0)\) to \((n-1,n+1)\).
+  }
+  \begin{itemize}
+    \item take an invalid path and find the \textbf{first time} it goes above the diagonal.
+    \item At that moment, the path has just moved to a point where $\#U = \#R + 1$.
+  \end{itemize}
+  Upon reflecting the path \textbf{up to and including this first crossing}:\\
+
+  This changes the total number of moves from
+  \[
+    nR + nU
+    \quad \longmapsto \quad
+    (n-1)R + (n+1)U.
+  \]
+
+  So the reflected path ends at
+  \[
+    (n-1,n+1).
+  \]
+\end{frame}
+
+
+\begin{frame}{Reflection Principle}
+  \textcolor{sqt-question}{
+    \textbf{Idea:}
+    Take the first prefix that goes above the diagonal, and reflect that prefix
+    across \(y=x\).
+  }
+
+  \vspace{0.5em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=0.72, every node/.style={font=\scriptsize}]
+      % grid
+      \draw[step=1, gray!30, very thin] (0,0) grid (5,5);
+
+      % axes
+      \draw[->, thick] (0,0) -- (5.4,0);
+      \draw[->, thick] (0,0) -- (0,5.4);
+
+      % diagonal
+      \draw[dashed, thick, black!70] (0,0) -- (5,5)
+        node[pos=0.8, above left] {\(y=x\)};
+
+      % original invalid path
+      % Sequence: R U R U U R R U
+      \draw[line width=1.8pt, blue!70!black]
+        (0,0) -- (1,0) -- (1,1) -- (2,1) -- (2,2) -- (2,3);
+
+      \draw[line width=1.8pt, blue!70!black, opacity=0.45]
+        (2,3) -- (3,3) -- (4,3) -- (4,4);
+
+      % reflected path
+      % reflected prefix: U R U R R, then same suffix R R U
+      \draw[line width=1.8pt, red!75!black]
+        (0,0) -- (0,1) -- (1,1) -- (1,2) -- (2,2) -- (3,2)
+        -- (4,2) -- (5,2) -- (5,3);
+
+      % points
+      \fill[blue!70!black] (2,3) circle (2pt)
+        node[above left] {\(P=(2,3)\)};
+      \fill[red!75!black] (3,2) circle (2pt)
+        node[below right] {\(P'=(3,2)\)};
+
+      % start/end labels
+      \fill (0,0) circle (1.7pt) node[below left] {\((0,0)\)};
+      \fill[blue!70!black] (4,4) circle (1.7pt) node[above right] {\((4,4)\)};
+      \fill[red!75!black] (5,3) circle (1.7pt) node[right] {\((5,3)\)};
+
+      % annotation
+      \draw[->, thick] (2.25,2.85) .. controls (2.6,2.6) .. (2.9,2.25);
+      \node at (3.65,2.75) {reflect prefix};
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.3em}
+
+  \begin{itemize}
+    \item \textcolor{blue!70!black}{Blue}: an invalid path, first crossing the diagonal at \(P\)
+    \item \textcolor{red!75!black}{Red}: reflect the prefix up to \(P\), then keep the rest unchanged
+    \item The new path ends at \((n+1,n-1)\)
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Why This Is a Bijection}
+  The reflection process is reversible.
+
+  \vspace{0.6em}
+
+  Given any path from \((0,0)\) to \((n-1,n+1)\), it must eventually go above
+  the diagonal because it ends with
+  \[
+    \#U = n+1
+    \qquad \text{and} \qquad
+    \#R = n-1.
+  \]
+
+  \vspace{0.6em}
+
+  Find the first time it reaches
+  \[
+    \#U = \#R + 1.
+  \]
+
+  Reflect the path up to and including that point again:
+  \[
+    R \leftrightarrow U.
+  \]
+
+  \vspace{0.6em}
+
+  This returns an invalid path from \((0,0)\) to \((n,n)\).
+
+  \vspace{0.6em}
+
+  Therefore,
+  \[
+    \#\{\text{invalid paths}\}
+    =
     \binom{2n}{n+1}.
   \]
 \end{frame}
 
-\begin{frame}{Final Answer}
-  Therefore, the number of valid paths is
+
+\begin{frame}{Final Count}
+  Hence,
   \[
-    \binom{2n}{n} - \binom{2n}{n+1}.
+    \#\{\text{valid paths}\}
+    =
+    \binom{2n}{n}
+    -
+    \binom{2n}{n+1}.
   \]
 
-  \vspace{0.5em}
+  \vspace{0.8em}
 
-  This simplifies to
+  Simplifying,
   \[
+    \binom{2n}{n}
+    -
+    \binom{2n}{n+1}
+    =
     \frac{1}{n+1}\binom{2n}{n}.
   \]
 
   \vspace{0.8em}
 
-  \textbf{This is the \(n\)-th Catalan number.}
-
-  \vspace{0.5em}
-
-  \textbf{Key takeaway:}
-  \begin{itemize}
-    \item Bijections allow us to transform constraints into countable structures
-    \item Many complex problems reduce to known combinatorial objects
-  \end{itemize}
+  \begin{sqt:definition}[\textbf{Catalan Number}]
+    The number
+    \[
+      C_n = \frac{1}{n+1}\binom{2n}{n}
+    \]
+    is called the \(n\)-th \textbf{Catalan number}.
+  \end{sqt:definition}
 \end{frame}
 
-\begin{frame}{Your Turn: Position-Constrained Dyck Paths}
+
+\begin{frame}{Key Takeaway}
+  Bijections let us replace a difficult counting problem with an easier one.
+
+  \vspace{0.8em}
+
+  In this example:
+
+  \[
+    \text{invalid constrained paths}
+    \longleftrightarrow
+    \text{unconstrained paths to } (n-1,n+1).
+  \]
+
+  \vspace{0.8em}
+
+  Therefore, a geometric constraint became a simple binomial coefficient.
+\end{frame}
+
+\begin{frame}{Inventory Paths Question}
   \textcolor{sqt-question}{
-    \textbf{Quant-style Question:}
-    A market maker tracks inventory over \(16\) trades.
+    \textbf{Question:}
+    A trader makes exactly \(4\) buy trades and \(4\) sell trades during the day.
+    The trader starts with inventory \(0\), and \textbf{short selling is not allowed}.
   }
 
-  \vspace{0.5em}
+  \vspace{0.6em}
 
-  Each trade changes inventory by:
-  \[
-    +1 \quad \text{or} \quad -1.
-  \]
+  In how many different orders can the \(8\) trades occur if the inventory must
+  never become negative?
+\end{frame}
 
-  The market maker starts with inventory \(0\), ends with inventory \(0\), and must satisfy the risk limits:
-  \[
-    0 \le I_t \le 3
-  \]
-  at every time \(t\).
+\begin{frame}{Inventory Paths Question}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A trader makes exactly \(4\) buy trades and \(4\) sell trades during the day.
+    The trader starts with inventory \(0\), and \textbf{short selling is not allowed}.
+  }
+
+  \vspace{0.6em}
+
+  In how many different orders can the \(8\) trades occur if the inventory must
+  never become negative?
 
   \vspace{0.8em}
 
-  \textbf{Question:} How many valid inventory paths are possible?
-\end{frame}
-
-\begin{frame}{Your Turn: Hint}
-  This is not just the usual Catalan number.
-
-  \vspace{0.5em}
-
-  The path must:
+  \textbf{Interpretation:}
   \begin{itemize}
-    \item never go below \(0\),
-    \item never go above \(3\),
-    \item return to \(0\) after \(16\) steps.
+    \item \(B\): buy trade \(\Rightarrow\) inventory increases by \(1\)
+    \item \(S\): sell trade \(\Rightarrow\) inventory decreases by \(1\)
+    \item Since short selling is not allowed, at every point:
+    \[
+      \#S \le \#B
+    \]
   \end{itemize}
 
   \vspace{0.5em}
 
-  Think of the inventory levels as states:
+  \textbf{Example of a valid trade sequence:}
   \[
-    0,1,2,3.
+    B\ B\ S\ B\ S\ B\ S\ S
   \]
-
-  Count paths of length \(16\) that start and end at state \(0\).
 \end{frame}
 
-\begin{frame}{Your Turn: Solution}
-  Let \(a_t(k)\) be the number of ways to be at inventory level \(k\)
-  after \(t\) trades.
+\begin{frame}{Inventory Paths}
+  \begin{center}
+    \begin{tikzpicture}[scale=0.8, every node/.style={font=\scriptsize}]
+      \draw[step=1, gray!30, very thin] (0,0) grid (4,4);
+      \draw[->, thick] (0,0) -- (4.4,0);
+      \draw[->, thick] (0,0) -- (0,4.4);
+
+      \draw[dashed, thick, black!70] (0,0) -- (4,4)
+        node[pos=0.78, above left] {\(y=x\)};
+
+      % Example valid sequence: B B S B S B S S = R R U R U R U U
+      \draw[line width=1.8pt, blue!70!black]
+        (0,0) -- (1,0) -- (2,0) -- (2,1) -- (3,1)
+        -- (3,2) -- (4,2) -- (4,3) -- (4,4);
+
+      \fill (0,0) circle (1.8pt) node[below left] {\((0,0)\)};
+      \fill (4,4) circle (1.8pt) node[above right] {\((4,4)\)};
+
+      \node at (2,-0.55) {\(\#B\)};
+      \node[rotate=90] at (-0.55,2) {\(\#S\)};
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Inventory Paths solution}
+  Encode the trade sequence as a path:
+  \[
+    B = R
+    \qquad\text{and}\qquad
+    S = U.
+  \]
 
   \vspace{0.5em}
 
-  Start with:
+  The condition “inventory never becomes negative” means that at every prefix,
   \[
-    a_0(0)=1,
-    \qquad
-    a_0(1)=a_0(2)=a_0(3)=0.
+    \#S \le \#B,
   \]
-
-  The recurrence is:
-  \[
-    a_{t+1}(k)
-    =
-    a_t(k-1)+a_t(k+1),
-  \]
-  where values outside \(\{0,1,2,3\}\) are treated as \(0\).
+  so the path must stay \textbf{on or below the diagonal}.
 
   \vspace{0.5em}
 
-  After applying this recurrence for \(16\) steps:
+  Therefore, the number of valid trade sequences is the number of
+  \textbf{Dyck paths} with \(4\) right steps and \(4\) up steps:
+
   \[
-    a_{16}(0)=34.
+    C_4 = \frac{1}{4+1}\binom{8}{4}
+    = \frac{1}{5}\cdot 70
+    = 14.
   \]
+
+  \textbf{Answer:}
+  \[
+    \boxed{14}
+  \]
+\end{frame}
+
+\begin{frame}{Position-Constrained Dyck Paths}
+  \textcolor{sqt-question}{
+    A market maker tracks inventory over \(16\) trades.
+    Each trade changes inventory by
+    \[
+      +1 \qquad \text{or} \qquad -1.
+    \]
+
+
+  The market maker starts with inventory \(0\), ends with inventory \(0\), and must satisfy
+  the risk limits
+  \[
+    0 \le I_t \le 3
+    \qquad \text{for every } t.
+  \]
+
+  \begin{sqt:definition}[\textbf{Question}]
+    How many valid inventory paths are possible?
+  \end{sqt:definition}
+  }
+
+  \textbf{Interpretation:}
+  This is a constrained walk on the states
+  \[
+    0,1,2,3,
+  \]
+  with \(16\) steps, starting and ending at \(0\).
+\end{frame}
+
+
+\begin{frame}{State Model and Recurrence}
+  \begin{sqt:definition}[\textbf{Dynamic Programming Setup}]
+    Let \(a_t(k)\) be the number of valid ways to be at inventory level \(k\)
+    after \(t\) trades.
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \[
+        a_0(0)=1,
+        \qquad
+        a_0(1)=a_0(2)=a_0(3)=0.
+      \]
+
+      The state transitions are:
+      \[
+        a_{t+1}(0)=a_t(1),
+      \]
+      \[
+        a_{t+1}(1)=a_t(0)+a_t(2),
+      \]
+      \[
+        a_{t+1}(2)=a_t(1)+a_t(3),
+      \]
+      \[
+        a_{t+1}(3)=a_t(2).
+      \]
+    \end{column}
+
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+        \begin{tikzpicture}[
+          >=stealth,
+          node distance=1.4cm,
+          every node/.style={circle, draw, minimum size=7mm, font=\small}
+        ]
+          \node (s0) at (0,0) {\(0\)};
+          \node (s1) at (1.6,0) {\(1\)};
+          \node (s2) at (3.2,0) {\(2\)};
+          \node (s3) at (4.8,0) {\(3\)};
+
+          \draw[->, thick] (s0) to[bend left=20] (s1);
+          \draw[->, thick] (s1) to[bend left=20] (s0);
+
+          \draw[->, thick] (s1) to[bend left=20] (s2);
+          \draw[->, thick] (s2) to[bend left=20] (s1);
+
+          \draw[->, thick] (s2) to[bend left=20] (s3);
+          \draw[->, thick] (s3) to[bend left=20] (s2);
+        \end{tikzpicture}
+      \end{center}
+
+      \vspace{0.4em}
+
+      \begin{center}
+        \small
+        Each trade moves inventory to a neighbouring state.
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Solution}
+  Repeatedly applying the recurrence gives the number of paths returning to \(0\).
+
+  \vspace{0.6em}
+
+  \begin{center}
+    \begin{tabular}{c|ccccccccc}
+      \(t\) & 0 & 2 & 4 & 6 & 8 & 10 & 12 & 14 & 16 \\ \hline
+      \(a_t(0)\) & 1 & 1 & 2 & 5 & 13 & 34 & 89 & 233 & 610
+    \end{tabular}
+  \end{center}
 
   \vspace{0.8em}
 
-  Therefore, there are
+  So after \(16\) trades,
   \[
-    \boxed{34}
+    a_{16}(0)=610.
   \]
-  valid inventory paths.
+
+  \vspace{0.6em}
+
+  \begin{sqt:definition}[\textbf{Answer}]
+    The number of valid inventory paths is
+    \[
+      \boxed{610}.
+    \]
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \textbf{Key idea:}
+  This is a Dyck-path style problem with an added upper barrier \(I_t \le 3\),
+  so we count paths using state-based dynamic programming.
 \end{frame}
 %------------------------------JED
 
