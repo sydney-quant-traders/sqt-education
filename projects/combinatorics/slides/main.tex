@@ -7,21 +7,20 @@
 
 \begin{document}
 
+
+\begin{frame}
+    \makebox[\linewidth]{\includegraphics[page=1,width=\paperwidth]{assets/Combinatorics Foundations.pdf}}
+\end{frame}
+
+\begin{frame}
+    \makebox[\linewidth]{\includegraphics[page=2,width=\paperwidth]{assets/Combinatorics Foundations.pdf}}
+\end{frame}
+
+
 \maketitle
 
+%%-----------------EAMON
 \section{Fundamentals}
-
-\begin{frame}{Counting Problem Examples}
-  \begin{itemize}
-    \item How many outfits can be made from 4 shirts and 3 hats?
-    \item How many ways to arrange 4 people on a circular table?
-    \item How many ways to choose a set of 3 cards out of a deck?
-    \item How many ways to divide 10 students into 3 teams of non-zero size?
-    \item How many bracelets can be made with 3 white and 3 black beads?
-    \item How many colorings of a graph with the colors \{red, green, blue\} 
-    such that no edge connects two vertices of the same color.
-  \end{itemize}
-\end{frame}
 
 \begin{frame}{Introductory Problem}
   \textcolor{sqt-question}{
@@ -45,13 +44,219 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Equivalence Relation}
+%%would be cool if you could explain in a similar fashion to http://youtube.com/watch?v=ggNeQUe1Hj8
+
+%TO FINISH
+\begin{frame}{The Addition Principle}
+  \begin{sqt:definition}[\textbf{Addition Principle}]
+    If two tasks are \textbf{mutually exclusive} (cannot both be done simultaneously),
+    and task A can be done in $m$ ways and task B can be done in $n$ ways,
+    then there are $m + n$ ways to do \textbf{either} A or B.
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} Prove that $\displaystyle\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$.
+  }
+
+  \pause
+
+  Fix one person from a group of $n$. Every size-$k$ subset either:
+  \begin{itemize}
+    \item \textbf{includes} them — choose the remaining $k-1$ from $n-1$ others: $\binom{n-1}{k-1}$ ways
+    \item \textbf{excludes} them — choose all $k$ from $n-1$ others: $\binom{n-1}{k}$ ways
+  \end{itemize}
+  These cases are mutually exclusive and exhaustive $\Rightarrow$ add them. $\square$
+\end{frame}
+
+\begin{frame}{The Multiplication Principle}
+  \begin{sqt:definition}[\textbf{Multiplication Principle}]
+    If two tasks are \textbf{independent}, and task A can be done in $m$ ways
+    and task B can be done in $n$ ways, then there are $m \times n$ ways to do
+    \textbf{both} A and B.
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many subsets does an $n$-element set have?
+  }
+
+  \pause
+
+  For each element, independently decide: \textbf{include} or \textbf{exclude} it.
+  \begin{itemize}
+    \item Each element contributes 2 independent choices
+    \item By the multiplication principle: $\underbrace{2 \times 2 \times \cdots \times 2}_{n} = 2^n$
+  \end{itemize}
+
+  \begin{sqt:tip}[Note]
+    The empty set and the full set are both counted — there are exactly $2^n$ subsets.
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}{Exponentiation}
+  \begin{sqt:definition}[\textbf{Exponentiation Rule}]
+    The number of ways to form a sequence of $k$ choices, each from a set of $n$ options
+    (with repetition allowed), is $n^k$.
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many functions are there from a $k$-element set to an $n$-element set?
+  }
+
+  \pause
+
+  For each of the $k$ elements in the domain, independently choose one of $n$ outputs.
+  \begin{itemize}
+    \item Each of $k$ decisions has $n$ options, all independent
+    \item Total $= \underbrace{n \times n \times \cdots \times n}_{k} = n^k$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Exponentiation}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many binary strings of length $n$ contain no two consecutive 1s?
+  }
+
+  \pause
+
+  Let $a_n$ = number of valid strings of length $n$. Condition on the first bit:
+  \begin{itemize}
+    \item First bit is \textbf{0} — remaining $n-1$ bits can be any valid string: $a_{n-1}$ ways
+    \item First bit is \textbf{1} — second bit must be 0, then any valid string of length $n-2$: $a_{n-2}$ ways
+  \end{itemize}
+  So $a_n = a_{n-1} + a_{n-2}$, with $a_1 = 2$, $a_2 = 3$ — the \textbf{Fibonacci sequence}!
+
+  \begin{sqt:tip}[Key Idea]
+    Exponentiation counts unrestricted sequences; constraints force us to count more carefully via recurrences.
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}{Permutations}
+  \begin{sqt:definition}[\textbf{Permutation}]
+    An ordered selection of $k$ items from $n$ distinct items (no repetition):
+    \[
+      P(n,k) = n \times (n-1) \times \cdots \times (n-k+1) = \frac{n!}{(n-k)!}
+    \]
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can a gold, silver, and bronze medal be awarded to 3 of 8 athletes?
+  }
+
+  \pause
+
+  \begin{itemize}
+    \item 8 choices for gold, 7 for silver, 6 for bronze — order matters
+    \item $P(8,3) = 8 \times 7 \times 6 = 336$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Combinations}
+  \begin{sqt:definition}[\textbf{Combination}]
+    An unordered selection of $k$ items from $n$ distinct items:
+    \[
+      \binom{n}{k} = \frac{P(n,k)}{k!} = \frac{n!}{k!(n-k)!}
+    \]
+  \end{sqt:definition}
+
+  \begin{sqt:tip}[Why divide by $k!$?]
+    Each unordered subset is counted $k!$ times in $P(n,k)$ — once per ordering of its elements.
+  \end{sqt:tip}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can 3 athletes be chosen from 8 for a relay team (no roles)?
+  }
+
+  \pause
+
+  \begin{itemize}
+    \item Order no longer matters — divide out the $3! = 6$ orderings
+    \item $\binom{8}{3} = \frac{336}{6} = 56$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Combinations...}
+  \begin{center}
+    \includegraphics[width=0.9\textwidth, height=0.8\textheight, keepaspectratio]{assets/cmbs.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Permutations and Combinations}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can a team of 3 be chosen from 10 people, then assigned the roles of captain, vice-captain, and treasurer?
+  }
+
+  \pause
+
+  \textbf{Method 1 — permutation directly:}
+  \begin{itemize}
+    \item Choose and assign all at once: $P(10,3) = 10 \times 9 \times 8 = 720$
+  \end{itemize}
+
+  \textbf{Method 2 — combination then arrange:}
+  \begin{itemize}
+    \item Choose 3 people: $\binom{10}{3} = 120$ ways
+    \item Assign 3 roles to them: $3! = 6$ ways
+    \item Total: $120 \times 6 = 720$ \checkmark
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Stars and Bars}
+  \begin{sqt:definition}[\textbf{Stars and Bars}]
+    The number of ways to distribute $n$ identical objects into $k$ distinct bins
+    (allowing empty bins) is:
+    \[
+      \binom{n+k-1}{k-1}
+    \]
+  \end{sqt:definition}
+
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many solutions does $x_1 + x_2 + x_3 = 5$ have in non-negative integers?
+  }
+
+  \pause
+
+  Represent each solution as a row of 5 stars and 2 bars, e.g.\
+  $\star\star \mid \star \mid \star\star$ corresponds to $(x_1,x_2,x_3) = (2,1,2)$.
+  \begin{itemize}
+    \item Choose 2 positions for bars among $5 + 2 = 7$ positions: $\binom{7}{2} = 21$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Stars and Bars}
+  \begin{center}
+    \includegraphics[width=0.9\textwidth, height=0.85\textheight, keepaspectratio]{assets/strbrs.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Stars and Bars}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many ways can 10 identical chocolates be distributed among 4 children if each child gets \textbf{at least 1}?
+  }
+
+  \pause
+
+  Give 1 chocolate to each child first — reduces to distributing $10 - 4 = 6$ freely among 4 children.
+  \[
+    \binom{6 + 4 - 1}{4 - 1} = \binom{9}{3} = 84
+  \]
+
+  \begin{sqt:tip}[General trick]
+    A lower bound of $m$ per bin $\Rightarrow$ subtract $m$ from each bin first, then apply stars and bars freely.
+  \end{sqt:tip}
+\end{frame}
+
+%--------------------------------------ADI
+
+
+\section{Group Actions}
+\begin{frame}{Thinking about Equivalence Relations}
   \textcolor{sqt-question}{
     \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
     Two arrangements are identical if one can be obtained
     from the other by rotation.
   }
 
+  We shall use this example to motivate a few relevant definitions.\\
   \begin{center}
     \includegraphics[width=9cm]{assets/circular_seating.pdf}
   \end{center}
@@ -63,10 +268,13 @@
   In other words, it provides an equivalence relation on the set $X$ of configurations.
 
   \begin{sqt:definition}[\textbf{Definition:} equivalence relation]
-    A binary operator $\sim$ such that the expression $x_1\sim x_2$ 
-    evaluates to $\mathrm{TRUE}$ if $x_1$ should be considered equivalent to $x_2$ 
+    A binary operator $\sim$ such that the expression $x_1\sim x_2$
+    evaluates to $\mathrm{TRUE}$ if $x_1$ should be considered equivalent to $x_2$
     in the context of the counting problem.
   \end{sqt:definition}
+  \begin{itemize}
+    \item We define when two configurations should be considered "the same"
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Equivalence Class}
@@ -78,6 +286,7 @@
   \begin{center}
     \includegraphics[width=7cm]{assets/equivalence_classes.pdf}
   \end{center}
+
 \end{frame}
 
 \begin{frame}{Quotient Set}
@@ -91,6 +300,47 @@
   \end{center}
 \end{frame}
 
+\begin{frame}{Group Actions}
+  \begin{sqt:definition}[Definition: Action]
+    An action on a configuration $x \in S$ is a "movement"(or symmetry) that maps one configuration to another.
+  \end{sqt:definition}
+  \textbf{Example:} denote $g_1, g_2, g_3 $ to be the actions that rotate a configuration clockwise $0,120,240$ degrees.
+  \begin{center}
+    %insert image consisting of a configuration, its first rotation, its second rotation.
+    \includegraphics[width=3cm]{assets/group_actions.pdf}
+  \end{center}
+  Notice we can combine group actions $g_2 \circ g_3 = g_1 $\\
+\end{frame}
+
+\begin{frame}{Group Actions}
+  \begin{sqt:definition}[Definition:A Group of Actions]
+    A set of actions can be considered a group if it obeys the following\\
+    \begin{itemize}
+      \item The set has to have the "do nothing" action (identity)\\
+      \item Composing any two actions must produce an action that is in the set(closure)\\
+      \item For an action in the set, there must also be the action that undoes it in the set(Inverse)\\
+      \item Composing actions must be associative. so from before $g_2 \circ (g_3 \circ g_1) = (g_2 \circ g_3) \circ g_1  $\\
+    \end{itemize}
+
+  \end{sqt:definition}
+
+\end{frame}
+
+
+% script notes: In not all instances will we find the do nothing action the only action leaving things unchanged
+\begin{frame}{What is a Fix}
+
+  \begin{sqt:definition}[\textbf{Definition:} Fix]
+    For a set of group actions $G$ acting on $S$, A fix of an action $g \in G$, is
+    the set of all elements $s \in S$ that \textbf{remain unchanged} after \(g\) is applied.
+  \end{sqt:definition}
+  This set of elements is denoted by fix($g$)
+
+  In our example the only action that leaves a configuration unchanged is the "do nothing" action.
+
+
+\end{frame}
+
 \begin{frame}{Counting Problems}
   \begin{sqt:definition}[Definition: counting problem]
     Determining the size of the quotient set of a specified set $X$ of configurations,
@@ -100,30 +350,1509 @@
 
 \begin{frame}{Back to the Example}
   \textcolor{sqt-question}{
-    \textbf{Example:} How many ways to arrange 3 people on a circular table?\\
-    Two arrangements are identical if one can be obtained
-    from the other by rotation.
+    \textbf{Example:} How many ways to arrange 3 people on a circular table?
   }
+  Through the circular arrangement forumula we know there are (2-1)! many ways.\\
+  However from a more formal lense we can observe the following\\
+
+  \begin{itemize}
+    \item Our set of items that actions happen are all the configurations we listed in our tree. There are 6 of these.
+    \item Under our idea of equivalence there are the group actions, $g_1,g_2, g_3$.\\
+    \item each group fix$(g_i)$ is an empty set except for the fix of $g1$. who's size is 6.
+    \item the average size of the fixes under our equivalence is also 2!
+  \end{itemize}
 
 
-  Note that it is a coincidence that the equivalence classes are of equal size.
 \end{frame}
 
-\section{Perms and Combs}
+\begin{frame}{Burnside's Lemma}
+  \begin{sqt:definition}[Definition: Burnside's Lemma]
+    The number of objects modulo equivalence is
+    \[
+      |S/\sim| = \frac{1}{|G|} \sum_{g \in G} |\operatorname{fix}(g)|.
+    \]
+  \end{sqt:definition}
 
-\begin{frame}{Techniques}
+  Therefore, for the seating arrangement example,
+  \[
+    |S/\sim| = \frac{6 + 0 + 0}{3} = 2.
+  \]
+\end{frame}
+
+\begin{frame}{Bracelet Problem}
+  \textcolor{sqt-question}{
+    \textbf{Example:} How many bracelets can be made using 3 white and 3 black beads?
+  }
+  \begin{center}
+      \includegraphics[width=8cm]{assets/necklace/g4-2.pdf}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Bracelet Problem}
+  We begin by observing the key features of the problem:
   \begin{itemize}
-    \item stars and bars
-    \item principle of inclusion exclusion
-    \item double counting
-    \item bijections
-    \item number of possible words
+    \item Beads of the same colour are considered identical.
+    \item Two configurations are considered the same if one can be obtained from the other by rotation.
+    \item Two configurations are also considered the same if one can be obtained from the other by reflection.
   \end{itemize}
 \end{frame}
 
-\section{Group Actions}
+\begin{frame}{The Bracelet Problem}
+  We can first count all linear arrangements before accounting for symmetry.
 
-\section{Generating Functions}
+  \vspace{0.5em}
+
+  The number of ways to arrange 3 black and 3 white beads in a line is $\binom{6}{3} = 20$.\\
+  These 20 arrangements do not yet account for rotational and reflectional equivalence.
+
+  \vspace{0.5em}
+
+  % insert image of decision tree or representative linear arrangements
+  \begin{center}
+    \includegraphics[width=5cm]{assets/necklace/g95.pdf}\\
+    \includegraphics[width=5cm]{assets/necklace/g72.pdf}
+  \end{center}
+
+\end{frame}
+
+\begin{frame}{The Bracelet Problem}
+  Under our notion of equivalence, the relevant group actions are:
+  \begin{itemize}
+    \item rotations
+    \begin{center}
+      \includegraphics[width=10cm]{assets/necklace/g151.pdf}
+    \end{center}
+
+
+  \end{itemize}
+
+  \vspace{0.5em}
+
+\end{frame}
+
+\begin{frame}{The Bracelet Problem}
+  Under our notion of equivalence, the relevant group actions are:
+  \begin{itemize}
+    \item diagonal reflections
+    \begin{center}
+
+      \includegraphics[width=4cm]{assets/necklace/path1-8-3-8.pdf}
+    \end{center}
+    \item edge reflections
+    \begin{center}
+      \includegraphics[width=3cm]{assets/necklace/path1-8-3.pdf}
+    \end{center}
+
+  \end{itemize}
+
+  \vspace{0.5em}
+
+\end{frame}
+
+\begin{frame}
+  Altogether these form the dihedral group on 6 vertices, denoted by $D_6$.
+
+  \vspace{0.5em}
+
+  Since a hexagon has 6 rotations and 6 reflections, we have
+  \[
+    |D_6| = 12.
+  \]
+\end{frame}
+
+
+\begin{frame}{Bracelet Problem}
+  We now apply Burnside's Lemma by counting the fixed configurations of each symmetry.
+
+  \vspace{0.5em}
+
+  First consider the rotations:
+  \begin{itemize}
+    \item $g_{60^\circ}$ and $g_{300^\circ}$ rotate the bracelet by one position.
+    No configuration remains unchanged, so each contributes \textbf{0} fixed configurations.
+
+    \item $g_{120^\circ}$ and $g_{240^\circ}$ rotate by two positions.
+    These fix exactly the alternating patterns, so each contributes \textbf{2} fixed configurations.
+
+    \item $g_{180^\circ}$ rotates by three positions.
+    For a configuration to remain unchanged, opposite beads must match, which would force an even number of each colour in opposite pairs. This is impossible with 3 black and 3 white beads, so this contributes \textbf{0}.
+
+    \item $g_{0^\circ}$ is the identity.
+    It fixes all configurations, so it contributes \textbf{20}.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Bracelet Problem}
+  Now consider the diagonal reflections.
+
+  \vspace{0.5em}
+
+  For a configuration to remain unchanged under a diagonal reflection, corresponding beads on either side of the reflection axis must match.
+
+  \vspace{0.5em}
+
+  In such a reflection:
+  \begin{itemize}
+    \item the two beads lying on the axis can be chosen as one black and one white in 2 ways,
+    \item the remaining four beads are arranged in symmetric pairs,
+    \item choosing the colour of one pair determines its reflected partner, giving 2 possibilities.
+  \end{itemize}
+
+  Hence each diagonal reflection fixes
+  \[
+    2 \times 2 = 4
+  \]
+  configurations.
+
+  Therefore,
+  \[
+    |\operatorname{fix}(r_d)| = 4
+  \]
+  for each diagonal reflection.
+\end{frame}
+
+\begin{frame}{Bracelet Problem}
+  Finally, consider the edge reflections.
+
+  \vspace{0.5em}
+
+  For a configuration to remain unchanged under an edge reflection, every bead must be paired with an identical reflected bead.
+
+  \vspace{0.5em}
+
+  But this would require each colour to occur an even number of times, which is impossible since we have 3 black and 3 white beads.
+
+  \vspace{0.5em}
+
+  Therefore each edge reflection fixes no configurations:
+  \[
+    |\operatorname{fix}(r_e)| = 0.
+  \]
+\end{frame}
+
+\begin{frame}{Bracelet Problem}
+  Applying Burnside's Lemma,
+  \[
+    |S/\sim|
+    =
+    \frac{1}{|G|}
+    \sum_{g \in G} |\operatorname{fix}(g)|.
+  \]
+
+  Substituting the values,
+  \[
+    |S/\sim|
+    =
+    \frac{20 + 2 + 2 + 0 + 0 + 0 + 4 + 4 + 4 + 0 + 0 + 0}{12}
+    = \frac{36}{12}
+    = 3.
+  \]
+
+  Hence there are \textbf{3 distinct bracelets} up to rotation, reflection, and repetition of bead colours.
+\end{frame}
+
+\begin{frame}{Your Turn}
+
+
+
+  \begin{itemize}
+    \item 1. How many ways are there of arranging 8 rooks on an 8x8 grid such that no rooks are attaching eachother?\\
+          \textbf{Note:} arrangements that can be rotated into eachother are considered the same.\\
+    \item 2. How many ways are there to colour the 4 corners of a square using 3 colours, where rotations are considered the same?\\
+    \item 3. How many 6-bead \textbf{bracelets} are there where each bead can be either black or white.\\
+
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Answers}
+  \begin{enumerate}
+    \item $\frac{40320 + 12 + 384 + 12}{4} = 10182$
+    \item $\frac{81+3+9+3}{4} = 24$
+    \item $\frac{84 + 48 + 24}{12} = 13$
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Answer for 2}
+  \textcolor{sqt-question}{
+    \textbf{Question 2.}
+    How many ways are there to colour the 4 corners of a square using 3 colours,
+    if two colourings are considered the same whenever one is a rotation of the other?
+  }
+
+  \vspace{0.8em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=1.1, every node/.style={font=\small}]
+      % square
+      \draw[thick] (0,0) rectangle (2,2);
+
+      % corners
+      \fill (0,0) circle (2pt) node[below left] {\(1\)};
+      \fill (2,0) circle (2pt) node[below right] {\(2\)};
+      \fill (2,2) circle (2pt) node[above right] {\(3\)};
+      \fill (0,2) circle (2pt) node[above left] {\(4\)};
+
+      % center
+      \node at (1,1) {\Large \(\circlearrowleft\)};
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.6em}
+
+  \textbf{Idea:}
+  Since rotations are treated as identical, we use \textbf{Burnside's Lemma}.\\
+
+  Here the rotation group is
+  \[
+    G=\{0^\circ,90^\circ,180^\circ,270^\circ\}.
+  \]
+\end{frame}
+
+\begin{frame}{Counting Fixed Colourings}
+  We count how many colourings are unchanged by each rotation.
+
+  \vspace{0.6em}
+
+  \begin{center}
+    \begin{tabular}{c|c|c}
+      \textbf{Rotation} & \textbf{Condition for colouring to be fixed} & \(\#\mathrm{Fix}(g)\) \\ \hline
+      \(0^\circ\) & anything works & \(3^4 = 81\) \\[0.3em]
+      \(90^\circ\) & all 4 corners same colour & \(3\) \\[0.3em]
+      \(180^\circ\) & opposite corners must match & \(3^2 = 9\) \\[0.3em]
+      \(270^\circ\) & all 4 corners same colour & \(3\)
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.8em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=0.9, every node/.style={font=\scriptsize}]
+      \draw[thick] (0,0) rectangle (1.6,1.6);
+      \fill[blue!50] (0,0) circle (3pt);
+      \fill[red!60] (1.6,0) circle (3pt);
+      \fill[blue!50] (1.6,1.6) circle (3pt);
+      \fill[red!60] (0,1.6) circle (3pt);
+      \node at (0.8,-0.4) {\(180^\circ\): opposite corners equal};
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Final Answer}
+  By Burnside's Lemma,
+  \[
+    \#\text{distinct colourings}
+    =
+    \frac{1}{4}
+    \left(
+      81 + 3 + 9 + 3
+    \right).
+    = 24
+  \]
+
+
+  \begin{sqt:definition}[\textbf{Answer}]
+    The number of ways to colour the 4 corners of a square using 3 colours,
+    up to rotation, is
+    \[
+      \boxed{24}.
+    \]
+  \end{sqt:definition}
+
+  \textbf{Takeaway:}
+  Burnside’s Lemma counts symmetry classes by averaging the number of colourings
+  fixed by each symmetry.
+\end{frame}
+
+\section{Inclusion-Exclusion}
+
+\begin{frame}{The Principle of Inclusion-Exclusion}
+  The principle of inclusion-exclusion is used when a direct count \textbf{overcounts}
+  because some configurations violate one or more constraints.
+
+  \begin{sqt:definition}[Definition: Principle Of Inclusion Exclusion]
+    The principle of inclusion exclusion states for sets $A_i$ that,
+    \[
+    \left|\bigcup_{i=1}^{3} A_i\right|
+    =
+    \sum_{i=1}^{3} |A_i|
+    -
+    \sum_{1 \le i < j \le 3} |A_i \cap A_j|
+    +
+    \sum_{1 \le i < j < k \le 3} |A_i \cap A_j \cap A_k|
+    \]
+
+  \end{sqt:definition}
+
+
+
+\end{frame}
+
+\begin{frame}{A Doughnut Distribution Problem}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    A baker has 6 identical glazed doughnuts to give to 3 kids: Alex, Blake, and Charlie.
+  }
+
+  The parent constraints are:
+  \begin{itemize}
+    \item Alex can receive at most $1$
+    \item Blake can receive at most $2$
+    \item Charlie can receive at most $3$
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}{A Doughnut Distribution Problem}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    A baker has 6 identical glazed doughnuts to give to 3 kids: Alex, Blake, and Charlie.
+  }
+
+  The parent constraints are:
+  \begin{itemize}
+    \item Alex can receive at most $1$
+    \item Blake can receive at most $2$
+    \item Charlie can receive at most $3$
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  We want the number of integer solutions to
+  \[
+    a+b+c=6
+  \]
+  such that
+  \[
+    a \le 1,\qquad b \le 2,\qquad c \le 3,
+  \]
+  with $a,b,c \ge 0$.
+\end{frame}
+
+\begin{frame}{Step 1: Count All Distributions}
+  First ignore the upper bounds completely.
+
+  \vspace{0.5em}
+
+  We count the number of nonnegative integer solutions to
+  \[
+    a+b+c=6.
+  \]
+
+  By stars and bars, the number of unrestricted distributions is
+  \[
+    \binom{6+3-1}{3-1} = \binom{8}{2} = 28.
+  \]
+
+  \vspace{0.5em}
+
+  So if there were no sugar limits, there would be \textbf{28} ways.
+\end{frame}
+
+\begin{frame}{Step 2: Define the Bad Sets}
+  We now remove distributions where at least one child exceeds their limit.
+
+  \vspace{0.5em}
+
+  Define:
+  \[
+    A = \{\text{Alex gets at least } 2\},
+  \]
+  \[
+    B = \{\text{Blake gets at least } 3\},
+  \]
+  \[
+    C = \{\text{Charlie gets at least } 4\}.
+  \]
+
+  \vspace{0.5em}
+
+  Then the valid distributions are exactly those outside
+  \[
+    A \cup B \cup C.
+  \]
+
+  Hence we want
+  \[
+    28 - |A \cup B \cup C|.
+  \]
+\end{frame}
+
+\begin{frame}{Step 3: Count the Single Violations}
+  We count each bad set by pre-assigning the minimum violating amount.
+
+  \vspace{0.5em}
+
+  \textbf{Alex violates:} $a \ge 2$\\
+  Give Alex $2$ doughnuts first. Then
+  \[
+    a'+b+c = 4.
+  \]
+  Number of solutions:
+  \[
+    |A| = \binom{4+3-1}{2} = \binom{6}{2} = 15.
+  \]
+
+  \vspace{0.5em}
+
+  \textbf{Blake violates:} $b \ge 3$\\
+  Give Blake $3$ doughnuts first. Then
+  \[
+    a+b'+c = 3.
+  \]
+  Number of solutions:
+  \[
+    |B| = \binom{3+3-1}{2} = \binom{5}{2} = 10.
+  \]
+\end{frame}
+
+\begin{frame}{Step 3: Count the Single Violations}
+  \textbf{Charlie violates:} $c \ge 4$\\
+  Give Charlie $4$ doughnuts first. Then
+  \[
+    a+b+c' = 2.
+  \]
+  Number of solutions:
+  \[
+    |C| = \binom{2+3-1}{2} = \binom{4}{2} = 6.
+  \]
+
+  \vspace{0.8em}
+
+  So the total number of single violations is
+  \[
+    |A|+|B|+|C| = 15+10+6 = 31.
+  \]
+
+  This is too much to subtract directly, because configurations that violate
+  two conditions have now been subtracted twice.
+\end{frame}
+
+\begin{frame}{Step 4: Count the Double Violations}
+  We now count intersections.
+
+  \vspace{0.5em}
+
+  \textbf{Alex and Blake both violate:}
+  \[
+    a \ge 2,\quad b \ge 3.
+  \]
+  Pre-assign $2+3=5$ doughnuts, leaving
+  \[
+    a'+b'+c = 1.
+  \]
+  Number of solutions:
+  \[
+    |A \cap B| = \binom{1+3-1}{2} = \binom{3}{2} = 3.
+  \]
+
+  \vspace{0.8em}
+
+  \textbf{Alex and Charlie both violate:}
+  \[
+    a \ge 2,\quad c \ge 4.
+  \]
+  Pre-assign $2+4=6$ doughnuts, leaving
+  \[
+    a'+b+c' = 0.
+  \]
+  Number of solutions:
+  \[
+    |A \cap C| = \binom{0+3-1}{2} = \binom{2}{2} = 1.
+  \]
+\end{frame}
+
+\begin{frame}{Step 4: Count the Double and Triple Violations}
+  \textbf{Blake and Charlie both violate:}
+  \[
+    b \ge 3,\quad c \ge 4.
+  \]
+  This would require at least
+  \[
+    3+4=7
+  \]
+  doughnuts, but only $6$ exist. So
+  \[
+    |B \cap C| = 0.
+  \]
+
+  \vspace{0.8em}
+
+  \textbf{All three violate:}
+  \[
+    a \ge 2,\quad b \ge 3,\quad c \ge 4.
+  \]
+  This would require at least
+  \[
+    2+3+4=9
+  \]
+  doughnuts, also impossible. Hence
+  \[
+    |A \cap B \cap C| = 0.
+  \]
+\end{frame}
+
+\begin{frame}{Step 5: Apply Inclusion--Exclusion}
+  By inclusion--exclusion,
+  \[
+    |A \cup B \cup C|
+    =
+    |A|+|B|+|C|
+    -
+    |A \cap B|
+    -
+    |A \cap C|
+    -
+    |B \cap C|
+    +
+    |A \cap B \cap C|.
+  \]
+
+  Substituting the values:
+  \[
+    |A \cup B \cup C|
+    =
+    15+10+6-3-1-0+0 = 27.
+  \]
+
+  Therefore the number of valid distributions is
+  \[
+    28 - 27 = 1.
+  \]
+
+  \vspace{0.5em}
+
+  So there is exactly \textbf{1 valid distribution}.
+\end{frame}
+
+\begin{frame}{Checking the Answer Directly}
+  Since the total number of doughnuts is small, we can verify this manually.
+
+  \vspace{0.5em}
+
+  The limits are:
+  \[
+    a \le 1,\qquad b \le 2,\qquad c \le 3.
+  \]
+
+  The only way to reach
+  \[
+    a+b+c=6
+  \]
+  without exceeding any limit is to give each child their maximum allowed amount:
+  \[
+    (a,b,c) = (1,2,3).
+  \]
+
+  \vspace{0.8em}
+
+  Hence the final answer is again
+  \[
+    \boxed{1}.
+  \]
+\end{frame}
+%%
+\begin{frame}{What is a Derangement?}
+  \begin{sqt:definition}[\textbf{Definition:} Derangement]
+    A derangement is a permutation in which \textbf{no element appears in its original position}.
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \begin{center}
+    \includegraphics[width=6cm]{assets/derrangement/g1-9.pdf}
+  \end{center}
+
+
+\end{frame}
+
+\begin{frame}{What is a Derangement?}
+
+  \textbf{Example:}
+  \begin{itemize}
+    \item Suppose we permute $(1,2,3)$
+    \item A derangement would be $(2,3,1)$ or $(3,1,2)$
+    \item $(1,3,2)$ is \textbf{not} a derangement since $1$ stays fixed
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Key idea:}
+  \begin{itemize}
+    \item We want permutations with \textbf{no fixed points}
+    \item These are counted using the Inclusion-Exclusion Principle
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Derangement Problem}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    An administrator writes $n$ personalised letters and prepares $n$ matching envelopes.
+  }
+
+  \vspace{0.5em}
+
+  The letters are placed randomly into the envelopes.
+
+  \vspace{0.5em}
+
+  \textbf{Question:}
+  How many ways can the administrator stuff the letters so that \textbf{no employee receives their own letter}?
+\end{frame}
+
+\begin{frame}{Step 1: Total Permutations}
+  First ignore the restriction.
+
+  \vspace{0.5em}
+
+  The number of ways to assign $n$ letters to $n$ envelopes is
+  \[
+    n!
+  \]
+
+  \vspace{0.5em}
+
+  This counts all permutations, including those where some letters are correctly placed.
+
+  \vspace{0.5em}
+
+  Our goal is to remove all permutations with \textbf{at least one fixed point}.
+\end{frame}
+
+\begin{frame}{Step 2: Define the Bad Sets}
+  For each employee $i$, define
+  \[
+    A_i = \{\text{letter $i$ is placed in the correct envelope}\}.
+  \]
+
+  \vspace{0.5em}
+
+  Then we want to count permutations outside
+  \[
+    A_1 \cup A_2 \cup \cdots \cup A_n.
+  \]
+
+  \vspace{0.5em}
+
+  So the number of derangements is
+  \[
+    n! - |A_1 \cup A_2 \cup \cdots \cup A_n|.
+  \]
+\end{frame}
+
+\begin{frame}{Step 3: Count Single Fixes}
+  Suppose exactly one letter is fixed.
+
+  \vspace{0.5em}
+
+  Fix letter $i$. Then we permute the remaining $n-1$ letters freely.
+
+  \[
+    |A_i| = (n-1)!
+  \]
+
+  \vspace{0.5em}
+
+  There are $n$ such sets, so
+  \[
+    \sum |A_i| = n (n-1)!
+  \]
+\end{frame}
+
+\begin{frame}{Step 4: Count Multiple Fixes}
+  Now consider intersections.
+
+  \vspace{0.5em}
+
+  If $k$ specific letters are fixed, then we permute the remaining $n-k$ letters:
+  \[
+    |A_{i_1} \cap \cdots \cap A_{i_k}| = (n-k)!
+  \]
+
+  \vspace{0.5em}
+
+  There are $\binom{n}{k}$ ways to choose which $k$ letters are fixed.
+
+  \vspace{0.5em}
+
+  So the total contribution is
+  \[
+    \binom{n}{k} (n-k)!
+  \]
+\end{frame}
+
+\begin{frame}{Step 5: Apply Inclusion-Exclusion}
+  Using inclusion-exclusion,
+  \[
+    D_n
+    =
+    n!
+    - \binom{n}{1}(n-1)!
+    + \binom{n}{2}(n-2)!
+    - \cdots
+    + (-1)^n \binom{n}{n}(0)!
+  \]
+
+  \vspace{0.5em}
+
+  This simplifies to
+  \[
+    D_n
+    =
+    n! \sum_{k=0}^{n} \frac{(-1)^k}{k!}
+  \]
+\end{frame}
+
+\begin{frame}{Final Answer and Insight}
+  The number of derangements of $n$ objects is
+  \[
+    D_n = n! \sum_{k=0}^{n} \frac{(-1)^k}{k!}.
+  \]
+
+  \vspace{0.5em}
+
+  \textbf{Key insight:}
+  \begin{itemize}
+    \item Derangements arise naturally from \textbf{avoiding fixed points}
+    \item For large $n$,
+    \[
+      D_n \approx \frac{n!}{e}
+    \]
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Exactly \(k\) Correct Tests}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    A teacher has graded the tests of \(n\) students and wants to hand them back.
+  }
+
+  \vspace{0.5em}
+
+  In how many different ways can the teacher return the tests such that
+  \begin{itemize}
+    \item exactly \(k\) students receive their own correct test, and
+    \item the remaining \(n-k\) students receive someone else's test?
+  \end{itemize}
+  \begin{center}
+    \includegraphics[width=5cm]{assets/derrangement/g70.pdf}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Step 1: Choose the Fixed Points}
+  We want \textbf{exactly \(k\)} students to get their own test back.
+
+  \vspace{0.5em}
+
+  First choose which \(k\) students these are.
+
+  \[
+    \binom{n}{k}
+  \]
+
+  ways.
+
+  \vspace{0.5em}
+
+  Once these \(k\) students are chosen, their tests are fixed in place.
+\end{frame}
+
+\begin{frame}{Step 2: Derange the Remaining Tests}
+  After fixing those \(k\) students, there are \(n-k\) students left.
+
+  \vspace{0.5em}
+
+  None of these remaining students are allowed to receive their own test.
+
+  \vspace{0.5em}
+
+  So we must count a \textbf{derangement} of the remaining \(n-k\) tests.\\
+  THere are $D_{n-k}$ ways of such.
+
+  \vspace{0.5em}
+
+  Recall:
+  \[
+    D_m = m!\sum_{i=0}^{m}\frac{(-1)^i}{i!}.
+  \]
+\end{frame}
+
+\begin{frame}{Final Count}
+  By the multiplication principle,
+
+  \[
+    \text{number of ways}
+    =
+    \binom{n}{k} D_{n-k}.
+  \]
+
+  \vspace{0.8em}
+
+  So the number of ways to return the tests so that
+  \textbf{exactly \(k\) students} get the correct test is
+
+  \[
+    \boxed{\binom{n}{k}D_{n-k}}.
+  \]
+
+  \vspace{0.8em}
+\end{frame}
+
+\begin{frame}{Your Turn: PIE Brain Teaser Questions}
+  \begin{enumerate}
+    \item 1. A 6-digit PIN is made using digits \(0\) to \(9\), with repetition allowed.
+    How many PINs contain at least one repeated digit?
+
+    \item 2. A deck contains 52 cards. How many 5-card hands contain at least one card from every suit?
+
+    \item 3. How many permutations of \(1,2,\dots,8\) have no number in its original position?
+
+    \item 4. How many ways are there to place 8 non-attacking rooks on an \(8\times 8\) board such that no rook lies on the main diagonal? ( hint: derangement in disguise)
+
+    \item 5. How many positive integer solutions are there to
+    \[
+      x_1+x_2+x_3+x_4=20
+    \]
+    where each \(x_i\le 8\)?
+
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Answers}
+  \begin{enumerate}
+    \item \(848800\)
+    \item \(685464\)
+    \item \(14833\)
+    \item \(14833\)
+    \item \(315\)
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Solution: 5-Card Hands with Every Suit}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A deck contains 52 cards. How many 5-card hands contain at least one card from every suit?
+  }
+
+  \begin{sqt:tip}[Key Idea]
+    Count all hands, then subtract hands that miss at least one suit.
+  \end{sqt:tip}
+\end{frame}
+
+
+\begin{frame}{Solution: 5-Card Hands with Every Suit}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A deck contains 52 cards. How many 5-card hands contain at least one card from every suit?
+  }
+
+  \vspace{0.4em}
+
+  Let \(A_s\) be the set of 5-card hands that are \textbf{missing suit \(s\)}.
+
+  \vspace{0.3em}
+
+  We want hands that miss no suit:
+  \[
+    \binom{52}{5} - \left|A_{\clubsuit}\cup A_{\diamondsuit}\cup A_{\heartsuit}\cup A_{\spadesuit}\right|.
+  \]
+
+  \vspace{0.3em}
+
+  By inclusion-exclusion:
+  \[
+  \begin{aligned}
+    \text{valid}
+    &=
+    \binom{52}{5}
+    - \binom{4}{1}\binom{39}{5}
+    + \binom{4}{2}\binom{26}{5}
+    - \binom{4}{3}\binom{13}{5}.
+  \end{aligned}
+  \]
+
+  \vspace{0.3em}
+
+  Therefore,
+  \[
+  \begin{aligned}
+    \text{valid}
+    &=
+    2598960
+    -4(575757)
+    +6(65780)
+    -4(1287) \\
+    &= \boxed{685464}.
+  \end{aligned}
+  \]
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Bijections}
+
+\begin{frame}{Bijections}
+  \begin{sqt:definition}[\textbf{Definition:} Bijection]
+    A \textbf{bijection} is a one-to-one correspondence between two sets:
+    every object in one set matches exactly one object in the other.
+  \end{sqt:definition}
+
+  \vspace{0.4em}
+
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Key idea}
+      \[
+        A \leftrightarrow B
+        \quad \Longrightarrow \quad
+        |A| = |B|.
+      \]
+    \end{column}
+
+    \begin{column}{0.48\textwidth}
+      \textbf{Counting strategy}
+      \begin{itemize}
+        \item Start with a set thats difficult to count
+        \item Find a one to one correspondence to a easier set
+        \item Count the easier set
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Path Counting}
+  \textcolor{sqt-question}{
+    \textbf{Example:}
+    How many paths are there from \((0,0)\) to \((n,n)\),
+    moving only right or up, that stay below the diagonal?
+  }
+
+  \vspace{0.8em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=0.55]
+      \draw[step=1, gray!35, very thin] (0,0) grid (5,5);
+      \draw[->, thick] (0,0) -- (5.4,0) node[right] {\(x\)};
+      \draw[->, thick] (0,0) -- (0,5.4) node[above] {\(y\)};
+
+      \draw[thick, dashed, color=sqt-question] (0,0) -- (5,5)
+        node[pos=0.75, above left] {\(y=x\)};
+
+      \draw[very thick, color=sqt-primary]
+        (0,0) -- (1,0) -- (2,0) -- (2,1) -- (3,1)
+        -- (3,2) -- (4,2) -- (5,2) -- (5,3)
+        -- (5,4) -- (5,5);
+
+      \fill (0,0) circle (2pt) node[below left] {\((0,0)\)};
+      \fill (5,5) circle (2pt) node[above right] {\((n,n)\)};
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}{Encoding Paths}
+  Each path is encoded by a sequence of moves:
+  \[
+    R = \text{right},
+    \qquad
+    U = \text{up}.
+  \]
+
+  \vspace{0.5em}
+
+  A path from \((0,0)\) to \((n,n)\) must contain
+  \[
+    n \text{ copies of } R
+    \qquad \text{and} \qquad
+    n \text{ copies of } U.
+  \]
+
+  \vspace{0.5em}
+
+  Therefore, every unrestricted path corresponds to a sequence of length \(2n\)
+  with \(n\) right moves and \(n\) up moves.
+
+  \vspace{0.6em}
+
+  \[
+    \#\{\text{all paths}\}
+    =
+    \binom{2n}{n}.
+  \]
+\end{frame}
+
+
+\begin{frame}{Applying the Constraint}
+  To stay below the diagonal, every prefix of the sequence must satisfy
+  \[
+    \#U \le \#R.
+  \]
+
+  \vspace{0.6em}
+
+  \begin{sqt:definition}[\textbf{Definition:} Dyck Path]
+    A \textbf{Dyck path} is a path from \((0,0)\) to \((n,n)\)
+    using \(R\) and \(U\), such that at every point
+    \[
+      \#U \le \#R.
+    \]
+  \end{sqt:definition}
+
+  \vspace{0.4em}
+
+  So our problem is asking for the number of Dyck paths of length \(2n\).
+\end{frame}
+
+
+\begin{frame}{Counting by Complement}
+  We count valid paths by subtracting invalid paths.
+
+  \vspace{0.5em}
+
+  \[
+    \#\{\text{valid paths}\}
+    =
+    \#\{\text{all paths}\}
+    -
+    \#\{\text{invalid paths}\}.
+  \]
+
+  \vspace{0.8em}
+
+  We already know
+  \[
+    \#\{\text{all paths}\}
+    =
+    \binom{2n}{n}.
+  \]
+
+  \vspace{0.8em}
+
+  It remains to count paths where, at some point,
+  \[
+    \#U > \#R.
+  \]
+
+  These are exactly the paths that cross above the diagonal.
+\end{frame}
+
+
+
+\begin{frame}{The Bijection: Reflection Principle}
+  \textcolor{sqt-question}{
+    \textbf{Claim:}
+    Invalid paths from \((0,0)\) to \((n,n)\) are in bijection with paths
+    from \((0,0)\) to \((n-1,n+1)\).
+  }
+  \begin{itemize}
+    \item take an invalid path and find the \textbf{first time} it goes above the diagonal.
+    \item At that moment, the path has just moved to a point where $\#U = \#R + 1$.
+  \end{itemize}
+  Upon reflecting the path \textbf{up to and including this first crossing}:\\
+
+  This changes the total number of moves from
+  \[
+    nR + nU
+    \quad \longmapsto \quad
+    (n-1)R + (n+1)U.
+  \]
+
+  So the reflected path ends at
+  \[
+    (n-1,n+1).
+  \]
+\end{frame}
+
+
+\begin{frame}{Reflection Principle}
+  \textcolor{sqt-question}{
+    \textbf{Idea:}
+    Take the first prefix that goes above the diagonal, and reflect that prefix
+    across \(y=x\).
+  }
+
+  \vspace{0.5em}
+
+  \begin{center}
+    \begin{tikzpicture}[scale=0.72, every node/.style={font=\scriptsize}]
+      % grid
+      \draw[step=1, gray!30, very thin] (0,0) grid (5,5);
+
+      % axes
+      \draw[->, thick] (0,0) -- (5.4,0);
+      \draw[->, thick] (0,0) -- (0,5.4);
+
+      % diagonal
+      \draw[dashed, thick, black!70] (0,0) -- (5,5)
+        node[pos=0.8, above left] {\(y=x\)};
+
+      % original invalid path
+      % Sequence: R U R U U R R U
+      \draw[line width=1.8pt, blue!70!black]
+        (0,0) -- (1,0) -- (1,1) -- (2,1) -- (2,2) -- (2,3);
+
+      \draw[line width=1.8pt, blue!70!black, opacity=0.45]
+        (2,3) -- (3,3) -- (4,3) -- (4,4);
+
+      % reflected path
+      % reflected prefix: U R U R R, then same suffix R R U
+      \draw[line width=1.8pt, red!75!black]
+        (0,0) -- (0,1) -- (1,1) -- (1,2) -- (2,2) -- (3,2)
+        -- (4,2) -- (5,2) -- (5,3);
+
+      % points
+      \fill[blue!70!black] (2,3) circle (2pt)
+        node[above left] {\(P=(2,3)\)};
+      \fill[red!75!black] (3,2) circle (2pt)
+        node[below right] {\(P'=(3,2)\)};
+
+      % start/end labels
+      \fill (0,0) circle (1.7pt) node[below left] {\((0,0)\)};
+      \fill[blue!70!black] (4,4) circle (1.7pt) node[above right] {\((4,4)\)};
+      \fill[red!75!black] (5,3) circle (1.7pt) node[right] {\((5,3)\)};
+
+      % annotation
+      \draw[->, thick] (2.25,2.85) .. controls (2.6,2.6) .. (2.9,2.25);
+      \node at (3.65,2.75) {reflect prefix};
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.3em}
+
+  \begin{itemize}
+    \item \textcolor{blue!70!black}{Blue}: an invalid path, first crossing the diagonal at \(P\)
+    \item \textcolor{red!75!black}{Red}: reflect the prefix up to \(P\), then keep the rest unchanged
+    \item The new path ends at \((n+1,n-1)\)
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Why This Is a Bijection}
+  The reflection process is reversible.
+
+  \vspace{0.6em}
+
+  Given any path from \((0,0)\) to \((n-1,n+1)\), it must eventually go above
+  the diagonal because it ends with
+  \[
+    \#U = n+1
+    \qquad \text{and} \qquad
+    \#R = n-1.
+  \]
+
+  \vspace{0.6em}
+
+  Find the first time it reaches
+  \[
+    \#U = \#R + 1.
+  \]
+
+  Reflect the path up to and including that point again:
+  \[
+    R \leftrightarrow U.
+  \]
+
+  \vspace{0.6em}
+
+  This returns an invalid path from \((0,0)\) to \((n,n)\).
+
+  \vspace{0.6em}
+
+  Therefore,
+  \[
+    \#\{\text{invalid paths}\}
+    =
+    \binom{2n}{n+1}.
+  \]
+\end{frame}
+
+
+\begin{frame}{Final Count}
+  Hence,
+  \[
+    \#\{\text{valid paths}\}
+    =
+    \binom{2n}{n}
+    -
+    \binom{2n}{n+1}.
+  \]
+
+  \vspace{0.8em}
+
+  Simplifying,
+  \[
+    \binom{2n}{n}
+    -
+    \binom{2n}{n+1}
+    =
+    \frac{1}{n+1}\binom{2n}{n}.
+  \]
+
+  \vspace{0.8em}
+
+  \begin{sqt:definition}[\textbf{Catalan Number}]
+    The number
+    \[
+      C_n = \frac{1}{n+1}\binom{2n}{n}
+    \]
+    is called the \(n\)-th \textbf{Catalan number}.
+  \end{sqt:definition}
+\end{frame}
+
+
+\begin{frame}{Key Takeaway}
+  Bijections let us replace a difficult counting problem with an easier one.
+
+  \vspace{0.8em}
+
+  In this example:
+
+  \[
+    \text{invalid constrained paths}
+    \longleftrightarrow
+    \text{unconstrained paths to } (n-1,n+1).
+  \]
+
+  \vspace{0.8em}
+
+  Therefore, a geometric constraint became a simple binomial coefficient.
+\end{frame}
+
+\begin{frame}{Inventory Paths Question}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A trader makes exactly \(4\) buy trades and \(4\) sell trades during the day.
+    The trader starts with inventory \(0\), and \textbf{short selling is not allowed}.
+  }
+
+  \vspace{0.6em}
+
+  In how many different orders can the \(8\) trades occur if the inventory must
+  never become negative?
+\end{frame}
+
+\begin{frame}{Inventory Paths Question}
+  \textcolor{sqt-question}{
+    \textbf{Question:}
+    A trader makes exactly \(4\) buy trades and \(4\) sell trades during the day.
+    The trader starts with inventory \(0\), and \textbf{short selling is not allowed}.
+  }
+
+  \vspace{0.6em}
+
+  In how many different orders can the \(8\) trades occur if the inventory must
+  never become negative?
+
+  \vspace{0.8em}
+
+  \textbf{Interpretation:}
+  \begin{itemize}
+    \item \(B\): buy trade \(\Rightarrow\) inventory increases by \(1\)
+    \item \(S\): sell trade \(\Rightarrow\) inventory decreases by \(1\)
+    \item Since short selling is not allowed, at every point:
+    \[
+      \#S \le \#B
+    \]
+  \end{itemize}
+
+  \vspace{0.5em}
+
+  \textbf{Example of a valid trade sequence:}
+  \[
+    B\ B\ S\ B\ S\ B\ S\ S
+  \]
+\end{frame}
+
+\begin{frame}{Inventory Paths}
+  \begin{center}
+    \begin{tikzpicture}[scale=0.8, every node/.style={font=\scriptsize}]
+      \draw[step=1, gray!30, very thin] (0,0) grid (4,4);
+      \draw[->, thick] (0,0) -- (4.4,0);
+      \draw[->, thick] (0,0) -- (0,4.4);
+
+      \draw[dashed, thick, black!70] (0,0) -- (4,4)
+        node[pos=0.78, above left] {\(y=x\)};
+
+      % Example valid sequence: B B S B S B S S = R R U R U R U U
+      \draw[line width=1.8pt, blue!70!black]
+        (0,0) -- (1,0) -- (2,0) -- (2,1) -- (3,1)
+        -- (3,2) -- (4,2) -- (4,3) -- (4,4);
+
+      \fill (0,0) circle (1.8pt) node[below left] {\((0,0)\)};
+      \fill (4,4) circle (1.8pt) node[above right] {\((4,4)\)};
+
+      \node at (2,-0.55) {\(\#B\)};
+      \node[rotate=90] at (-0.55,2) {\(\#S\)};
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Inventory Paths solution}
+  Encode the trade sequence as a path:
+  \[
+    B = R
+    \qquad\text{and}\qquad
+    S = U.
+  \]
+
+  \vspace{0.5em}
+
+  The condition “inventory never becomes negative” means that at every prefix,
+  \[
+    \#S \le \#B,
+  \]
+  so the path must stay \textbf{on or below the diagonal}.
+
+  \vspace{0.5em}
+
+  Therefore, the number of valid trade sequences is the number of
+  \textbf{Dyck paths} with \(4\) right steps and \(4\) up steps:
+
+  \[
+    C_4 = \frac{1}{4+1}\binom{8}{4}
+    = \frac{1}{5}\cdot 70
+    = 14.
+  \]
+
+  \textbf{Answer:}
+  \[
+    \boxed{14}
+  \]
+\end{frame}
+
+\begin{frame}{Position-Constrained Dyck Paths}
+  \textcolor{sqt-question}{
+    A market maker tracks inventory over \(16\) trades.
+  }
+
+  Each trade changes inventory by
+  \[
+    +1 \qquad \text{or} \qquad -1.
+  \]
+
+  The market maker starts with inventory \(0\), ends with inventory \(0\), and must satisfy
+  the risk limits
+  \[
+    0 \le I_t \le 3
+    \qquad \text{for every } t.
+  \]
+
+  \begin{sqt:definition}[\textbf{Question}]
+    How many valid inventory paths are possible?
+  \end{sqt:definition}
+
+  \textbf{Interpretation:}
+  This is a constrained walk on the states
+  \[
+    0,1,2,3,
+  \]
+  with \(16\) steps, starting and ending at \(0\).
+\end{frame}
+
+
+\begin{frame}{State Model and Recurrence}
+  \begin{sqt:definition}[\textbf{Dynamic Programming Setup}]
+    Let \(a_t(k)\) be the number of valid ways to be at inventory level \(k\)
+    after \(t\) trades.
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \[
+        a_0(0)=1,
+        \qquad
+        a_0(1)=a_0(2)=a_0(3)=0.
+      \]
+
+      The state transitions are:
+      \[
+        a_{t+1}(0)=a_t(1),
+      \]
+      \[
+        a_{t+1}(1)=a_t(0)+a_t(2),
+      \]
+      \[
+        a_{t+1}(2)=a_t(1)+a_t(3),
+      \]
+      \[
+        a_{t+1}(3)=a_t(2).
+      \]
+    \end{column}
+
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+        \begin{tikzpicture}[
+          >=stealth,
+          node distance=1.4cm,
+          every node/.style={circle, draw, minimum size=7mm, font=\small}
+        ]
+          \node (s0) at (0,0) {\(0\)};
+          \node (s1) at (1.6,0) {\(1\)};
+          \node (s2) at (3.2,0) {\(2\)};
+          \node (s3) at (4.8,0) {\(3\)};
+
+          \draw[->, thick] (s0) to[bend left=20] (s1);
+          \draw[->, thick] (s1) to[bend left=20] (s0);
+
+          \draw[->, thick] (s1) to[bend left=20] (s2);
+          \draw[->, thick] (s2) to[bend left=20] (s1);
+
+          \draw[->, thick] (s2) to[bend left=20] (s3);
+          \draw[->, thick] (s3) to[bend left=20] (s2);
+        \end{tikzpicture}
+      \end{center}
+
+      \vspace{0.4em}
+
+      \begin{center}
+        \small
+        Each trade moves inventory to a neighbouring state.
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+\begin{frame}{Solution}
+  Repeatedly applying the recurrence gives the number of paths returning to \(0\).
+
+  \vspace{0.6em}
+
+  \begin{center}
+    \begin{tabular}{c|ccccccccc}
+      \(t\) & 0 & 2 & 4 & 6 & 8 & 10 & 12 & 14 & 16 \\ \hline
+      \(a_t(0)\) & 1 & 1 & 2 & 5 & 13 & 34 & 89 & 233 & 610
+    \end{tabular}
+  \end{center}
+
+  \vspace{0.8em}
+
+  So after \(16\) trades,
+  \[
+    a_{16}(0)=610.
+  \]
+
+  \vspace{0.6em}
+
+  \begin{sqt:definition}[\textbf{Answer}]
+    The number of valid inventory paths is
+    \[
+      \boxed{610}.
+    \]
+  \end{sqt:definition}
+
+  \vspace{0.5em}
+
+  \textbf{Key idea:}
+  This is a Dyck-path style problem with an added upper barrier \(I_t \le 3\),
+  so we count paths using state-based dynamic programming.
+\end{frame}
+%------------------------------JED
+
+\section{Miscellaneous Questions}
 
 \section{Recursion}
 
@@ -186,9 +1915,9 @@ We split into two cases:
 \begin{itemize}
     \item[(1)] Letter $j$ is delivered to address $1$ \\
     $\Rightarrow$ reduces to a problem on $n-2$ letters: $D_{n-2}$
-    
+
     \medskip
-    
+
     \item[(2)] Letter $j$ is not delivered to address $1$ \\
     $\Rightarrow$ reduces to a problem on $n-1$ letters: $D_{n-1}$
 \end{itemize}
@@ -338,16 +2067,6 @@ To account for this, we will also define an auxiliary quantity \(G_n\).
 
 \end{frame}
 
-
-
-
-
-
-
-
-
-
-
 \begin{frame}{States}
 
 \textbf{Let $T_n$:} tilings of a full $2 \times n$ board
@@ -495,7 +2214,7 @@ Let $m$ be the number of terms we are summing up.
 
 \medskip
 
-\textbf{Divisible by $10$:}  
+\textbf{Divisible by $10$:}
 The number must end in $0$.
 
 \medskip
@@ -508,7 +2227,7 @@ Each block ends in $1$ $\Rightarrow$ sum ends in $m$.
 
 \medskip
 
-\textbf{Divisible by $3$:}  
+\textbf{Divisible by $3$:}
 So we recall a number k is divisible by 3 $\iff$ the sum of the digits of k are divisible by 3
 
 Thus the digits must sum to a multiple of $3$.
@@ -663,11 +2382,10 @@ For $n=7,\ k=3$:
 
 \textbf{Takeaway}
 
-Spacing constraints $\Rightarrow$ transform the indices  
+Spacing constraints $\Rightarrow$ transform the indices
 $\Rightarrow$ reduce to a standard counting problem.
 
 \end{frame}
-
 
 
 
