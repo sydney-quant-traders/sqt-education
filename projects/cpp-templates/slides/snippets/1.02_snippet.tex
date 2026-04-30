@@ -1,0 +1,21 @@
+\begin{minted}{cpp}
+  /* 1.02 - CPPINSIGHTS OUTPUT */
+
+#ifdef INSIGHTS_USE_TEMPLATE
+template<> struct maybe<int> {
+  bool has_value_;
+  int value_;
+  /* ... */
+  inline const int & get() // ...
+};
+#endif
+
+#ifdef INSIGHTS_USE_TEMPLATE
+template<> struct maybe<double> {
+  bool has_value_;
+  double value_;
+  /* ... */
+  inline const double & get() //...
+};
+#endif
+\end{minted}

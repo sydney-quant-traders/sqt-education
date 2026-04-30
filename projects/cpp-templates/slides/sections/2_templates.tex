@@ -1,0 +1,276 @@
+\section{Templates}
+
+% Motivating example
+\begin{frame}[fragile]{Motivation: \texttt{maybe\_int}}
+  Suppose we want a type that either holds a value, or nothing (like a nullable int):
+  \begin{minted}{cpp}
+    struct maybe_int {
+        bool has_value_; int value_;
+
+        maybe_int() : has_value_(false), value_{} {}
+        maybe_int(int v) : has_value_(true), value_(v) {}
+
+        bool has() const { return has_value_; }
+        int get() const {
+            if (!has_value_) throw std::runtime_error("empty");
+            return value_;
+        }
+    };
+  \end{minted}
+  What if we want \texttt{maybe\_double}? \texttt{maybe\_string}? Same logic, different type.
+\end{frame}
+
+% Class templates
+\begin{frame}[fragile]{\texttt{maybe} - Templated Solution}
+  \begin{sqt:result}
+    % Recall \texttt{maybe\_int} from earlier. \\
+    We can generate the exact same code by writing a \emph{template class}.
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    /* 1.02 */
+    template <typename T>
+    struct maybe {
+        bool has_value_; T value_;
+        /* ... */
+    };
+  \end{minted}
+
+  Verify this with \verb|cppinsights.io|. \\
+  % \textit{Bonus question: what's the difference between \texttt{struct} and \texttt{class}?}
+\end{frame}
+
+\begin{frame}[fragile]{Template Instantiation}
+  \begin{columns}[T]
+    \begin{column}{0.4\textwidth}
+      \input{snippets/1.02_snippet.tex}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+      \vspace{1cm}
+      For each type (\texttt{int, std::string, double}) that is substituted for
+      the template type parameter \texttt{T}, 
+      an \emph{instantiation} is generated.
+
+      Based on the code, the compiler determines which instantiations are necessary,
+      and will only generate those which are used.
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% Template syntax
+\begin{frame}[fragile]{C++ Templates}
+  \begin{minted}{cpp}
+// declare widget as a template class
+template <typename T, typename U, int V> struct widget{/* */};
+// declare void foo(T,U) as a template function
+template <typename T, typename U> void foo(T lorem, U ipsum) {/* */}
+
+int main() {
+    std::string s = "hi";
+    int val = 42;
+    foo(s, val); // instantiation <T = std::string, U = int>
+    widget<int, decltype(s), 20> obj; // instantiation <T = int, U = decltype(s), V = 20>
+    widget<int, int, val> obj2; // COMPILE ERROR: val is not a compile-time value
+}
+  \end{minted}
+
+  \begin{sqt:result}
+    The programmer can \emph{use} the template entity (function / class).
+    At compile-time, the compiler \emph{stamps} out every required instantiation, \\
+    replacing each template parameter with the required types / compile-time values.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{What can be templated?}
+  Templates can be used to define:
+  \begin{itemize}
+    \item \textbf{Function templates}: generate function definitions, with types substituted
+    \item \textbf{Class templates}: generate class definitions, with types substituted.
+    \item \textbf{Variable templates}: generate variable definitions, with types substituted
+  \end{itemize}
+
+  Let's take a look at some more examples.
+\end{frame}
+
+% Function templates
+\begin{frame}[fragile]{Example: \texttt{max()} without function templates}
+  Suppose we are writing our own custom \code{cmath} library:
+  \begin{minted}{cpp}
+    int max(int x, int y) {
+        return (x > y) ? x : y;
+    }
+    double max(double x, double y) {
+        return (x > y) ? x : y;
+    }
+    char max(char x, char y) {
+        return (x > y) ? x : y;
+    }
+
+    int main() {
+        std::cout << max(1, 2) << '\n';     // overload resolution: max(int, int)
+        std::cout << max(3.5, 7.5) << '\n'; // overload resolution: max(double, double)
+        std::cout << max('a', 'b') << '\n'; // overload resolution: max(char, char)
+        return 0;
+    }
+  \end{minted}
+
+  Can we do better?
+\end{frame}
+
+\begin{frame}[fragile]{Example: \texttt{max()} with function templates}
+  \begin{minted}{cpp}
+    #include <iostream>
+
+    template <typename T>
+    T max(T x, T y) {
+        return (x > y) ? x : y;
+    }
+
+    int main() {
+        std::cout << max(1, 2) << '\n';     // deduces to max<int>(int)
+        std::cout << max(3.5, 7.5) << '\n'; // deduces to max<double>(double)
+        std::cout << max('a', 'b') << '\n'; // deduces to max<char>(char)
+        return 0;
+    }
+  \end{minted}
+
+  What about \texttt{max(1, 2.1)}?
+\end{frame}
+
+\begin{frame}[fragile]{Example: Multiple type parameters}
+  \begin{minted}{cpp}
+    #include <iostream>
+
+    template <typename T, typename U>
+    auto max(T x, U y) {
+        return (x > y) ? x : y;
+    }
+
+    int main() {
+        std::cout << max(1, 2.1) << '\n'; // 2.1
+        return 0;
+    }
+  \end{minted}
+
+  Using \texttt{auto}, the compiler deduces the return type.
+\end{frame}
+
+\begin{frame}[fragile]{Where have we seen function templates?}
+  \texttt{std::sort} from \texttt{<algorithm>} works on any container of any type:
+  \begin{minted}{cpp}
+    #include <algorithm>
+    #include <vector>
+
+    std::vector<int> ints = {3, 1, 2};
+    std::vector<double> doubles = {3.5, 1.1, 2.2};
+    std::vector<std::string> strings = {"banana", "apple", "cherry"};
+
+    std::sort(ints.begin(), ints.end());
+    std::sort(doubles.begin(), doubles.end());
+    std::sort(strings.begin(), strings.end());
+  \end{minted}
+  Under the hood, \texttt{std::sort} is a function template; same code,
+  ``stamped out" once for each type it is called with.
+\end{frame}
+
+\begin{frame}[fragile]{Template instantiation examples}
+  \begin{minted}{cpp}
+    /* 1.03 */
+    // an array of 8 integers
+    struct array_int_8 {
+        using T = int;
+        static constexpr std::size_t N = 8;
+        T data_[N];
+        // set array element to a value by index
+        void set(std::size_t index, T val) {/* */}
+        // get const reference to array element by index
+        const T& at(std::size_t index) const {/* */}
+    };
+
+    // returns two values: {maximum in nums, average of nums}
+    pair<int, double> get_max_and_average(const array_int_8& nums) {
+        /* ... */
+        return {curr_max, curr_sum / 8};
+    }
+  \end{minted}
+
+  Copy the full code example into cppinsights to see all generated instantiations.
+\end{frame}
+
+\begin{frame}[fragile]{Templating the array class}
+  \begin{minted}{cpp}
+    /* 1.04 */
+    template <typename T, std::size_t N>
+    struct array {
+        T data_[N];
+        // set array element to a value by index
+        void set(std::size_t index, T val) {/* */}
+        // get const reference to array element by index
+        const T& at(std::size_t index) const {/* */}
+    };
+
+    // returns two values: {maximum in nums, average of nums}
+    pair<int, double> get_max_and_average(const array<int, 8>& nums) {
+        /* ... */
+        return {curr_max, curr_sum / 8};
+    }
+  \end{minted}
+
+  Copy the full code example into cppinsights to see all generated instantiations.
+\end{frame}
+
+\begin{frame}[fragile]{Templating the function}
+  \begin{minted}{cpp}
+    /* 1.05 */
+    template <typename T, std::size_t N>
+    // requires: T - convertible to double
+    pair<T, double> get_max_and_average(const array<T, N>& nums) {
+        T curr_max = nums.at(0);
+        double curr_sum = 0;
+        for (std::size_t i = 0; i < N; ++i) {
+            curr_max = curr_max > nums.at(i) ? curr_max : nums.at(i);
+            curr_sum += nums.at(i);
+        }
+        return {curr_max, curr_sum / N};
+    }
+  \end{minted}
+
+  Copy the full code example into cppinsights to see all generated instantiations.
+\end{frame}
+
+\begin{frame}[fragile]{Instantiation Failures}
+  \begin{minted}{cpp}
+    /* 1.06 */
+    template <typename Container, typename Value>
+    Value pop(Container& c) {
+        c.pop_front();
+        /* ... */
+    }
+
+    /* compiler generated instantiation */ /*Container = double, Value = int*/
+    int pop<double, int>(double& c) {
+        c.pop_front(); // COMPILE ERROR!
+        /* ... */
+    }
+
+    int main() {
+        double x;
+        pop(x, 1);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Exercise: Queue}
+  You are given an implementation of a queue of \code{int}.\\
+  Make it generic.
+
+  \begin{minted}{cpp}
+    /* 1.08 */
+    // given a queue of ints
+    class Queue {/* ... */};
+
+    // implement a queue of "any" type
+    template <typename T>
+    class Queue {/* ... */};
+  \end{minted}
+\end{frame}

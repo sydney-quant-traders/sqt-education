@@ -1,0 +1,100 @@
+%% Creator: Inkscape inkscape 0.92.5, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'vtable.drawio_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{523.5bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.3739255)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.35386819){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Data\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.71489971,0.35386819){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Code\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.71489971,0.29512894){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}processor::process()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.71489971,0.2234957){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}printer::process()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.71489971,0.12320917){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}double_inserter::process()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.29512894){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}processor vtable\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.2234957){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}printer vtable\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.19627507){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.15186246){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}double_inserter vtable\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.12464183){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.08452722,0.35386819){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}Stack\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11318052,0.28223496){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}size_, capacity_\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11318052,0.25358166){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}data_\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11318052,0.19627507){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}_vptr\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=15]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11318052,0.16762178){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}dst_\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=16]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11318052,0.22492837){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}_vptr\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=17]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.09885387,0.0530086){\color[rgb]{0.2,0.2,0.2}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}nums\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=18]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11174785,0.13896848){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}size_, capacity_\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=19]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.11174785,0.11031519){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}data_\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=20]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.09885387,0.0243553){\color[rgb]{0.2,0.2,0.2}\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}p\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=21]{vtable.drawio_svg-tex.pdf}}%
+    \put(0.37106017,0.26790831){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}process()\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=22]{vtable.drawio_svg-tex.pdf}}%
+  \end{picture}%
+\endgroup%

@@ -1,0 +1,295 @@
+\section{Variadic Templates}
+
+\begin{frame}[fragile]{Analysis of \texttt{bounded\_vector::push\_back()}}
+  \begin{minted}{cpp}
+    template <typename F>
+    void bounded_vector::push_back(F&& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(std::forward<F>(obj));
+        size_++;
+    }
+    /* ... */
+    int main() {
+        bounded_vector<intbox, 8> b;
+        b.push_back(intbox{3});
+    }
+  \end{minted}
+
+  \begin{enumerate}
+    \item \texttt{intbox\{3\}} is \textbf{constructed} as a temporary in the caller's stack frame.
+    \item Inside \verb|push_back|, it is \textbf{move constructed} into the vector's storage.
+    \item The temporary is destroyed after the call to \verb|push_back()|.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Constructing In-Place with \texttt{emplace\_back()}}
+  \begin{sqt:tip}
+    Instead of passing a fully constructed object, pass the \emph{constructor arguments}
+    and construct directly in the vector's storage.
+  \end{sqt:tip}
+
+  \begin{minted}{cpp}
+    template <typename F1, typename F2>
+    void emplace_back(F1&& arg1, F2&& arg2) {
+        new (data_ + size_) T(std::forward<F1>(arg1), std::forward<F2>(arg2));
+        size_++;
+    } // ... and so on for 3, 4, 5, ... arguments?
+  \end{minted}
+
+  \textcolor{sqt-question}{
+    Discussion:\\
+    \begin{itemize}
+      \item if we call the constructor with \texttt{arg}
+    \end{itemize}
+  }
+
+\end{frame}
+
+\begin{frame}[fragile]{Type Packs}
+  \begin{sqt:definition}
+    A \emph{template parameter pack} (type pack) contains \emph{multiple} types.
+  \end{sqt:definition}
+
+  \begin{sqt:result}
+    Packs can be expanded by placing \verb|...| after the name of the pack.
+    During template instantiation, the pack expands to the contained types, separated by commas.
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void foo() {
+        using expansion = std::tuple<TypePack...>;
+    }
+
+    int main() {
+        foo<int>();
+        foo<char, int, int*>();
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Type Patterns}
+  \begin{sqt:definition}
+    A \emph{pattern} is a type expression involving a type pack.
+    Applying \texttt{...} to a pattern \emph{expands} it once for each element of the pack.
+  \end{sqt:definition}
+
+  Instantiate this template in cppinsights.io to understand how patterns are expanded.
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void foo() {
+        using expansion = std::tuple<std::pair<int, TypePack*>...>;
+        expansion x;
+    }
+  \end{minted}
+
+  In this example, \textcolor{blue}{\texttt{std::pair<int, TypePack*>}} is the pattern which expands to
+  \begin{minted}{cpp}
+    std::pair<int, Type1*>, std::pair<int, Type2*>, std::pair<int, Type3*>
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Object Packs}
+  \begin{sqt:definition}
+    An \emph{function parameter pack} (object pack) is a function parameter that accepts
+    zero or more arguments. It is created by expanding a type pack pattern
+    in a function's parameter list.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void foo(TypePack... obj_pack) {
+        std::tuple<TypePack...> x{obj_pack...};
+        std::tuple<TypePack*...> y{(&obj_pack)...};
+    }
+
+    int main() {
+        foo(5, 'q', "t");
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{\texttt{emplace\_back()} with Variadic Templates}
+  \begin{minted}{cpp}
+    template <typename... TypePack>
+    void emplace_back(TypePack&&... obj_pack) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(std::forward<TypePack>(obj_pack)...);
+        size_++;
+    }
+  \end{minted}
+
+  This single function definition handles:
+  \begin{itemize}
+    \item any number of constructor arguments (due to use of variadics)
+    \item any combination of types (use of templates)
+    \item any combination of value categories (use of forwarding reference)
+  \end{itemize}
+  And perfectly forwards these arguments through to the actual constructor\\ 
+  (use of \texttt{std::forward}).
+\end{frame}
+
+\begin{frame}[fragile]{Unique Pointer}
+  \verb|std::unique_ptr<T>| is a template class defined in \texttt{<memory>}.\\
+  It contains a single \texttt{T*} raw pointer, which is passed in during construction.\\
+  Methods \texttt{get()}, \texttt{release()}, \texttt{reset()} are ways to managing this pointer.\\
+  The destructor calls \texttt{delete} on the raw pointer.\\
+  Copy construction and assignment is disabled, trying to enforce \emph{unique ownership}.
+  
+  \begin{minted}{cpp}
+    int main() {
+        // construct a smart pointer that takes ownership of [42]
+        int *raw_ptr1 = new int{42}; 
+        std::unique_ptr<int> smart_ptr1{raw_ptr};
+        // returns the pointer to [42], const operation
+        auto p = smart_ptr1.get();
+        // returns the pointer to [42], smart_ptr1 now points to nullptr
+        p = smart_ptr1.release();
+        // give smart_ptr ownership of [42] again
+        smart_ptr1.reset(p);
+        // end of scope: smart_ptr1 destructor runs, deleting [42]
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Make Unique}
+  We want a function that allows us to construct the underlying object,
+  and construct the \code{unique\_ptr} that takes ownership of it, in one go.
+
+  \begin{minted}{cpp}
+    int main() {
+        // construct an object on the heap, construct smart_ptr1 using the raw pointer
+        int *raw_ptr1 = new std::vector<char>(16, 'C'); 
+        auto smart_ptr1 = std::unique_ptr<std::vector<char>>{raw_ptr1};
+
+        // use smart_ptr2 as return slot and call function std::make_unique
+        auto smart_ptr2 = std::make_unique<std::vector<char>>(16, 'C');
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Make Unique: Solution}
+  \begin{minted}{cpp}
+    template <typename T, typename... Args>
+    unique_ptr<T> make_unique(Args&&... args) {
+        return unique_ptr<T>(new T(std::forward<Args>(args)...));
+    }
+
+    int main() {
+        int x = 5;
+        unique_ptr<widget> w1 = make_unique<widget>(6, x, 8);
+        auto w2 = std::move(w1);
+    }
+
+    template </* T = widget, Args = [int, int&, int] */> 
+    unique_ptr<widget> make_unique(int&& arg1, int& arg2, int&& arg3) {
+        return unique_ptr<widget>(new widget(
+            std::forward<int>(arg1),        // int a = static_cast<int&&>(arg1);
+            std::forward<int&>(arg2),       // int& b = static_cast<int&>(arg2);
+            std::forward<int>(arg3)));      // int&& c = static_cast<int&&>(arg3);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Callables and Lambdas}
+  \begin{sqt:definition}
+    A callable object is an instance of a class with an overloaded \emph{call} operator,
+    which allows the object to be \emph{called} with args as if it was a function.
+  \end{sqt:definition}
+  \begin{minted}{cpp}
+    int main() {
+        struct callable {
+            int operator()(int a, int b) { return a + b; }
+        };
+        callable instance;
+        std::cout << instance(3, 4) << std::endl;
+
+        // the type of a lambda is chosen by the compiler
+        auto lambda = [](int a, int b) {
+            return a + b;
+        };
+        std::cout << lambda(1, 2) << std::endl;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The Problem}
+  Different callable and lambda types don't share a base class.
+  Therefore by default we cannot store them in a single container, or 
+  dynamically dispatch over it, unless we employ type erasure.
+  \begin{minted}{cpp}
+    struct call_t {
+        int operator()(int a) { return 2 * a};
+    };
+    call_t callable1; // one type
+    auto callable2 = [](int a){return a;} // another type
+    auto callable3 = [](int a){return a + 3;} // another type!
+
+    auto vec = std::vector{&callable1, &callable2, &callable3}; // ERROR: don't share a base class
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Type Erased Function}
+  We want this function class to wrap any callable with the correct signature.
+  \begin{minted}{cpp}
+    template <typename Ret, typename... Args>
+    class function {
+        /* ... */
+        // DO NOT make this a virtual method
+        // we will be passing functions around by value (instead of by pointer)
+        Ret operator()(Args... args) {
+            // TODO: implement
+        }
+    };
+
+    int main() {
+        function<int, int, int> func1 = [](int a, int b) { return a + b; }
+        function<int, int, int> func2 = [](int a, int b) { return a + b; }
+        auto vec = std::vector{std::move(func1), std::move(func2)};
+        for (auto& f : vec) std::cout << f(3, 4) << std::endl;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  \begin{minted}{cpp}
+    template <typename Ret, typename... Args>
+    struct type_erased_callable {
+        virtual ~type_erased_callable() {}
+        virtual Ret operator()(Args... args) = 0;
+    };
+
+    template <typename T, typename Ret, typename... Args>
+    class callable_wrapper : public type_erased_callable<Ret, Args...> {
+    public:
+        template <typename F>
+        callable_wrapper(F&& callable) : callable_{std::forward<F>(callable)} {}
+
+        Ret operator()(Args... args) override {
+            return callable_(std::forward<Args>(args)...);
+        }
+    private:
+        T callable_;
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Solution}
+  \begin{minted}{cpp}
+template <typename Ret, typename... Args>
+struct function {
+    template <typename T> // T is a callable
+    function(T&& callable) 
+    : impl_{
+      std::make_unique<
+        detail::callable_wrapper<std::decay_t<T>, Ret, Args...>>(std::forward<T>(callable))} 
+    {}
+
+    Ret operator()(Args... args) {
+        // dynamic dispatch via base class pointer
+        return impl_->operator()(std::forward<Args>(args)...);
+    }
+    std::unique_ptr<detail::type_erased_callable<Ret, Args...>> impl_;
+};
+  \end{minted}
+\end{frame}

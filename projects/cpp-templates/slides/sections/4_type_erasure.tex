@@ -1,0 +1,253 @@
+\section{Type Erasure}
+
+% TODO: replace with Jackson's slides
+
+\begin{frame}[fragile]{List vs Deque Motivation}
+  \begin{itemize}
+    \item \code{std::list} and \code{std::deque} have the methods \code{push\_back}, \code{pop\_front}, \code{front}.
+    \item Thus both can be used as a queue.
+  \end{itemize}
+
+  In an ideal world, we can imagine \code{std::list} and \code{std::deque}
+  inherit from some shared base class \code{base}, with virtual methods \code{push\_back}, allowing for
+  \begin{itemize}
+    \item \code{base*} pointer that could point to either \code{std::list} or \code{std::deque}.
+    \item dynamic dispatch to correct function when calling \code{push\_back}.
+  \end{itemize}
+
+  \begin{minted}{cpp}
+    /* 2.02 */
+    base *q = likes_deques_more ? new std::deque<int>{} : new std::list<int>{};
+    // perform some operations on this queue
+    q->push_back(67);
+    auto x = q->front();
+    q->pop_front();
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Ideal World}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/inheritance_list_deque.drawio.svg}
+\end{frame}
+
+\begin{frame}[fragile]{Wrappers}
+  Reality is often disappointing. In reality, \code{std::list} and \code{std::deque} 
+  do not inherit from anything.
+  There is no way to obtain a base class pointer that can point to both a \code{std::list} and \code{std::deque}.
+  The solution is to wrap them with classes that DO share a base class.
+
+  \begin{minted}{cpp}
+    /* 2.03 */
+    class base {
+    public:
+        virtual void push_back(int val) = 0;
+        virtual void pop_front() = 0;
+        virtual int front() = 0;
+        virtual ~base();
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Wrappers}
+  \begin{minted}{cpp}
+    struct list_wrapper : public base {
+        void push_back(int val) override { elems_.push_back(val); }
+        void pop_front() override { elems_.pop_front(); }
+        int front() override { return elems_.front(); }
+        std::list<int> elems_;
+    };
+
+    struct deque_wrapper : public base {
+        void push_back(int val) override { elems_.push_back(val); }
+        void pop_front() override { elems_.pop_front(); }
+        int front() override { return elems_.front(); }
+        std::deque<int> elems_;
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}{Wrappers}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/type_erasure_manual.drawio.svg}
+\end{frame}
+
+\begin{frame}[fragile]{Templated Wrappers}
+  Note that we had to write a wrapper for every type.
+  We can automate this by using templating.
+  \begin{minted}{cpp}
+    /* 2.04 */
+    template <typename Q>
+    struct wrapper : public base {
+        void push_back(int val) override { elems_.push_back(val); }
+        void pop_front() override { elems_.pop_front(); }
+        int front() override { return elems_.front(); }
+        Q elems_;
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Wrappers}
+  \begin{minted}{cpp}
+    // --- Application Code ---
+
+    int main() {
+        std::cout << "Do you like deques more than lists?" << std::endl;
+        bool likes_deques_more;
+        std::cin >> likes_deques_more;
+
+        // choose the underlying container based on a run-time condition
+        base *q = likes_deques_more
+            ? (base *) new wrapper<std::deque<int>>{}
+            : (base *) new wrapper<std::list<int>>{};
+
+        // perform some operations on this queue
+        q->push_back(67);
+        auto x = q->front();
+        q->pop_front();
+
+        delete q;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Allocators}
+  \begin{sqt:definition}
+    An \textbf{allocator} keeps track of which regions of memory are free/allocated.\\
+    The allocator decides \emph{where} memory comes from: \\
+    the heap, a pre-allocated buffer, a pool, etc.
+  \end{sqt:definition}
+  Clients can ask the allocator to allocate them a region of some specified size.\\
+  The client can later ask the allocator to deallocate the region.
+
+  \begin{minted}{cpp}
+    int main() {
+        std::vector<int> vec1;
+
+        // equivalent code:
+        std::allocator<int> allocator_instance = std::allocator<int>{};
+        std::vector<int, std::allocator<int>> vec2(allocator_instance);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Allocators}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/vector_reserve_alloc.drawio.svg}
+\end{frame}
+
+\begin{frame}[fragile]{Memory Resources}
+  \begin{sqt:definition}
+    A \textbf{memory resource} is an object that implements an allocation strategy.\\
+    It provides \code{allocate()} and \code{deallocate()} methods.\\
+    It deals only with bytes, and is unaware of what types are being constructed.
+  \end{sqt:definition}
+  \begin{itemize}
+    \item \code{malloc\_resource} --- calls \code{std::aligned\_alloc} / \code{std::free}.
+    \item \code{free\_list\_resource} --- manages a pre-allocated buffer with a free list.
+  \end{itemize}
+  Consistent \emph{interface} but \textbf{might not inherit from a common base class}.
+
+  \begin{sqt:result}
+    The consistent interface allows \emph{allocators} to interact with them,
+    in order to adapt them to allocate memory for specified types.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Example Allocator}
+  \begin{minted}{cpp}
+    struct malloc_resource {
+        void *allocate(size_t bytes, size_t align) {/* */}
+        void  deallocate(void* p, size_t bytes, size_t align) {/* */}
+        bool  is_equal(const memory_resource& other) const noexcept {/* */}
+    };
+
+    template <typename T>
+    struct malloc_allocator {
+        malloc_resource resource_;
+        T* allocate(size_t n) {
+            return static_cast<T*>(resource_.allocate(n * sizeof(T), alignof(T)));
+        }
+        void deallocate(T *p, size_t n) {
+            resource_.deallocate(p, n * sizeof(T), alignof(T));
+        }
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The Problem}
+  Since the allocator is a template parameter, changing the allocator changes the type:
+  \begin{itemize}
+    \item You cannot store \code{v1} and \code{v2} in the same container.
+    \item You cannot pass them to the same function.
+  \end{itemize}
+  \begin{minted}{cpp}
+    std::vector<int, malloc_allocator<int>>   v1;  // one type
+    std::vector<int, free_list_allocator<int>> v2;  // different type
+  \end{minted}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/allocators_different.drawio.svg}
+\end{frame}
+
+\begin{frame}[fragile]{Not a Solution}
+  This doesn't solve our problem;
+  \begin{minted}{cpp}
+    template <typename T, typename Resource>
+    class templated_allocator {
+        Resource resource_;
+        T* allocate(size_t n) {
+            return static_cast<T*>(resource_.allocate(n * sizeof(T), alignof(T)));
+        }
+        /* ... */
+    };
+    /* ... */
+    std::vector<int, templated_allocator<int, malloc_resource>>   v1;   // one type
+    std::vector<int, templated_allocator<int, free_list_resource>> v2;  // different type
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The Polymorphic Allocator}
+  \begin{minted}{cpp}
+    /* 2.05 */
+    class memory_resource {
+    public:
+        virtual ~memory_resource() = default;
+        virtual void *allocate(size_t bytes, size_t align) = 0;
+        virtual void  deallocate(void* p, size_t bytes, size_t align) = 0;
+        virtual bool  is_equal(const memory_resource& other) const noexcept = 0;
+    };
+
+    template <typename T>
+    class polymorphic_allocator {
+        memory_resource *resource_;
+
+        T* allocate(size_t n) {
+            // invokes vtable dispatch on the underlying resource
+            return static_cast<T*>(resource_->allocate(n * sizeof(T), alignof(T)));
+        }
+        /* ... */
+    };
+  \end{minted}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Wrappers}
+  We have partially implemented type erasure using manually rolled wrappers.
+
+  \begin{minted}{cpp}
+    /* 2.05 */
+    class memory_resource_wrapper_free_list : public memory_resource {/* */};
+    class memory_resource_wrapper_malloc : public memory_resource {/* */};
+    /* ... */
+    int main() {
+        // define the memory resource objects
+        memory_resource_wrapper_malloc malloc_res;
+        alignas(16) char buf[4096];
+        memory_resource_wrapper_free_list fl_res{buf, sizeof(buf)};
+
+        // Same allocator type, different underlying resources
+        polymorphic_allocator<int> a1{&malloc_res};
+        polymorphic_allocator<int> a2{&fl_res};
+
+        // Can use with std::vector
+        std::vector<int, polymorphic_allocator<int>> v1(a1);
+        std::vector<int, polymorphic_allocator<int>> v2(a2);
+    }
+  \end{minted}
+\end{frame}

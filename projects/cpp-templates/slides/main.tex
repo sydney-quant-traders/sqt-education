@@ -1,0 +1,21 @@
+\input{style/sqtbeamer.tex}
+\usepackage{pdfpages}
+
+% --- project-specific macros ---
+\newcommand{\code}[1]{\textcolor{blue}{\texttt{#1}}}
+
+\begin{document}
+{
+\setbeamercolor{background canvas}{bg=}
+\includepdf[pages=1]{assets/template_titlepage.pdf}
+}
+
+\input{sections/1_intro.tex}
+\input{sections/2_templates.tex}
+\input{sections/3_dynamic_dispatch.tex}
+\input{sections/4_type_erasure.tex}
+\input{sections/5_move_semantics.tex}
+\input{sections/6_variadic_templates.tex}
+\input{sections/7_conclusion.tex}
+
+\end{document}
