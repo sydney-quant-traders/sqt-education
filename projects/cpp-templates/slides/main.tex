@@ -1,15 +1,15 @@
 \input{style/sqtbeamer.tex}
-
-\title{C++ Templates}
-\subtitle{Programming Workshop}
-\institute{Sydney Quant Traders + Sydney Computing Society}
-\date{}
+\usepackage{pdfpages}
 
 % --- project-specific macros ---
 \newcommand{\code}[1]{\textcolor{blue}{\texttt{#1}}}
 
 \begin{document}
-\maketitle
+{
+\setbeamercolor{background canvas}{bg=}
+\includepdf[pages=1]{assets/template_titlepage.pdf}
+}
+
 \input{sections/1_intro.tex}
 \input{sections/2_templates.tex}
 \input{sections/3_dynamic_dispatch.tex}
