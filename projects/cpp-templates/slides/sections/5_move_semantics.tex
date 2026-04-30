@@ -399,6 +399,97 @@ int main() {
   \end{sqt:tip}
 \end{frame}
 
+\begin{frame}[fragile]{Issue: Ownership}
+  Suppose we have a class that handles a Unique instance of an object. 
+
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+
+      uniqueIntbox a(x); // We do not want anyone else to be able to copy
+
+      uniqueIntbox b(a); // What should we do here?
+    }
+  \end{minted}
+
+  Here the raw int pointer is being binded to the uniqueIntbox class. This is a common
+  pattern we see in C++ (examples include \code{std::unique_ptr}, and \code{std::unique_lock}). 
+  
+  What constructor should we allow \code{b} to be constructed with? If we allow for deep copies,
+  then we violate the "uniqueness" of the data held by \code(x). If we allow shallow copies, then
+  we get the same double free issue we had before. 
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Move Semantics}
+  In situations like this, we typically want to only allow the programmer to transfer
+  ownership to the underlying data.
+
+  \begin{minted}{cpp}
+    struct uniqueIntbox {
+      int *data_;
+
+      intbox (int* x) : data_(x) {};
+      ~intbox() { delete data_; }
+      intbox (const intbox& other) = delete;
+      intbox (intbox&& other) {
+        this->data = other.data;
+        other.data = nullptr;
+      }
+    }
+  \end{minted}
+
+  Here we disable to copy ctor entirely, and only allow objects to be constructed via r-value
+  references to another \code{uniqueIntbox}.
+\end{frame}
+
+\begin{frame}[fragile]{Transferring Ownership}
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+      
+      uniqueIntbox a(x);
+      uniqueIntbox b = std::move(a); // Trasnfer ownership of a to b
+      uniqueIntbox c(b); // Compile Error
+    }
+  \end{minted}
+
+  We cast \code{a} to an r-value before passing it into \code{b}'s constructor. Importantly,
+  the l-value \code{a} is left in an invalid state after the move not undefined. Trying to 
+  invoke the \code{c}'s copy constructor will prevent the program from compiling.
+\end{frame}
+
+\begin{frame}[fragile]{Transferring Ownership Trap}
+  \code{std::move} will only attempt an r-value cast, but does not guarantee it.
+
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+
+      const uniqueIntbox a(x);
+      uniqueIntbox b = std::move(a); // Will attempt to copy
+    }
+  \end{minted}
+
+  Here, since \code{x} is qualified is \code{const}, the r-value constructor cannot be used,
+  and so the above code will not compile if the copy constructor is deleted. If there is a copy constructor
+  available, the above code will silently invoke the copy constructor, which is likely not what was desired.
+
+\end{frame}
+
+\begin{frame}[fragile]{Ownership Trap II}
+  What do you think will happen below:
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+    
+      uniqueIntbox a(x);
+      uniqueIntbox b(x);
+    }
+  \end{minted}
+
+  Who "owns" the pointer? What will happen when you run this code?
+\end{frame}
+
 \section{Forwarding Refs}
 
 \begin{frame}[fragile]{Bounded Vector}
