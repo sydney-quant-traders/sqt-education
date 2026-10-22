@@ -1,0 +1,258 @@
+\section{Objects}
+
+\begin{frame}[fragile]{Object Model Revision}
+  C++ object lifecycle:
+  \begin{itemize}
+    \item Objects can be constructed in some storage location (their lifetime begins).
+    \item When a destructor is called at that storage location, the lifetime ends.
+  \end{itemize}
+
+  For stack allocated objects:
+  \begin{itemize}
+    \item Storage location is known at compile time (offset within stack frame).
+    \item Lifetime is known at compile time (when the scope ends).
+    \begin{itemize}
+      \item Lifetime begins when the constructor is called on the storage location.
+      \item Compiler generates calls to the destructor at the end of the scope.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Objects and Methods}
+  \begin{sqt:definition}
+    A \emph{class} (in a general, language-agnostic sense) is approximately just a schema describing what data is present in an object.
+    and a collection of functions that read/mutate objects satisfying that schema.
+  \end{sqt:definition}
+
+  \begin{sqt:definition}
+    The C++ \emph{class} language feature lets you define the schema and the collection of functions ergonomically in one place.
+  \end{sqt:definition}
+
+  Methods (including constructors and destructors) implicitly take the \emph{address of the object} as an argument
+  (binds to the argument \verb|this|, which is passed through the first argument register \verb|rdi|).
+\end{frame}
+
+\begin{frame}[fragile]{Construction}
+  \begin{sqt:definition}
+    Given a pointer to a chunk of memory, a \emph{constructor} is a function that
+    initializes (starts lifetime of) an object at that location.
+  \end{sqt:definition}
+
+  Nit: lifetimes may start without any construction/initialization (namely implicit-lifetime types).
+\end{frame}
+
+\begin{frame}[fragile]{Construction Syntax Example}
+  \includegraphics[width=12cm]{assets/constructor_compiled.png}
+\end{frame}
+
+\begin{frame}[fragile]{New Expressions}
+  \begin{sqt:definition}
+    \emph{New expressions} are a language feature that allows for dynamic allocation and initialization of objects, in a simply and customizable way.
+    A new expression looks up and calls the function \texttt{operator new()} (this is the customization point).
+  \end{sqt:definition}
+
+  A \emph{new expression} looks like \mintinline{cpp}{new (new_arg1, new_arg2) gadget(ctor_arg1, ctor_arg2)}.
+  When the compiler sees this, it performs a lookup for \mintinline{cpp}{operator new(size_t, ...)} which returns a pointer.
+  It then calls the constructor of gadget on the pointer.
+\end{frame}
+
+\begin{frame}[fragile]{New Expressions}
+  \begin{minted}{cpp}
+    /* 
+    // automatically defined defaults, without having to include any headers!
+    // these use malloc and free under the hood
+    void* operator new(std::size_t) {...}
+    ... operator new[], operator delete, etc
+    */
+
+    {
+        // mallocs and constructs a gadget on the heap
+        auto x = new (new_arg1, new_arg2) gadget(ctor_arg1, ctor_arg2);
+    }
+
+    {
+        // mallocs space for a gadget
+        auto* this = static_cast<gadget*>(operator new(sizeof(gadget), new_arg1, new_arg2));
+        // pseudocode: call gadget constructor on the malloc result
+        gadget::gadget(this, ctor_arg1, ctor_arg2);
+        auto x = this;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Operator New (Placement New Overload)}
+  "The constructor is a function that ..."
+  However you can't call TODO(jlu) finish this
+
+  \begin{sqt:definition}
+    \emph{Placement new} is a workaround (uses header \code{<new>}) that allows
+    you to call the constructor on any given address.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    // the included operator new overload does nothing, just returns its input.
+    // calls the constructor gadget::gadget() on address 123456
+    new ((void *) 123456) gadget{};
+    // is the responsibility of the programmer to call the destructor to end lifetime.
+    // calls the destructor gadget::~gadget() on address 123456
+    ((gadget *) 123456)->~gadget();
+  \end{minted}
+\end{frame}
+
+% TODO(jlu) show that you can do weird stuff with placement new
+\begin{frame}[fragile]{Storage Re-use}
+  TODO(jlu) give example where we destroy an object, and allocate an object inside it.
+\end{frame}
+
+\begin{frame}[fragile]{Destruction}
+  \begin{sqt:result}
+    For every initialization of an object that does not have \emph{dynamic storage duration},
+    the compiler generates a call to this object's destructor at the appropriate location.\\
+    All objects with dynamic storage duration must be destroyed manually.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Destructor Generation Example}
+  TODO(jlu) finish this part off
+\end{frame}
+
+\begin{frame}[fragile]{Class Design Conventions}
+  \begin{itemize}
+    \item There are a bunch of \emph{conventions} to follow when implementing a class.
+    \item Most programmers will assume these conventions hold when reading code.
+    \item Most templated libraries (e.g. std::vector<T>) will assume that the type \code{T}
+    you supply it obeys some of these conventions. Non-compliant types will lead to bugs.
+  \end{itemize}
+
+  A well designed class satisfies the following \emph{conventions}:
+  \begin{itemize}
+    \item Design by contract (class invariants, preconditions, postconditions)
+    \item RAII and ownership semantics (acquire resources in ctor, release in dtor)
+    \item Copy semantics (copy constructor creates an independent duplicate)
+    \item Move semantics (move constructor transfers ownership of resources)
+  \end{itemize}
+\end{frame}
+
+% TODO(jlu)
+\begin{frame}[fragile]{Design by Contract, Well-Formedness}
+  TODO(jlu) finish this slide
+\end{frame}
+
+% TODO(jlu) finish slide and come up with code example
+\begin{frame}[fragile]{Ownership}
+  Objects can \emph{own} state/resources or other objects.
+  Objects can also simply have references to other objects.
+  Always think about whether a relationship is an owning or non-owning relationship.
+
+  TODO(jlu) finish this slide
+\end{frame}
+
+\begin{frame}[fragile]{RAII}
+  \begin{sqt:definition}[Resource Acquisition is Initialization (RAII)]
+    The name of a C++ programming technique/pattern/idiom which binds the life cycle of a resource to the lifetime of an object.
+    It is done by acquiring the resource in the object's constructor, and releasing it in the destructor.
+  \end{sqt:definition}
+
+  Below is an example of an RAII class.
+
+  \begin{columns}[T]
+    \begin{column}{0.53\textwidth}
+      \begin{minted}{cpp}
+// Non-RAII design
+struct intbox {
+    int *data_;
+    void acquire(int x) { data_ = new int(x); }
+    void release() { delete data_; }
+};
+      \end{minted}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \begin{minted}{cpp}
+// RAII design
+struct intbox {
+    int *data_;
+    intbox(int x) : data_{new int(x)} {}
+    ~intbox() {delete data_;}
+};
+      \end{minted}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Copy Construction/Assignment}
+  \begin{sqt:definition}
+    A copy constructor is a constructor that takes an existing object of the same class as its argument.
+  \end{sqt:definition}
+  Defining a copy constructor allows code like this to compile:
+  \begin{minted}{cpp}
+    /* 1.00 */
+    auto a = gadget{};
+    auto& a_lref = a;
+    auto&& a_rref = std::move(a);
+
+    {
+        // all these are copy constructions
+        auto c = gadget{a};
+        auto d = gadget{a_lref};
+        auto e = gadget{a_rref};
+        // this is copy assignment, not copy construction
+        e = a;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Copy Construction}
+  \begin{sqt:result}
+    In a well-designed class, copy construction should create a "fully independent duplicate", such that
+    both objects can be used and destroyed independently.
+  \end{sqt:result}
+
+  The compiler auto-generates a copy-ctor that recursively copies each member.
+  \begin{minted}{cpp}
+    struct bad_intbox {
+      int *data_;
+      bad_intbox(int x) : data_{new int(x)} {}
+      ~bad_intbox() { delete data_; }
+      // auto-generated copy constructor
+      bad_intbox(const bad_intbox& other) : data_{other.data_} {}
+    };
+  \end{minted}
+  Usually, automatically generated copy constructors are NOT well-designed.\\
+  In this example, the resultant copy cannot be used nor destroyed independently.
+\end{frame}
+
+\begin{frame}[fragile]{Double Frees}
+  Double frees occur when you write buggy classes that don't handle copying properly.
+
+  Consider the below example using the \code{bad\_intbox} we developed earlier
+  \begin{minted}{cpp}
+    int main() {
+        bad_intbox original{42};
+        bad_intbox copy{original}; // copy.data_ = original.data_ (both point to same heap object!)
+    
+        // ~original; ~copy; -> Double Free!
+    }
+  \end{minted}
+  When the destructors run, both objects think that they are responsible for destroying
+  the heap-allocated integer and freeing it. This results in Undefined Behavior!
+  
+  To fix this, think carefully when implementing your copy constructors.\\
+  Make your class non-copyable if applicable.
+\end{frame}
+
+\begin{frame}[fragile]{Copy Construction}
+  To perform a proper \emph{deep copy} on our \code{intbox}, we want
+  \begin{itemize}
+    \item a new region of memory to be allocated on the heap
+    \item the \code{other.data\_} integer is copy constructed into this new region
+  \end{itemize}
+
+  \begin{minted}{cpp}
+    struct intbox {
+      int *data_;
+      intbox(int x) : data_{new int(x)} {}
+      ~intbox() { delete data_; }
+      intbox(const intbox& other) : data_{new int(*(other.data_))} {}
+    };
+  \end{minted}
+\end{frame}

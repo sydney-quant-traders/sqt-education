@@ -1,0 +1,294 @@
+
+\section{Move Semantics}
+
+\begin{frame}[fragile]{Value Categories}
+  Every \emph{expression} has a \emph{value category} (lvalue or rvalue).
+  \begin{minted}{cpp}
+    struct lorem { struct ipsum { int x; } y; int z; } l;
+    int* ptr = &l.z;
+    int arr[3] = {1, 2, 3};
+  \end{minted}
+
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+    \textbf{lvalues} — has identity (an address)
+    \begin{minted}{cpp}
+l             // named variable
+l.z           // member access
+l.y.x         // nested member
+*ptr          // dereference
+arr[0]        // subscript
+    \end{minted}
+    Can appear on the \emph{left} side of assignment.\\
+    Can take the address with \code{\&}.
+
+    \column{0.48\textwidth}
+    \textbf{rvalues} — no persistent identity
+    \begin{minted}{cpp}
+42            // literal
+l.z + 1       // arithmetic result
+intbox(3)     // temporary object
+std::move(l)  // cast to rvalue
+int{}         // value-initialized tmp
+    \end{minted}
+    Cannot appear on the left side of assignment.\\
+    Cannot take the address with \code{\&}.
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{rvalue references}
+  \begin{sqt:definition}
+    An \emph{rvalue reference} is a reference that can bind to an \emph{rvalue}.
+  \end{sqt:definition}
+  \begin{sqt:result}
+    When a ref is bound to a tmp, lifetime extended until the ref goes out of scope.\\
+    i.e. the compiler postpones the dtor to the end of the scope.
+  \end{sqt:result}
+
+  \begin{minted}{cpp}
+    /* 1.03 */
+    {
+        // tell compiler: we want to extend the tmp's lifetime until end of scope
+        intbox&& rref = intbox(3);
+        // play around with the temporary via the rvalue ref
+        std::cout << rref.get() << std::endl;
+        rref.get() *= 10;
+        std::cout << rref.get() << std::endl;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Arguments by rvalue ref}
+  We already know that a function can take arguments by (lvalue) reference.\\
+  It is also possible for a function to take arguments by rvalue reference.
+
+  \begin{minted}{cpp}
+/* 1.03 */
+void foo(intbox& obj) { obj.data_ += 42; }
+void foo(intbox&& obj) { obj.data_ = nullptr; }
+
+int main() {
+    // If you pass in an rvalue (e.g. the tmp result of the ctor function intbox(3)),
+    // the rvalue ref extends the lifetime of the tmp until the function returns.
+    foo(intbox(3));
+}
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Overload resolution}
+  Given that an argument has two overloads, one taking lvalues and one taking rvalues,
+  how does the compiler determine which overload to dispatch for each call-site?
+
+  \begin{minted}{cpp}
+    {
+        intbox x{3};
+        intbox&& rref = std::move(x);
+
+        foo(x); // calls lvalue overload
+        foo(rref); // also calls lvalue overload (weird)
+        foo(intbox(3)); // calls rvalue overload
+        foo(std::move(x)); // calls rvalue overload
+        foo(std::move(rref)); // calls rvalue overload
+    }
+  \end{minted}
+
+  \begin{sqt:result}
+    The compiler picks the overload depending on the \emph{value category} of the argument.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Move Construction}
+  \begin{sqt:definition}
+    A move constructor is a constructor that takes an rvalue reference
+    to an existing object of the same type.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    struct intbox {
+        /* ... */
+        intbox(intbox&& other) : data_{std::exchange(other.data_, nullptr)} {
+            std::cout << "move constructor" << std::endl;
+        }
+    };
+
+    int main() {
+        intbox a(42);
+        intbox b = std::move(a); // b.data_ = a.data_; a.data_ = nullptr; (cheap operation)
+        // a now points to nothing
+        // ~b; // b's dtor frees the heap-allocated int
+        // ~a; // a's destructor frees nullptr (no-op).
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Returning a local variable by moving}
+  \begin{minted}{cpp}
+    intbox product(intbox& a, intbox& b) {
+        auto result = *(a.data_) * *(b.data_);
+        intbox retval{result};
+        return std::move(retval);
+    }
+
+    int main() {
+        intbox a(5); intbox b(6);
+        intbox c = product(a, b);
+        // retval is move constructed into the return slot c (cheap operation)
+        // retval is then destroyed (but it owns nothing at this point)
+    }
+  \end{minted}
+
+  \begin{sqt:tip}
+    RVO/NRVO (constructing directly in return slot)
+    is preferable over constructing inside a local variable,
+    and then \code{std::move} into the return slot.
+  \end{sqt:tip}
+\end{frame}
+
+\begin{frame}[fragile]{Issue: Ownership}
+  Suppose we have a class that handles a Unique instance of an object. 
+
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+
+      uniqueIntbox a(x); // We do not want anyone else to be able to copy
+
+      uniqueIntbox b(a); // What should we do here?
+    }
+  \end{minted}
+
+  Here the raw int pointer is being binded to the uniqueIntbox class. This is a common
+  pattern we see in C++ (examples include \mintinline{cpp}{std::unique_ptr}, and \mintinline{cpp}{std::unique_lock}). 
+  
+  What constructor should we allow \code{b} to be constructed with? If we allow for deep copies,
+  then we violate the ``uniqueness" of the data held by \code{x}. If we allow shallow copies, then
+  we get the same double free issue we had before. 
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Move Semantics}
+  In situations like this, we typically want to only allow the programmer to transfer
+  ownership to the underlying data.
+
+  \begin{minted}{cpp}
+    struct uniqueIntbox {
+      int *data_;
+
+      intbox (int* x) : data_(x) {};
+      ~intbox() { delete data_; }
+      intbox (const intbox& other) = delete;
+      intbox (intbox&& other) {
+        this->data = other.data;
+        other.data = nullptr;
+      }
+    }
+  \end{minted}
+
+  Here we disable to copy ctor entirely, and only allow objects to be constructed via r-value
+  references to another \code{uniqueIntbox}.
+\end{frame}
+
+\begin{frame}[fragile]{Transferring Ownership}
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+      
+      uniqueIntbox a(x);
+      uniqueIntbox b = std::move(a); // Trasnfer ownership of a to b
+      uniqueIntbox c(b); // Compile Error
+    }
+  \end{minted}
+
+  We cast \code{a} to an r-value before passing it into \code{b}'s constructor. Importantly,
+  the l-value \code{a} is left in an invalid state after the move not undefined. Trying to 
+  invoke the \code{c}'s copy constructor will prevent the program from compiling.
+\end{frame}
+
+\begin{frame}[fragile]{Transferring Ownership Trap}
+  \code{std::move} will only attempt an r-value cast, but does not guarantee it.
+
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+
+      const uniqueIntbox a(x);
+      uniqueIntbox b = std::move(a); // Will attempt to copy
+    }
+  \end{minted}
+
+  Here, since \code{x} is qualified is \code{const}, the r-value constructor cannot be used,
+  and so the above code will not compile if the copy constructor is deleted. If there is a copy constructor
+  available, the above code will silently invoke the copy constructor, which is likely not what was desired.
+
+\end{frame}
+
+\begin{frame}[fragile]{Ownership Trap II}
+  What do you think will happen below:
+  \begin{minted}{cpp}
+    int main() {
+      int* x = new int(4);
+    
+      uniqueIntbox a(x);
+      uniqueIntbox b(x);
+    }
+  \end{minted}
+
+  Who ``owns" the pointer? What will happen when you run this code?
+\end{frame}
+
+
+% % Used for
+% \begin{frame}[fragile]{Non-Copyable Stuff}
+%   Let's create a non-copyable int box
+
+
+%   Lets add a move constructor to our wrapper class and delete the copy constructor
+%   \begin{minted}{cpp}
+%     Class gadgetWrapper {
+%     public:
+%       gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
+
+%       gadgetWrapper(const gadgetWrapper& other) = delete;
+
+%       gadgetWrapper(gadgetWrapper&& other) {
+%         this->gadget_ = other.gadget_;
+%         other.gadget_ = nullptr;
+%       }
+      
+%       ~gadgetWrapper() {
+%         if (gadget_) delete gadget_;
+%       }
+
+%     private:
+%       int* gadget_;
+%     }
+%   \end{minted}
+% \end{frame}
+
+% \begin{frame}[fragile]{Moving Ownership cont}
+%   Now the previous example won't even compile!
+%   \begin{minted}{cpp}
+%   int main() {
+%     gadget* c = new gadget(42);
+
+%     gadgetWrapper d(c); // Binding c to d
+%     gadgetWrapper e = d; // ERROR: Can't copy construct and steal data!
+%   }
+% \end{minted}
+% \end{frame}
+
+% \begin{frame}[fragile]{Solution: Move Semantics}
+%   We ask the compiler to cast d into a temporary R-Value!
+%   \begin{minted}{cpp}
+%   int main() {
+%     gadget* c = new gadget(42);
+
+%     gadgetWrapper d(c); // Binding c to d
+%     gadgetWrapper e = std::move(d); // Casts d into gadgetWrapper&& type
+
+%     // d is in a valid state but owns nothing.
+
+%     // ~e frees c, ~d does nothing avoiding the double free.
+%   }
+
+%   \end{minted}
+% \end{frame}

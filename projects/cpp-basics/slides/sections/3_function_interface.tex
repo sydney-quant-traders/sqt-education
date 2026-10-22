@@ -1,0 +1,87 @@
+\section{Function Interface}
+
+\begin{frame}[fragile]{Returning structs from functions}
+  In the following code example we have a copyable \code{intbox} class.\\
+
+  \begin{minted}{cpp}
+    /* 1.02 */
+    intbox sum(intbox& a, intbox& b) {
+        auto result = *(a.data_) + *(b.data_);
+        return intbox(result);
+    }
+    intbox product(intbox& a, intbox& b) {
+        auto result = *(a.data_) * *(b.data_);
+        intbox retval{result};
+        return retval;
+    }
+    int demo() {
+      intbox a(5); intbox b(6);
+      auto sum_result = sum(a, b);
+      auto prod_result = product(a, b);
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Returning structs from functions}
+  In the stack frame of the caller (\code{demo()}), the compiler allocates a \emph{return\_slot}.
+  The address of the return slot is implicitly passed as an argument.
+  \begin{itemize}
+    \item if the returned expr is a local variable, it gets copy-ctored into the return slot.
+    \item if the returned expr is a ctor call, the ctor is run directly on the return slot.
+  \end{itemize}
+
+  Conceptually, this is what happens under the hood:
+  \begin{minted}{cpp}
+/* 1.02 */
+intbox a(5); intbox b(6);
+alignas(intbox) uint8_t _storage_sum_result[sizeof(intbox)]; // allocate return slot on stack
+// inlined function
+{   intbox *_return_slot = reinterpret_cast<intbox *>(_storage_sum_result);
+    intbox& arg_a = a; intbox& arg_b = b; // argument binding
+{
+    auto result = *(arg_a.data_) + *(arg_b.data_);
+    new (_return_slot) intbox(result); // RVO: constructor runs directly in return slot
+}}
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Returning structs from functions}
+  \includesvg[inkscapelatex=false, width=\textwidth]{assets/return_slots.drawio.svg}
+\end{frame}
+
+\begin{frame}[fragile]{Temporaries}
+  If the caller doesn't bind the return value to a variable,
+  it still allocates a return slot on the stack.\\
+  Methods may be called on this temporary while within the full expression.\\
+  However immediately following the full expression, the temporary is destroyed.
+  \begin{minted}{cpp}
+    /* 1.02 */
+    int demo() {
+        // return slot is to a temporary, rather than an intbox object
+        std::cout << product(a, b).get() << std::endl;
+        // _tmp.~intbox() // the compiler generates a call to the destructor here
+    }
+  \end{minted}
+
+  It is possible to bind the temporary to an r-value reference (later section),
+  for example by passing it into a function that takes an r-value reference as its argument.
+\end{frame}
+
+\begin{frame}[fragile]{Issue: Unnecessary Copies}
+  \begin{minted}{cpp}
+  intbox product(intbox& a, intbox& b) {
+      auto result = *(a.data_) * *(b.data_);
+      intbox retval{result};
+      return retval;
+  }
+
+  int main() {
+      intbox a(5); intbox b(6);
+      intbox c = product(a, b);
+      // the retval gets copied into return slot (c)
+      // then retval is destroyed (this seems wasteful!)
+  }
+  \end{minted}
+  Unacceptable waste, especially if we are returning something larger like a vector.\\
+  Is there a way to avoid this expensive copy?
+\end{frame}
