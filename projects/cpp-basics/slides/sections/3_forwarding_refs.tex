@@ -1,0 +1,187 @@
+\section{Forwarding Refs}
+
+\begin{frame}[fragile]{Bounded Vector}
+  \begin{sqt:result}
+    When a caller passes an rvalue into a function,
+    by convention, this means that the caller is giving permission 
+    for the callee to \emph{move construct} from the ref.
+  \end{sqt:result}
+  In this code example we define a vector class with a fixed capacity.
+  \begin{minted}{cpp}
+    /* 3.01 */
+    template <typename T, std::size_t Capacity>
+    struct bounded_vector {
+        // lifetime and resource management
+        bounded_vector() {/* */}
+        ~bounded_vector() {/* */}
+        bounded_vector(const bounded_vector<T, Capacity>& other) {/* */}
+        // member functions
+        void push_back(T& obj) {/* */}
+        void push_back(T&& obj) {/* */}
+    };
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Why do we want the rvalue overload?}
+  What would happen if we didn't have this rvalue overload for \code{push\_back}?
+
+  \begin{minted}{cpp}
+    int main() {
+        bounded_vector<intbox, 8> vec;
+        vec.push_back(intbox(3)); // COMPILE ERROR
+
+        // required either one of these to be defined:
+        // - push_back(const intbox& obj) [because const lvalue refs can bind to rvalues]
+        // - push_back(intbox&& obj)
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Why do we want the rvalue overload?}
+  What would happen if we made \code{push\_back} take a \emph{const} ref instead?
+  \begin{minted}{cpp}
+    /* 3.01 */
+    template <typename T, std::size_t Capacity>
+    struct bounded_vector {
+        /* ... */
+        void push_back(const T& obj) {
+            // this function is NOT permitted to move from obj
+            // since it is a const reference
+        }
+    };
+
+    int main() {
+        bounded_vector<intbox, 8> vec;
+        vec.push_back(intbox(3));
+        // copy constructs into the vector
+        // this may be expensive if type T handled more resources
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{The issue: repeated logic}
+  For this particular use case (\code{push\_back()}), we run the same logic
+  when both rvalues and lvalues are passed as arguments. 
+  We just want to \emph{forward the argument perfectly} into the constructor.
+
+  \begin{minted}{cpp}
+    /* 3.01 - bounded_vector */
+    void push_back(T& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(obj);             // calls constructor with obj (lvalue)
+        size_++;
+    }
+
+    void push_back(T&& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(std::move(obj));  // calls constructor with obj (rvalue)
+        size_++;
+    }
+
+    // note that even though decltype of obj is T&&
+    // the expression "obj" is still lvalue category, so we must std::move to make rvalue
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Invalid solution: attempt to deduce \code{F = T\&}}
+  \begin{minted}{cpp}
+    template <typename F>                             // e.g. hope that: F = T&&
+    void push_back(F obj) {                           // e.g. hope that: T&& obj
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
+        size_++;
+    }
+    /* ... */
+    vec.push_back(intbox(3));
+  \end{minted}
+
+  The idea is that we hope \code{F} can deduce to either \code{T\&} or \code{T\&\&},
+  depending on what value category we use at the call-site.
+
+  \begin{sqt:result}
+    Template argument deduction will strip references if the argument is declared as \code{(F obj)}.
+    i.e. \code{F} will always deduce to just \code{T}, not \code{T\&} or \code{T\&\&}.
+  \end{sqt:result}
+\end{frame}
+
+\begin{frame}[fragile]{Bad solution: explicit instantiation}
+  \begin{minted}{cpp}
+    template <typename F>                             // e.g. F = T&&
+    void push_back(F obj) {                           // e.g. T&& obj
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
+        size_++;
+    }
+    /* ... */
+    vec.push_back<intbox &&>(intbox(3));
+  \end{minted}
+
+  We have gotten rid of duplicate logic, at the cost of needing each call-site
+  to explicitly specify the template parameter. If you miss one, it silently
+  makes a by-value overload (which is the worst thing ever).  
+\end{frame}
+
+\begin{frame}[fragile]{The solution: forwarding references}
+  \begin{sqt:definition}
+    The \emph{forwarding reference} technique is when a function parameter has declared type
+    \code{F\&\&}, where \code{F} is a template argument of the function.
+  \end{sqt:definition}
+
+  \begin{minted}{cpp}
+    /* 3.02 - bounded_vector */
+    template <typename F>
+    void push_back(F&& obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<F&&>(obj));
+        size_++;
+    }
+  \end{minted}
+
+  At first glance, wouldn't this only produce an rvalue overload?
+\end{frame}
+
+\begin{frame}[fragile]{How does it work}
+  There is no special compiler logic that handles forwarding references.\\
+  Two parts of the C++ language come together to make forwarding references possible:
+  \begin{itemize}
+    \item Reference collapsing rules
+    \item A special rule for template argument deduction
+  \end{itemize}
+
+  Ref collapsing rules determine the resultant type when you take a ref to a ref.
+
+  \begin{minted}{cpp}
+      using L = int&;     // int &      -> int&
+        using LL = L&;    // int & &    -> int&
+        using LR = L&&;   // int & &&   -> int&   (relevant to forward refs)
+
+      using R = int&&;    // int &&     -> int&&  (relevant to forward refs)
+        using RL = R&;    // int && &   -> int&
+        using RR = R&&;   // int && &&  -> int&&
+  \end{minted}
+\end{frame}
+
+
+\begin{frame}[fragile]{How does it work}
+  When called with both value categories, two instantiations are created:
+  \begin{minted}{cpp}
+    template <> // F = T
+    void push_back(T && obj) {
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<T &&>(obj));
+        size_++;
+    }
+
+    template <> // F = T&
+    void push_back(T& && obj) {                          // F&&  -> T & && -> T&
+        assert(size_ < Capacity);
+        new (data_ + size_) T(static_cast<T& &&>(obj));  // F&&  -> T & && -> T&
+        size_++;
+    }
+  \end{minted}
+
+  \begin{sqt:definition}
+    \code{std::forward<F>} is defined as \code{static\_cast<F\&\&>}.
+  \end{sqt:definition}
+\end{frame}
+
