@@ -35,14 +35,15 @@
 \begin{frame}[fragile]{Construction}
   \begin{sqt:definition}
     Given a pointer to a chunk of memory, a \emph{constructor} is a function that
-    initializes (starts lifetime of) an object at that location.
+    initializes (starts lifetime of) an object at that location.\\
+    It should be implemented such that the resulting object satisfies the \emph{class invariants}.
   \end{sqt:definition}
 
   Nit: lifetimes may start without any construction/initialization (namely implicit-lifetime types).
 \end{frame}
 
-\begin{frame}[fragile]{Construction Syntax Example}
-  \includegraphics[width=12cm]{assets/constructor_compiled.png}
+\begin{frame}[fragile]{Analyzing Construction}
+  \includesvg[inkscapelatex=false, width=\textwidth, height=0.8\textheight, keepaspectratio]{assets/constructor.drawio.svg}
 \end{frame}
 
 \begin{frame}[fragile]{New Expressions}
@@ -72,48 +73,108 @@
 
     {
         // mallocs space for a Gadget
-        auto* this = static_cast<Gadget*>(operator new(sizeof(Gadget), newArg1, newArg2));
+        auto* tmp = static_cast<Gadget*>(operator new(sizeof(Gadget), newArg1, newArg2));
         // pseudocode: call Gadget constructor on the malloc result
-        Gadget::Gadget(this, ctorArg1, ctorArg2);
-        auto x = this;
+        Gadget::Gadget(tmp, ctorArg1, ctorArg2);
+        auto x = tmp;
     }
   \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Operator New (Placement New Overload)}
-  "The constructor is a function that ..."
-  However you can't call TODO(jlu) finish this
-
+  The language does not let you call \mintinline{cpp}{Gadget::Gadget(...)} on any 
+  arbitrary chunk of memory and initialize an object there.
+  
   \begin{sqt:definition}
     \emph{Placement new} is a workaround (uses header \code{<new>}) that allows
     you to call the constructor on any given address.
   \end{sqt:definition}
 
   \begin{minted}{cpp}
-    // the included operator new overload does nothing, just returns its input.
-    // calls the constructor Gadget::Gadget() on address 123456
-    new ((void *) 123456) Gadget{};
-    // is the responsibility of the programmer to call the destructor to end lifetime.
-    // calls the destructor Gadget::~Gadget() on address 123456
-    ((Gadget *) 123456)->~Gadget();
+    new ((void *) 123456) Gadget{67};
+
+    // gets transformed into approximately this pseudocode
+    {
+        // this operator new overload just returns 123456
+        auto* tmp = static_cast<Gadget*>(operator new(sizeof(Gadget), 123456));
+        // thus the constuctor is called on tmp
+        Gadget::Gadget(tmp, 67);
+    }
   \end{minted}
 \end{frame}
 
-% TODO(jlu) show that you can do weird stuff with placement new
-\begin{frame}[fragile]{Storage Re-use}
-  TODO(jlu) give example where we destroy an object, and allocate an object inside it.
-\end{frame}
-
 \begin{frame}[fragile]{Destruction}
+  \begin{sqt:definition}
+    A destructor is a function that ends the lifetime of an object.
+    It should be implemented such that it performs any necessary cleanup (e.g. freeing owned resources).
+  \end{sqt:definition}
+
   \begin{sqt:result}
-    For every initialization of an object that does not have \emph{dynamic storage duration},
+    For every initialization of an object that does not have \emph{dynamic storage duration} (i.e. not initialized via operator new),
     the compiler generates a call to this object's destructor at the appropriate location.\\
     All objects with dynamic storage duration must be destroyed manually.
   \end{sqt:result}
 \end{frame}
 
 \begin{frame}[fragile]{Destructor Generation Example}
-  TODO(jlu) finish this part off
+  \begin{columns}[T]
+    \begin{column}{0.45\textwidth}
+      \begin{minted}[fontsize=\scriptsize]{cpp}
+// what you write
+void f(bool flag) {
+    auto a = Gadget{1};
+    {
+        auto b = Gadget{2};
+        auto c = Gadget{3};
+    }
+    if (flag) {
+        auto d = Gadget{4};
+        return;
+    }
+    auto e = Gadget{5};
+}
+      \end{minted}
+
+      Destructor calls are generated at every scope exit, in \emph{reverse order of construction}.
+    \end{column}
+    \begin{column}{0.55\textwidth}
+      \begin{minted}[fontsize=\scriptsize]{cpp}
+// what the compiler generates (pseudocode)
+void f(bool flag) {
+    Gadget::Gadget(&a, 1);
+    {
+        Gadget::Gadget(&b, 2);
+        Gadget::Gadget(&c, 3);
+        Gadget::~Gadget(&c);
+        Gadget::~Gadget(&b);
+    }
+    if (flag) {
+        Gadget::Gadget(&d, 4);
+        Gadget::~Gadget(&d);
+        Gadget::~Gadget(&a);
+        return;
+    }
+    Gadget::Gadget(&e, 5);
+    Gadget::~Gadget(&e);
+    Gadget::~Gadget(&a);
+}
+      \end{minted}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Storage Re-use}
+  Ending an object's lifetime does not release its storage.\\
+  We are free to construct a different object in that storage.
+
+  \begin{minted}{cpp}
+    {
+        auto g = Gadget{};  // lifetime of g begins
+        g.~Gadget();        // lifetime of g ends, but its storage is still there
+
+        auto* w = new (&g) Widget{}; // construct widget where g previously was
+    } // g.~Gadget() called here (UNDEFINED BEHAVIOR)
+  \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Class Design Conventions}

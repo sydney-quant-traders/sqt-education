@@ -15,9 +15,21 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Conventions}
-  Any assembly code shown will be x86-64, using System V ABI, compiled with -O0.
+\begin{frame}[fragile]{Conventions and Notation}
+  \begin{itemize}
+    \item will use x86-64, System V ABI, -O0
+    \item I will sometimes refer to methods, constructors and destructors by their full demangled function name e.g.
+      \mintinline{cpp}{ExampleClassName::exampleMethodName(arg1, arg2)}.
+  \end{itemize}
+\end{frame}
 
-  I will sometimes refer to methods, constructors and destructors by their full demangled function name e.g.
-  \mintinline{cpp}{ExampleClassName::exampleMethodName(arg1, arg2)}.
+\begin{frame}[fragile]{Visualizations}
+  \begin{itemize}
+    \item We will sometimes visualize the state of a program at a snapshot in time.
+    \item The stack will be drawn as growing downwards.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Visualizations}
+  \includesvg[inkscapelatex=false, width=\textwidth, height=0.8\textheight, keepaspectratio]{assets/stack_frames.drawio.svg}
 \end{frame}
