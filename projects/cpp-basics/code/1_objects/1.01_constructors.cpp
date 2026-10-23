@@ -1,6 +1,8 @@
 #include <iostream>
 
 struct Gadget {
+    int mData[100];
+
     Gadget(int dummy) {
         std::cout << "- constructor with args" << std::endl;
     }
@@ -30,11 +32,11 @@ struct Gadget {
         std::cout << "- move assignment operator" << std::endl;
         return *this;
     }
-
-    int mData[100];
 };
 
 struct Widget {
+    int mData[100];
+
     Widget() {
         std::cout << "- default constructor" << std::endl;
     }
@@ -46,8 +48,6 @@ struct Widget {
     Widget(const Widget& other) {
         std::cout << "- copy constructor" << std::endl;
     }
-
-    int mData[100];
 };
 
 
@@ -63,59 +63,34 @@ int main() {
     auto& aLref = a;
     auto&& aRref = std::move(a);
 
+    std::cout << "construction with args examples:" << std::endl;
     {
-        std::cout << "construction with args examples:" << std::endl;
-
-        Gadget c(42);
-        Gadget d{42};
-
-        // equivalent to c, d
-        auto e = Gadget(42);
-        auto f = Gadget{42};
+        auto b = Gadget{67};
     }
 
+    std::cout << "default construction examples:" << std::endl;
     {
-        std::cout << "default construction examples:" << std::endl;
-
-        Gadget b;
-        // object c(); // doesn't work because of most vexing parse
-        Gadget d{};
-        auto e = Gadget();
-        auto f = Gadget{};
+        auto c = Gadget{};
     }
 
+    std::cout << "copy construction examples:" << std::endl;
     {
-        std::cout << "copy construction examples:" << std::endl;
-
-        Gadget c{a};
-        Gadget d{aLref};
-        // this one may be counterintuitive
-        Gadget e{aRref};
-
-        // equivalent to c, d, e
-        auto f = a;
-        auto g = aLref;
-        auto h = aRref;
+        auto d = a;
+        auto e = aLref;
+        auto f = aRref; // oddly enough is also a copy construction
     }
 
-
+    std::cout << "move construction examples:" << std::endl;
     {
-        std::cout << "move construction examples:" << std::endl;
-
         // default constructor is called within getObject()
         // move constructed into return slot (which is b)
-        auto b = Gadget{getObject()};
-
-        Gadget c{std::move(a)};
-        Gadget d{std::move(aLref)};
-        Gadget e{std::move(aRref)};
-
-        // equivalent to c, d, e
-        auto f = std::move(a);
-        auto g = std::move(aLref);
-        auto h = std::move(aRref);
+        auto g = getObject();
+        auto h = std::move(a);
+        auto i = std::move(aLref);
+        auto j = std::move(aRref);
     }
 
+    std::cout << "assignment operator examples:" << std::endl;
     {
         std::cout << "constructing b:" << std::endl;
         auto b = Gadget{};
@@ -131,11 +106,10 @@ int main() {
         b = std::move(aRref);
     }
 
+    std::cout << "what if no move constructor is defined?" << std::endl;
     {
-        std::cout << "what if no move constructor is defined?" << std::endl;
-
         auto w = Widget{};
-        auto x = Widget{std::move(w)};
+        auto x = std::move(w);
     }
 
     std::cout << "goodbye" << std::endl;

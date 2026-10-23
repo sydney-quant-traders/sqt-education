@@ -44,25 +44,25 @@ int main() {
         std::cout << "Demonstration: extending lifetimes" << std::endl;
 
         // temporary immediately destroyed after expression it participates in
-        IntBox(3);
+        IntBox{3};
 
         // temporary's lifetime is extended until scope of rref ends
-        IntBox&& rref = IntBox(3);
+        auto&& rref = IntBox{3};
         std::cout << "Rvalue reference binds to temporary!" << std::endl;
 
         // temporary's lifetime is extended until scope of lref ends
         // const lvalue references can bind and extend lifetimes of temporaries
-        const IntBox& lref = IntBox(3);
+        const auto& lref = IntBox{3};
         std::cout << "Const lvalue reference binds to temporary!" << std::endl;
 
         // we have seen this in previous examples
         // there is no temporary, the return slot is simply set as the storage of a
-        auto x = IntBox(3);
+        auto x = IntBox{3};
     }
 
     {
         // tell compiler: we want to extend the tmp's lifetime until end of scope
-        IntBox&& rref = IntBox(3);
+        auto&& rref = IntBox{3};
 
         // play around with the temporary
         std::cout << rref.get() << std::endl;
@@ -72,7 +72,7 @@ int main() {
 
     {
         std::cout << "UNDEFINED BEHAVIOR" << std::endl;
-        auto& data = IntBox(3).get(); 
+        auto& data = IntBox{3}.get(); 
 
         // temporary is destroyed after this expression, leaving a dangling reference
         std::cout << data << std::endl;
@@ -80,13 +80,13 @@ int main() {
 
     {
         std::cout << "rvalue ref argument" << std::endl;
-        foo(IntBox(3));
+        foo(IntBox{3});
     }
 
     {
         std::cout << "static dispatch" << std::endl;
         auto x = IntBox{3};
-        IntBox&& rref = std::move(x);
+        auto&& rref = std::move(x);
 
         foo(x); // calls lvalue overload
         foo(rref); // also calls lvalue overload (weird)

@@ -20,6 +20,8 @@ struct ScopeExit {
 // --- Library Types ---
 
 struct IntBox {
+    int *mData;
+
     IntBox(int x) : mData{new int(x)} {
         std::cout << "constructor" << std::endl;
     }
@@ -37,8 +39,6 @@ struct IntBox {
     int& get() {
         return *mData;
     }
-
-    int *mData;
 };
 
 // --- Library Functions ---

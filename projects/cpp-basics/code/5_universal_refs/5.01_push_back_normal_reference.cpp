@@ -10,6 +10,9 @@
 
 template <typename T, std::size_t Capacity>
 class BoundedVector {
+    T *mData;
+    std::size_t mSize = 0;
+
 public: // lifetime and resource management
     BoundedVector() : mData{static_cast<T*>(::operator new(sizeof(T) * Capacity))} {}
     ~BoundedVector() {
@@ -22,8 +25,8 @@ public: // lifetime and resource management
     }
 
     BoundedVector(const BoundedVector<T, Capacity>& other) 
-    : mData{static_cast<T*>(::operator new(sizeof(T) * Capacity))}
-    , mSize{0}
+        : mData{static_cast<T*>(::operator new(sizeof(T) * Capacity))}
+        , mSize{0}
     {
         auto constructed = std::size_t{0};
         try {
@@ -50,8 +53,8 @@ public: // lifetime and resource management
     }
 
     BoundedVector(BoundedVector<T, Capacity>&& other) 
-    : mData{std::exchange(other.mData, nullptr)} 
-    , mSize{std::exchange(other.mSize, 0)}
+        : mData{std::exchange(other.mData, nullptr)} 
+        , mSize{std::exchange(other.mSize, 0)}
     {}
 
     BoundedVector& operator=(BoundedVector<T, Capacity>&& other) noexcept {
@@ -89,11 +92,6 @@ public: // modifiers
         mSize--;
         mData[mSize].~T();
     }
-
-private:
-    T *mData;
-    std::size_t mSize = 0;
-
 };
 
 // --- Application Code ---
