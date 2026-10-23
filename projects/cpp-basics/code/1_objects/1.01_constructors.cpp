@@ -1,141 +1,141 @@
 #include <iostream>
 
-struct gadget {
-    gadget(int dummy) {
+struct Gadget {
+    Gadget(int dummy) {
         std::cout << "- constructor with args" << std::endl;
     }
 
-    gadget() {
+    Gadget() {
         std::cout << "- default constructor" << std::endl;
     }
 
-    ~gadget() {
+    ~Gadget() {
         std::cout << "- destructor" << std::endl;
     }
 
-    gadget(const gadget& other) {
+    Gadget(const Gadget& other) {
         std::cout << "- copy constructor" << std::endl;
     }
 
-    gadget& operator=(const gadget& other) {
+    Gadget& operator=(const Gadget& other) {
         std::cout << "- copy assignment operator" << std::endl;
         return *this;
     }
 
-    gadget(gadget&& other) {
+    Gadget(Gadget&& other) {
         std::cout << "- move constructor" << std::endl;
     }
 
-    gadget& operator=(gadget&& other) {
+    Gadget& operator=(Gadget&& other) {
         std::cout << "- move assignment operator" << std::endl;
         return *this;
     }
 
-    int data_[100];
+    int mData[100];
 };
 
-struct widget {
-    widget() {
+struct Widget {
+    Widget() {
         std::cout << "- default constructor" << std::endl;
     }
 
-    ~widget() {
+    ~Widget() {
         std::cout << "- destructor" << std::endl;
     }
 
-    widget(const widget& other) {
+    Widget(const Widget& other) {
         std::cout << "- copy constructor" << std::endl;
     }
 
-    int data_[100];
+    int mData[100];
 };
 
 
 // return value from method is rvalue
 // disable NVRO pls
-gadget get_object() {
-    gadget o{};
+Gadget getObject() {
+    auto o = Gadget{};
     return o;
 }
 
 int main() {
-    gadget a{};
-    gadget& a_lref = a;
-    gadget&& a_rref = std::move(a);
+    auto a = Gadget{};
+    auto& aLref = a;
+    auto&& aRref = std::move(a);
 
     {
         std::cout << "construction with args examples:" << std::endl;
 
-        gadget c(42);
-        gadget d{42};
+        Gadget c(42);
+        Gadget d{42};
 
         // equivalent to c, d
-        auto e = gadget(42);
-        auto f = gadget{42};
+        auto e = Gadget(42);
+        auto f = Gadget{42};
     }
 
     {
         std::cout << "default construction examples:" << std::endl;
 
-        gadget b;
+        Gadget b;
         // object c(); // doesn't work because of most vexing parse
-        gadget d{};
-        auto e = gadget();
-        auto f = gadget{};
+        Gadget d{};
+        auto e = Gadget();
+        auto f = Gadget{};
     }
 
     {
         std::cout << "copy construction examples:" << std::endl;
 
-        gadget c{a};
-        gadget d{a_lref};
+        Gadget c{a};
+        Gadget d{aLref};
         // this one may be counterintuitive
-        gadget e{a_rref};
+        Gadget e{aRref};
 
         // equivalent to c, d, e
         auto f = a;
-        auto g = a_lref;
-        auto h = a_rref;
+        auto g = aLref;
+        auto h = aRref;
     }
 
 
     {
         std::cout << "move construction examples:" << std::endl;
 
-        // default constructor is called within get_object()
+        // default constructor is called within getObject()
         // move constructed into return slot (which is b)
-        gadget b{get_object()};
+        auto b = Gadget{getObject()};
 
-        gadget c{std::move(a)};
-        gadget d{std::move(a_lref)};
-        gadget e{std::move(a_rref)};
+        Gadget c{std::move(a)};
+        Gadget d{std::move(aLref)};
+        Gadget e{std::move(aRref)};
 
         // equivalent to c, d, e
         auto f = std::move(a);
-        auto g = std::move(a_lref);
-        auto h = std::move(a_rref);
+        auto g = std::move(aLref);
+        auto h = std::move(aRref);
     }
 
     {
         std::cout << "constructing b:" << std::endl;
-        gadget b;
+        auto b = Gadget{};
 
         std::cout << "copy assignment operator examples:" << std::endl;
         b = a;
-        b = a_lref;
-        b = a_rref;
+        b = aLref;
+        b = aRref;
 
         std::cout << "move assignment operator examples:" << std::endl;
         b = std::move(a);
-        b = std::move(a_lref);
-        b = std::move(a_rref);
+        b = std::move(aLref);
+        b = std::move(aRref);
     }
 
     {
         std::cout << "what if no move constructor is defined?" << std::endl;
 
-        widget w;
-        widget x{std::move(w)};
+        auto w = Widget{};
+        auto x = Widget{std::move(w)};
     }
 
     std::cout << "goodbye" << std::endl;

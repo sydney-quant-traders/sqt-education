@@ -1,37 +1,37 @@
 \section{Templates}
 
 % Motivating example
-\begin{frame}[fragile]{Motivation: \texttt{maybe\_int}}
+\begin{frame}[fragile]{Motivation: \texttt{MaybeInt}}
   Suppose we want a type that either holds a value, or nothing (like a nullable int):
   \begin{minted}{cpp}
-    struct maybe_int {
-        bool has_value_; int value_;
+    struct MaybeInt {
+        bool mHasValue; int mValue;
 
-        maybe_int() : has_value_(false), value_{} {}
-        maybe_int(int v) : has_value_(true), value_(v) {}
+        MaybeInt() : mHasValue(false), mValue{} {}
+        MaybeInt(int v) : mHasValue(true), mValue(v) {}
 
-        bool has() const { return has_value_; }
+        bool has() const { return mHasValue; }
         int get() const {
-            if (!has_value_) throw std::runtime_error("empty");
-            return value_;
+            if (!mHasValue) throw std::runtime_error("empty");
+            return mValue;
         }
     };
   \end{minted}
-  What if we want \texttt{maybe\_double}? \texttt{maybe\_string}? Same logic, different type.
+  What if we want \texttt{MaybeDouble}? \texttt{MaybeString}? Same logic, different type.
 \end{frame}
 
 % Class templates
-\begin{frame}[fragile]{\texttt{maybe} - Templated Solution}
+\begin{frame}[fragile]{\texttt{Maybe} - Templated Solution}
   \begin{sqt:result}
-    % Recall \texttt{maybe\_int} from earlier. \\
+    % Recall \texttt{MaybeInt} from earlier. \\
     We can generate the exact same code by writing a \emph{template class}.
   \end{sqt:result}
 
   \begin{minted}{cpp}
-    /* 2.02 */
+    /* 4.02 */
     template <typename T>
-    struct maybe {
-        bool has_value_; T value_;
+    struct Maybe {
+        bool mHasValue; T mValue;
         /* ... */
     };
   \end{minted}
@@ -43,7 +43,7 @@
 \begin{frame}[fragile]{Template Instantiation}
   \begin{columns}[T]
     \begin{column}{0.4\textwidth}
-      \input{snippets/2.02_snippet.tex}
+      \input{snippets/4.02_snippet.tex}
     \end{column}
     \begin{column}{0.6\textwidth}
       \vspace{1cm}
@@ -60,17 +60,17 @@
 % Template syntax
 \begin{frame}[fragile]{C++ Templates}
   \begin{minted}{cpp}
-// declare widget as a template class
-template <typename T, typename U, int V> struct widget{/* */};
+// declare Widget as a template class
+template <typename T, typename U, int V> struct Widget{/* */};
 // declare void foo(T,U) as a template function
 template <typename T, typename U> void foo(T lorem, U ipsum) {/* */}
 
 int main() {
-    std::string s = "hi";
-    int val = 42;
+    auto s = std::string{"hi"};
+    auto val = 42;
     foo(s, val); // instantiation <T = std::string, U = int>
-    widget<int, decltype(s), 20> obj; // instantiation <T = int, U = decltype(s), V = 20>
-    widget<int, int, val> obj2; // COMPILE ERROR: val is not a compile-time value
+    auto obj = Widget<int, decltype(s), 20>{}; // instantiation <T = int, U = decltype(s), V = 20>
+    auto obj2 = Widget<int, int, val>{}; // COMPILE ERROR: val is not a compile-time value
 }
   \end{minted}
 
@@ -161,9 +161,9 @@ int main() {
     #include <algorithm>
     #include <vector>
 
-    std::vector<int> ints = {3, 1, 2};
-    std::vector<double> doubles = {3.5, 1.1, 2.2};
-    std::vector<std::string> strings = {"banana", "apple", "cherry"};
+    auto ints = std::vector<int>{3, 1, 2};
+    auto doubles = std::vector<double>{3.5, 1.1, 2.2};
+    auto strings = std::vector<std::string>{"banana", "apple", "cherry"};
 
     std::sort(ints.begin(), ints.end());
     std::sort(doubles.begin(), doubles.end());
@@ -175,12 +175,12 @@ int main() {
 
 \begin{frame}[fragile]{Template instantiation examples}
   \begin{minted}{cpp}
-    /* 2.03 */
+    /* 4.03 */
     // an array of 8 integers
-    struct array_int_8 {
+    struct ArrayInt8 {
         using T = int;
         static constexpr std::size_t N = 8;
-        T data_[N];
+        T mData[N];
         // set array element to a value by index
         void set(std::size_t index, T val) {/* */}
         // get const reference to array element by index
@@ -188,9 +188,9 @@ int main() {
     };
 
     // returns two values: {maximum in nums, average of nums}
-    pair<int, double> get_max_and_average(const array_int_8& nums) {
+    Pair<int, double> getMaxAndAverage(const ArrayInt8& nums) {
         /* ... */
-        return {curr_max, curr_sum / 8};
+        return {currMax, currSum / 8};
     }
   \end{minted}
 
@@ -199,10 +199,10 @@ int main() {
 
 \begin{frame}[fragile]{Templating the array class}
   \begin{minted}{cpp}
-    /* 2.04 */
+    /* 4.04 */
     template <typename T, std::size_t N>
-    struct array {
-        T data_[N];
+    struct Array {
+        T mData[N];
         // set array element to a value by index
         void set(std::size_t index, T val) {/* */}
         // get const reference to array element by index
@@ -210,9 +210,9 @@ int main() {
     };
 
     // returns two values: {maximum in nums, average of nums}
-    pair<int, double> get_max_and_average(const array<int, 8>& nums) {
+    Pair<int, double> getMaxAndAverage(const Array<int, 8>& nums) {
         /* ... */
-        return {curr_max, curr_sum / 8};
+        return {currMax, currSum / 8};
     }
   \end{minted}
 
@@ -221,17 +221,17 @@ int main() {
 
 \begin{frame}[fragile]{Templating the function}
   \begin{minted}{cpp}
-    /* 2.05 */
+    /* 4.05 */
     template <typename T, std::size_t N>
     // requires: T - convertible to double
-    pair<T, double> get_max_and_average(const array<T, N>& nums) {
-        T curr_max = nums.at(0);
-        double curr_sum = 0;
+    Pair<T, double> getMaxAndAverage(const Array<T, N>& nums) {
+        auto currMax = nums.at(0);
+        auto currSum = 0.0;
         for (std::size_t i = 0; i < N; ++i) {
-            curr_max = curr_max > nums.at(i) ? curr_max : nums.at(i);
-            curr_sum += nums.at(i);
+            currMax = currMax > nums.at(i) ? currMax : nums.at(i);
+            currSum += nums.at(i);
         }
-        return {curr_max, curr_sum / N};
+        return {currMax, currSum / N};
     }
   \end{minted}
 
@@ -240,7 +240,7 @@ int main() {
 
 \begin{frame}[fragile]{Instantiation Failures}
   \begin{minted}{cpp}
-    /* 2.06 */
+    /* 4.06 */
     template <typename Container, typename Value>
     Value pop(Container& c) {
         c.pop_front();
@@ -254,7 +254,7 @@ int main() {
     }
 
     int main() {
-        double x;
+        auto x = double{};
         pop(x, 1);
     }
   \end{minted}
@@ -265,7 +265,7 @@ int main() {
   Make it generic.
 
   \begin{minted}{cpp}
-    /* 2.08 */
+    /* 4.08 */
     // given a queue of ints
     class Queue {/* ... */};
 

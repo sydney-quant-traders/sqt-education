@@ -7,76 +7,76 @@
 template <typename T>
 class Queue {
     struct Node {
-        T value;
-        Node* next = nullptr;
+        T mValue;
+        Node* mNext = nullptr;
     };
 
-    Node* head_;
-    Node* tail_;
-    int size_;
+    Node* mHead;
+    Node* mTail;
+    int mSize;
 
 public:
-    Queue() : head_(nullptr), tail_(nullptr), size_(0) {}
+    Queue() : mHead(nullptr), mTail(nullptr), mSize(0) {}
 
     ~Queue() {
-        while (head_) {
-            Node* tmp = head_;
-            head_ = head_->next;
+        while (mHead) {
+            auto* tmp = mHead;
+            mHead = mHead->mNext;
             delete tmp;
         }
     }
 
 public:
     void push(T value) {
-        Node* node = new Node{value};
+        auto* node = new Node{value};
         if (empty()) {
-            head_ = tail_ = node;
+            mHead = mTail = node;
         } else {
-            tail_->next = node;
-            tail_ = node;
+            mTail->mNext = node;
+            mTail = node;
         }
-        size_++;
+        mSize++;
     }
 
     void pop() {
         assert(!empty());
 
-        Node* old = head_;
-        head_ = head_->next;
+        auto* old = mHead;
+        mHead = mHead->mNext;
         delete old;
-        size_--;
-        if (empty()) tail_ = nullptr;
+        mSize--;
+        if (empty()) mTail = nullptr;
     }
 
     T& front() {
         assert(!empty());
 
-        return head_->value;
+        return mHead->mValue;
     }
 
     const T& front() const {
         assert(!empty());
 
-        return head_->value;
+        return mHead->mValue;
     }
 
     bool empty() const {
-        return size_ == 0;
+        return mSize == 0;
     }
 
     int size() const {
-        return size_;
+        return mSize;
     }
 };
 
 // --- Tests --- do not modify below this line
 
 int main() {
-    int passed = 0;
+    auto passed = 0;
 
     // Test 1: empty queue
     {
-        Queue<int> q;
+        auto q = Queue<int>{};
         if (!q.empty()) { std::cout << "FAIL: new queue should be empty\n"; return 1; }
         if (q.size() != 0) { std::cout << "FAIL: new queue size should be 0\n"; return 1; }
         passed++;
@@ -84,7 +84,7 @@ int main() {
 
     // Test 2: push and front
     {
-        Queue<int> q;
+        auto q = Queue<int>{};
         q.push(10);
         q.push(20);
         q.push(30);
@@ -95,7 +95,7 @@ int main() {
 
     // Test 3: pop
     {
-        Queue<int> q;
+        auto q = Queue<int>{};
         q.push(1);
         q.push(2);
         q.push(3);
@@ -110,7 +110,7 @@ int main() {
 
     // Test 4: works with strings (proves it's generic)
     {
-        Queue<std::string> q;
+        auto q = Queue<std::string>{};
         q.push("hello");
         q.push("world");
         if (q.front() != "hello") { std::cout << "FAIL: string front should be hello\n"; return 1; }
@@ -121,7 +121,7 @@ int main() {
 
     // Test 5: push after emptying
     {
-        Queue<int> q;
+        auto q = Queue<int>{};
         q.push(1);
         q.pop();
         q.push(2);
@@ -134,14 +134,14 @@ int main() {
     {
         // increments a counter every time an instance is destroyed
         struct DestroyCounter {
-            int& counter_;
-            DestroyCounter(int& counter) : counter_{counter} {}
-            ~DestroyCounter() { counter_++; }
+            int& mCounter;
+            DestroyCounter(int& counter) : mCounter{counter} {}
+            ~DestroyCounter() { mCounter++; }
         };
 
-        int count;
+        auto count = 0;
         {
-            Queue<DestroyCounter> q2;
+            auto q2 = Queue<DestroyCounter>{};
             for (int i = 0; i < 100; i++) q2.push(DestroyCounter{count});
             count = 0;
             // Queue destructor called on q2 here

@@ -51,9 +51,9 @@
     A new expression looks up and calls the function \texttt{operator new()} (this is the customization point).
   \end{sqt:definition}
 
-  A \emph{new expression} looks like \mintinline{cpp}{new (new_arg1, new_arg2) gadget(ctor_arg1, ctor_arg2)}.
+  A \emph{new expression} looks like \mintinline{cpp}{new (newArg1, newArg2) Gadget(ctorArg1, ctorArg2)}.
   When the compiler sees this, it performs a lookup for \mintinline{cpp}{operator new(size_t, ...)} which returns a pointer.
-  It then calls the constructor of gadget on the pointer.
+  It then calls the constructor of Gadget on the pointer.
 \end{frame}
 
 \begin{frame}[fragile]{New Expressions}
@@ -66,15 +66,15 @@
     */
 
     {
-        // mallocs and constructs a gadget on the heap
-        auto x = new (new_arg1, new_arg2) gadget(ctor_arg1, ctor_arg2);
+        // mallocs and constructs a Gadget on the heap
+        auto x = new (newArg1, newArg2) Gadget(ctorArg1, ctorArg2);
     }
 
     {
-        // mallocs space for a gadget
-        auto* this = static_cast<gadget*>(operator new(sizeof(gadget), new_arg1, new_arg2));
-        // pseudocode: call gadget constructor on the malloc result
-        gadget::gadget(this, ctor_arg1, ctor_arg2);
+        // mallocs space for a Gadget
+        auto* this = static_cast<Gadget*>(operator new(sizeof(Gadget), newArg1, newArg2));
+        // pseudocode: call Gadget constructor on the malloc result
+        Gadget::Gadget(this, ctorArg1, ctorArg2);
         auto x = this;
     }
   \end{minted}
@@ -91,11 +91,11 @@
 
   \begin{minted}{cpp}
     // the included operator new overload does nothing, just returns its input.
-    // calls the constructor gadget::gadget() on address 123456
-    new ((void *) 123456) gadget{};
+    // calls the constructor Gadget::Gadget() on address 123456
+    new ((void *) 123456) Gadget{};
     // is the responsibility of the programmer to call the destructor to end lifetime.
-    // calls the destructor gadget::~gadget() on address 123456
-    ((gadget *) 123456)->~gadget();
+    // calls the destructor Gadget::~Gadget() on address 123456
+    ((Gadget *) 123456)->~Gadget();
   \end{minted}
 \end{frame}
 
@@ -159,20 +159,20 @@
     \begin{column}{0.53\textwidth}
       \begin{minted}{cpp}
 // Non-RAII design
-struct intbox {
-    int *data_;
-    void acquire(int x) { data_ = new int(x); }
-    void release() { delete data_; }
+struct IntBox {
+    int *mData;
+    void acquire(int x) { mData = new int(x); }
+    void release() { delete mData; }
 };
       \end{minted}
     \end{column}
     \begin{column}{0.47\textwidth}
       \begin{minted}{cpp}
 // RAII design
-struct intbox {
-    int *data_;
-    intbox(int x) : data_{new int(x)} {}
-    ~intbox() {delete data_;}
+struct IntBox {
+    int *mData;
+    IntBox(int x) : mData{new int(x)} {}
+    ~IntBox() {delete mData;}
 };
       \end{minted}
     \end{column}
@@ -185,16 +185,16 @@ struct intbox {
   \end{sqt:definition}
   Defining a copy constructor allows code like this to compile:
   \begin{minted}{cpp}
-    /* 1.00 */
-    auto a = gadget{};
-    auto& a_lref = a;
-    auto&& a_rref = std::move(a);
+    /* 1.01 */
+    auto a = Gadget{};
+    auto& aLref = a;
+    auto&& aRref = std::move(a);
 
     {
         // all these are copy constructions
-        auto c = gadget{a};
-        auto d = gadget{a_lref};
-        auto e = gadget{a_rref};
+        auto c = Gadget{a};
+        auto d = Gadget{aLref};
+        auto e = Gadget{aRref};
         // this is copy assignment, not copy construction
         e = a;
     }
@@ -209,12 +209,12 @@ struct intbox {
 
   The compiler auto-generates a copy-ctor that recursively copies each member.
   \begin{minted}{cpp}
-    struct bad_intbox {
-      int *data_;
-      bad_intbox(int x) : data_{new int(x)} {}
-      ~bad_intbox() { delete data_; }
+    struct BadIntBox {
+      int *mData;
+      BadIntBox(int x) : mData{new int(x)} {}
+      ~BadIntBox() { delete mData; }
       // auto-generated copy constructor
-      bad_intbox(const bad_intbox& other) : data_{other.data_} {}
+      BadIntBox(const BadIntBox& other) : mData{other.mData} {}
     };
   \end{minted}
   Usually, automatically generated copy constructors are NOT well-designed.\\
@@ -224,11 +224,11 @@ struct intbox {
 \begin{frame}[fragile]{Double Frees}
   Double frees occur when you write buggy classes that don't handle copying properly.
 
-  Consider the below example using the \code{bad\_intbox} we developed earlier
+  Consider the below example using the \code{BadIntBox} we developed earlier
   \begin{minted}{cpp}
     int main() {
-        bad_intbox original{42};
-        bad_intbox copy{original}; // copy.data_ = original.data_ (both point to same heap object!)
+        auto original = BadIntBox{42};
+        auto copy = BadIntBox{original}; // copy.mData = original.mData (both point to same heap object!)
     
         // ~original; ~copy; -> Double Free!
     }
@@ -241,18 +241,18 @@ struct intbox {
 \end{frame}
 
 \begin{frame}[fragile]{Copy Construction}
-  To perform a proper \emph{deep copy} on our \code{intbox}, we want
+  To perform a proper \emph{deep copy} on our \code{IntBox}, we want
   \begin{itemize}
     \item a new region of memory to be allocated on the heap
-    \item the \code{other.data\_} integer is copy constructed into this new region
+    \item the \code{other.mData} integer is copy constructed into this new region
   \end{itemize}
 
   \begin{minted}{cpp}
-    struct intbox {
-      int *data_;
-      intbox(int x) : data_{new int(x)} {}
-      ~intbox() { delete data_; }
-      intbox(const intbox& other) : data_{new int(*(other.data_))} {}
+    struct IntBox {
+      int *mData;
+      IntBox(int x) : mData{new int(x)} {}
+      ~IntBox() { delete mData; }
+      IntBox(const IntBox& other) : mData{new int(*(other.mData))} {}
     };
   \end{minted}
 \end{frame}

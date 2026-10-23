@@ -8,51 +8,51 @@
   \end{sqt:result}
   In this code example we define a vector class with a fixed capacity.
   \begin{minted}{cpp}
-    /* 3.01 */
+    /* 5.01 */
     template <typename T, std::size_t Capacity>
-    struct bounded_vector {
+    struct BoundedVector {
         // lifetime and resource management
-        bounded_vector() {/* */}
-        ~bounded_vector() {/* */}
-        bounded_vector(const bounded_vector<T, Capacity>& other) {/* */}
+        BoundedVector() {/* */}
+        ~BoundedVector() {/* */}
+        BoundedVector(const BoundedVector<T, Capacity>& other) {/* */}
         // member functions
-        void push_back(T& obj) {/* */}
-        void push_back(T&& obj) {/* */}
+        void pushBack(T& obj) {/* */}
+        void pushBack(T&& obj) {/* */}
     };
   \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Why do we want the rvalue overload?}
-  What would happen if we didn't have this rvalue overload for \code{push\_back}?
+  What would happen if we didn't have this rvalue overload for \code{pushBack}?
 
   \begin{minted}{cpp}
     int main() {
-        bounded_vector<intbox, 8> vec;
-        vec.push_back(intbox(3)); // COMPILE ERROR
+        auto vec = BoundedVector<IntBox, 8>{};
+        vec.pushBack(IntBox(3)); // COMPILE ERROR
 
         // required either one of these to be defined:
-        // - push_back(const intbox& obj) [because const lvalue refs can bind to rvalues]
-        // - push_back(intbox&& obj)
+        // - pushBack(const IntBox& obj) [because const lvalue refs can bind to rvalues]
+        // - pushBack(IntBox&& obj)
     }
   \end{minted}
 \end{frame}
 
 \begin{frame}[fragile]{Why do we want the rvalue overload?}
-  What would happen if we made \code{push\_back} take a \emph{const} ref instead?
+  What would happen if we made \code{pushBack} take a \emph{const} ref instead?
   \begin{minted}{cpp}
-    /* 3.01 */
+    /* 5.01 */
     template <typename T, std::size_t Capacity>
-    struct bounded_vector {
+    struct BoundedVector {
         /* ... */
-        void push_back(const T& obj) {
+        void pushBack(const T& obj) {
             // this function is NOT permitted to move from obj
             // since it is a const reference
         }
     };
 
     int main() {
-        bounded_vector<intbox, 8> vec;
-        vec.push_back(intbox(3));
+        auto vec = BoundedVector<IntBox, 8>{};
+        vec.pushBack(IntBox(3));
         // copy constructs into the vector
         // this may be expensive if type T handled more resources
     }
@@ -60,22 +60,22 @@
 \end{frame}
 
 \begin{frame}[fragile]{The issue: repeated logic}
-  For this particular use case (\code{push\_back()}), we run the same logic
+  For this particular use case (\code{pushBack()}), we run the same logic
   when both rvalues and lvalues are passed as arguments. 
   We just want to \emph{forward the argument perfectly} into the constructor.
 
   \begin{minted}{cpp}
-    /* 3.01 - bounded_vector */
-    void push_back(T& obj) {
-        assert(size_ < Capacity);
-        new (data_ + size_) T(obj);             // calls constructor with obj (lvalue)
-        size_++;
+    /* 5.01 - BoundedVector */
+    void pushBack(T& obj) {
+        assert(mSize < Capacity);
+        new (mData + mSize) T(obj);             // calls constructor with obj (lvalue)
+        mSize++;
     }
 
-    void push_back(T&& obj) {
-        assert(size_ < Capacity);
-        new (data_ + size_) T(std::move(obj));  // calls constructor with obj (rvalue)
-        size_++;
+    void pushBack(T&& obj) {
+        assert(mSize < Capacity);
+        new (mData + mSize) T(std::move(obj));  // calls constructor with obj (rvalue)
+        mSize++;
     }
 
     // note that even though decltype of obj is T&&
@@ -86,13 +86,13 @@
 \begin{frame}[fragile]{Invalid solution: attempt to deduce \code{F = T\&}}
   \begin{minted}{cpp}
     template <typename F>                             // e.g. hope that: F = T&&
-    void push_back(F obj) {                           // e.g. hope that: T&& obj
-        assert(size_ < Capacity);
-        new (data_ + size_) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
-        size_++;
+    void pushBack(F obj) {                           // e.g. hope that: T&& obj
+        assert(mSize < Capacity);
+        new (mData + mSize) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
+        mSize++;
     }
     /* ... */
-    vec.push_back(intbox(3));
+    vec.pushBack(IntBox(3));
   \end{minted}
 
   The idea is that we hope \code{F} can deduce to either \code{T\&} or \code{T\&\&},
@@ -107,13 +107,13 @@
 \begin{frame}[fragile]{Bad solution: explicit instantiation}
   \begin{minted}{cpp}
     template <typename F>                             // e.g. F = T&&
-    void push_back(F obj) {                           // e.g. T&& obj
-        assert(size_ < Capacity);
-        new (data_ + size_) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
-        size_++;
+    void pushBack(F obj) {                           // e.g. T&& obj
+        assert(mSize < Capacity);
+        new (mData + mSize) T(static_cast<F>(obj));   // e.g. static_cast<T&&>(obj)
+        mSize++;
     }
     /* ... */
-    vec.push_back<intbox &&>(intbox(3));
+    vec.pushBack<IntBox &&>(IntBox(3));
   \end{minted}
 
   We have gotten rid of duplicate logic, at the cost of needing each call-site
@@ -128,12 +128,12 @@
   \end{sqt:definition}
 
   \begin{minted}{cpp}
-    /* 3.02 - bounded_vector */
+    /* 5.02 - BoundedVector */
     template <typename F>
-    void push_back(F&& obj) {
-        assert(size_ < Capacity);
-        new (data_ + size_) T(static_cast<F&&>(obj));
-        size_++;
+    void pushBack(F&& obj) {
+        assert(mSize < Capacity);
+        new (mData + mSize) T(static_cast<F&&>(obj));
+        mSize++;
     }
   \end{minted}
 
@@ -166,17 +166,17 @@
   When called with both value categories, two instantiations are created:
   \begin{minted}{cpp}
     template <> // F = T
-    void push_back(T && obj) {
-        assert(size_ < Capacity);
-        new (data_ + size_) T(static_cast<T &&>(obj));
-        size_++;
+    void pushBack(T && obj) {
+        assert(mSize < Capacity);
+        new (mData + mSize) T(static_cast<T &&>(obj));
+        mSize++;
     }
 
     template <> // F = T&
-    void push_back(T& && obj) {                          // F&&  -> T & && -> T&
-        assert(size_ < Capacity);
-        new (data_ + size_) T(static_cast<T& &&>(obj));  // F&&  -> T & && -> T&
-        size_++;
+    void pushBack(T& && obj) {                          // F&&  -> T & && -> T&
+        assert(mSize < Capacity);
+        new (mData + mSize) T(static_cast<T& &&>(obj));  // F&&  -> T & && -> T&
+        mSize++;
     }
   \end{minted}
 

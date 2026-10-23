@@ -13,7 +13,7 @@ void push(Container& c, Value val) {
 
 template <typename Container, typename Value>
 Value pop(Container& c) {
-    Value result = c.front();
+    auto result = c.front();
     c.pop_front();
     std::cout << "Popped: " << result << "\n";
     return result;
@@ -23,14 +23,14 @@ Value pop(Container& c) {
 
 int main() {
     // <Container, Value> = <deque<int>, int>
-    std::deque<int> d;
+    auto d = std::deque<int>{};
     push(d, 4);
     push(d, 2);
     pop<std::deque<int>, int>(d);
     pop<std::deque<int>, int>(d);
 
     // <Container, Value> = <list<char>, char>
-    std::list<char> l;
+    auto l = std::list<char>{};
     push(l, 'S');
     push(l, 'Q');
     push(l, 'T');
@@ -41,7 +41,7 @@ int main() {
     // ERROR: <Container, Value> = <double, int>
     // ERROR: double has no .pop_front() method
     /*
-    double x;
+    auto x = double{};
     push(x, 1);
     */
 }

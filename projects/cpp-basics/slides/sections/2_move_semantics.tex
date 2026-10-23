@@ -4,8 +4,8 @@
 \begin{frame}[fragile]{Value Categories}
   Every \emph{expression} has a \emph{value category} (lvalue or rvalue).
   \begin{minted}{cpp}
-    struct lorem { struct ipsum { int x; } y; int z; } l;
-    int* ptr = &l.z;
+    struct Lorem { struct Ipsum { int x; } y; int z; } l;
+    auto* ptr = &l.z;
     int arr[3] = {1, 2, 3};
   \end{minted}
 
@@ -27,7 +27,7 @@ arr[0]        // subscript
     \begin{minted}{cpp}
 42            // literal
 l.z + 1       // arithmetic result
-intbox(3)     // temporary object
+IntBox(3)     // temporary object
 std::move(l)  // cast to rvalue
 int{}         // value-initialized tmp
     \end{minted}
@@ -46,10 +46,10 @@ int{}         // value-initialized tmp
   \end{sqt:result}
 
   \begin{minted}{cpp}
-    /* 1.03 */
+    /* 2.01 */
     {
         // tell compiler: we want to extend the tmp's lifetime until end of scope
-        intbox&& rref = intbox(3);
+        IntBox&& rref = IntBox(3);
         // play around with the temporary via the rvalue ref
         std::cout << rref.get() << std::endl;
         rref.get() *= 10;
@@ -63,14 +63,14 @@ int{}         // value-initialized tmp
   It is also possible for a function to take arguments by rvalue reference.
 
   \begin{minted}{cpp}
-/* 1.03 */
-void foo(intbox& obj) { obj.data_ += 42; }
-void foo(intbox&& obj) { obj.data_ = nullptr; }
+/* 2.01 */
+void foo(IntBox& obj) { obj.mData += 42; }
+void foo(IntBox&& obj) { obj.mData = nullptr; }
 
 int main() {
-    // If you pass in an rvalue (e.g. the tmp result of the ctor function intbox(3)),
+    // If you pass in an rvalue (e.g. the tmp result of the ctor function IntBox(3)),
     // the rvalue ref extends the lifetime of the tmp until the function returns.
-    foo(intbox(3));
+    foo(IntBox(3));
 }
   \end{minted}
 \end{frame}
@@ -81,12 +81,12 @@ int main() {
 
   \begin{minted}{cpp}
     {
-        intbox x{3};
-        intbox&& rref = std::move(x);
+        auto x = IntBox{3};
+        IntBox&& rref = std::move(x);
 
         foo(x); // calls lvalue overload
         foo(rref); // also calls lvalue overload (weird)
-        foo(intbox(3)); // calls rvalue overload
+        foo(IntBox(3)); // calls rvalue overload
         foo(std::move(x)); // calls rvalue overload
         foo(std::move(rref)); // calls rvalue overload
     }
@@ -104,16 +104,16 @@ int main() {
   \end{sqt:definition}
 
   \begin{minted}{cpp}
-    struct intbox {
+    struct IntBox {
         /* ... */
-        intbox(intbox&& other) : data_{std::exchange(other.data_, nullptr)} {
+        IntBox(IntBox&& other) : mData{std::exchange(other.mData, nullptr)} {
             std::cout << "move constructor" << std::endl;
         }
     };
 
     int main() {
-        intbox a(42);
-        intbox b = std::move(a); // b.data_ = a.data_; a.data_ = nullptr; (cheap operation)
+        auto a = IntBox{42};
+        auto b = std::move(a); // b.mData = a.mData; a.mData = nullptr; (cheap operation)
         // a now points to nothing
         // ~b; // b's dtor frees the heap-allocated int
         // ~a; // a's destructor frees nullptr (no-op).
@@ -123,15 +123,15 @@ int main() {
 
 \begin{frame}[fragile]{Returning a local variable by moving}
   \begin{minted}{cpp}
-    intbox product(intbox& a, intbox& b) {
-        auto result = *(a.data_) * *(b.data_);
-        intbox retval{result};
+    IntBox product(IntBox& a, IntBox& b) {
+        auto result = *(a.mData) * *(b.mData);
+        auto retval = IntBox{result};
         return std::move(retval);
     }
 
     int main() {
-        intbox a(5); intbox b(6);
-        intbox c = product(a, b);
+        auto a = IntBox{5}; auto b = IntBox{6};
+        auto c = product(a, b);
         // retval is move constructed into the return slot c (cheap operation)
         // retval is then destroyed (but it owns nothing at this point)
     }
@@ -149,15 +149,15 @@ int main() {
 
   \begin{minted}{cpp}
     int main() {
-      int* x = new int(4);
+      auto* x = new int(4);
 
-      uniqueIntbox a(x); // We do not want anyone else to be able to copy
+      auto a = UniqueIntBox{x}; // We do not want anyone else to be able to copy
 
-      uniqueIntbox b(a); // What should we do here?
+      auto b = UniqueIntBox{a}; // What should we do here?
     }
   \end{minted}
 
-  Here the raw int pointer is being binded to the uniqueIntbox class. This is a common
+  Here the raw int pointer is being binded to the UniqueIntBox class. This is a common
   pattern we see in C++ (examples include \mintinline{cpp}{std::unique_ptr}, and \mintinline{cpp}{std::unique_lock}). 
   
   What constructor should we allow \code{b} to be constructed with? If we allow for deep copies,
@@ -170,31 +170,31 @@ int main() {
   ownership to the underlying data.
 
   \begin{minted}{cpp}
-    struct uniqueIntbox {
-      int *data_;
+    struct UniqueIntBox {
+      int *mData;
 
-      intbox (int* x) : data_(x) {};
-      ~intbox() { delete data_; }
-      intbox (const intbox& other) = delete;
-      intbox (intbox&& other) {
-        this->data = other.data;
-        other.data = nullptr;
+      UniqueIntBox(int* x) : mData(x) {};
+      ~UniqueIntBox() { delete mData; }
+      UniqueIntBox(const UniqueIntBox& other) = delete;
+      UniqueIntBox(UniqueIntBox&& other) {
+        this->mData = other.mData;
+        other.mData = nullptr;
       }
     }
   \end{minted}
 
   Here we disable to copy ctor entirely, and only allow objects to be constructed via r-value
-  references to another \code{uniqueIntbox}.
+  references to another \code{UniqueIntBox}.
 \end{frame}
 
 \begin{frame}[fragile]{Transferring Ownership}
   \begin{minted}{cpp}
     int main() {
-      int* x = new int(4);
+      auto* x = new int(4);
       
-      uniqueIntbox a(x);
-      uniqueIntbox b = std::move(a); // Trasnfer ownership of a to b
-      uniqueIntbox c(b); // Compile Error
+      auto a = UniqueIntBox{x};
+      auto b = std::move(a); // Trasnfer ownership of a to b
+      auto c = UniqueIntBox{b}; // Compile Error
     }
   \end{minted}
 
@@ -208,10 +208,10 @@ int main() {
 
   \begin{minted}{cpp}
     int main() {
-      int* x = new int(4);
+      auto* x = new int(4);
 
-      const uniqueIntbox a(x);
-      uniqueIntbox b = std::move(a); // Will attempt to copy
+      const auto a = UniqueIntBox{x};
+      auto b = std::move(a); // Will attempt to copy
     }
   \end{minted}
 
@@ -225,10 +225,10 @@ int main() {
   What do you think will happen below:
   \begin{minted}{cpp}
     int main() {
-      int* x = new int(4);
+      auto* x = new int(4);
     
-      uniqueIntbox a(x);
-      uniqueIntbox b(x);
+      auto a = UniqueIntBox{x};
+      auto b = UniqueIntBox{x};
     }
   \end{minted}
 
@@ -243,23 +243,23 @@ int main() {
 
 %   Lets add a move constructor to our wrapper class and delete the copy constructor
 %   \begin{minted}{cpp}
-%     Class gadgetWrapper {
+%     Class GadgetWrapper {
 %     public:
-%       gadgetWrapper(gadget* rawGadget) : gadget_(rawGadget) {}
+%       GadgetWrapper(Gadget* rawGadget) : mGadget(rawGadget) {}
 
-%       gadgetWrapper(const gadgetWrapper& other) = delete;
+%       GadgetWrapper(const GadgetWrapper& other) = delete;
 
-%       gadgetWrapper(gadgetWrapper&& other) {
-%         this->gadget_ = other.gadget_;
-%         other.gadget_ = nullptr;
+%       GadgetWrapper(GadgetWrapper&& other) {
+%         this->mGadget = other.mGadget;
+%         other.mGadget = nullptr;
 %       }
       
-%       ~gadgetWrapper() {
-%         if (gadget_) delete gadget_;
+%       ~GadgetWrapper() {
+%         if (mGadget) delete mGadget;
 %       }
 
 %     private:
-%       int* gadget_;
+%       int* mGadget;
 %     }
 %   \end{minted}
 % \end{frame}
@@ -268,10 +268,10 @@ int main() {
 %   Now the previous example won't even compile!
 %   \begin{minted}{cpp}
 %   int main() {
-%     gadget* c = new gadget(42);
+%     auto* c = new Gadget(42);
 
-%     gadgetWrapper d(c); // Binding c to d
-%     gadgetWrapper e = d; // ERROR: Can't copy construct and steal data!
+%     auto d = GadgetWrapper{c}; // Binding c to d
+%     auto e = d; // ERROR: Can't copy construct and steal data!
 %   }
 % \end{minted}
 % \end{frame}
@@ -280,10 +280,10 @@ int main() {
 %   We ask the compiler to cast d into a temporary R-Value!
 %   \begin{minted}{cpp}
 %   int main() {
-%     gadget* c = new gadget(42);
+%     auto* c = new Gadget(42);
 
-%     gadgetWrapper d(c); // Binding c to d
-%     gadgetWrapper e = std::move(d); // Casts d into gadgetWrapper&& type
+%     auto d = GadgetWrapper{c}; // Binding c to d
+%     auto e = std::move(d); // Casts d into GadgetWrapper&& type
 
 %     // d is in a valid state but owns nothing.
 

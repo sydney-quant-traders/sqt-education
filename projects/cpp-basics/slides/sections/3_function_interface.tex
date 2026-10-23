@@ -1,23 +1,23 @@
 \section{Function Interface}
 
 \begin{frame}[fragile]{Returning structs from functions}
-  In the following code example we have a copyable \code{intbox} class.\\
+  In the following code example we have a copyable \code{IntBox} class.\\
 
   \begin{minted}{cpp}
-    /* 1.02 */
-    intbox sum(intbox& a, intbox& b) {
-        auto result = *(a.data_) + *(b.data_);
-        return intbox(result);
+    /* 3.02 */
+    IntBox sum(IntBox& a, IntBox& b) {
+        auto result = *(a.mData) + *(b.mData);
+        return IntBox(result);
     }
-    intbox product(intbox& a, intbox& b) {
-        auto result = *(a.data_) * *(b.data_);
-        intbox retval{result};
+    IntBox product(IntBox& a, IntBox& b) {
+        auto result = *(a.mData) * *(b.mData);
+        auto retval = IntBox{result};
         return retval;
     }
     int demo() {
-      intbox a(5); intbox b(6);
-      auto sum_result = sum(a, b);
-      auto prod_result = product(a, b);
+      auto a = IntBox{5}; auto b = IntBox{6};
+      auto sumResult = sum(a, b);
+      auto prodResult = product(a, b);
     }
   \end{minted}
 \end{frame}
@@ -32,15 +32,15 @@
 
   Conceptually, this is what happens under the hood:
   \begin{minted}{cpp}
-/* 1.02 */
-intbox a(5); intbox b(6);
-alignas(intbox) uint8_t _storage_sum_result[sizeof(intbox)]; // allocate return slot on stack
+/* 3.02 */
+auto a = IntBox{5}; auto b = IntBox{6};
+alignas(IntBox) uint8_t _storageSumResult[sizeof(IntBox)]; // allocate return slot on stack
 // inlined function
-{   intbox *_return_slot = reinterpret_cast<intbox *>(_storage_sum_result);
-    intbox& arg_a = a; intbox& arg_b = b; // argument binding
+{   auto* _returnSlot = reinterpret_cast<IntBox *>(_storageSumResult);
+    auto& argA = a; auto& argB = b; // argument binding
 {
-    auto result = *(arg_a.data_) + *(arg_b.data_);
-    new (_return_slot) intbox(result); // RVO: constructor runs directly in return slot
+    auto result = *(argA.mData) + *(argB.mData);
+    new (_returnSlot) IntBox(result); // RVO: constructor runs directly in return slot
 }}
   \end{minted}
 \end{frame}
@@ -55,11 +55,11 @@ alignas(intbox) uint8_t _storage_sum_result[sizeof(intbox)]; // allocate return 
   Methods may be called on this temporary while within the full expression.\\
   However immediately following the full expression, the temporary is destroyed.
   \begin{minted}{cpp}
-    /* 1.02 */
+    /* 3.02 */
     int demo() {
-        // return slot is to a temporary, rather than an intbox object
+        // return slot is to a temporary, rather than an IntBox object
         std::cout << product(a, b).get() << std::endl;
-        // _tmp.~intbox() // the compiler generates a call to the destructor here
+        // _tmp.~IntBox() // the compiler generates a call to the destructor here
     }
   \end{minted}
 
@@ -69,15 +69,15 @@ alignas(intbox) uint8_t _storage_sum_result[sizeof(intbox)]; // allocate return 
 
 \begin{frame}[fragile]{Issue: Unnecessary Copies}
   \begin{minted}{cpp}
-  intbox product(intbox& a, intbox& b) {
-      auto result = *(a.data_) * *(b.data_);
-      intbox retval{result};
+  IntBox product(IntBox& a, IntBox& b) {
+      auto result = *(a.mData) * *(b.mData);
+      auto retval = IntBox{result};
       return retval;
   }
 
   int main() {
-      intbox a(5); intbox b(6);
-      intbox c = product(a, b);
+      auto a = IntBox{5}; auto b = IntBox{6};
+      auto c = product(a, b);
       // the retval gets copied into return slot (c)
       // then retval is destroyed (this seems wasteful!)
   }
