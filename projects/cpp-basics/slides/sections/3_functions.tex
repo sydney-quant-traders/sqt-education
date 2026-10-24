@@ -1,4 +1,4 @@
-\section{Function Interface}
+\section{Functions}
 
 \begin{frame}[fragile]{Returning structs from functions}
   In the following code example we have a copyable \code{IntBox} class.\\
@@ -32,7 +32,7 @@
 
   Conceptually, this is what happens under the hood:
   \begin{minted}{cpp}
-/* 3.02 */
+/* 3.01 */
 auto a = IntBox{5}; auto b = IntBox{6};
 alignas(IntBox) uint8_t _storageSumResult[sizeof(IntBox)]; // allocate return slot on stack
 // inlined function
@@ -55,7 +55,7 @@ alignas(IntBox) uint8_t _storageSumResult[sizeof(IntBox)]; // allocate return sl
   Methods may be called on this temporary while within the full expression.\\
   However immediately following the full expression, the temporary is destroyed.
   \begin{minted}{cpp}
-    /* 3.02 */
+    /* 3.01 */
     int demo() {
         // return slot is to a temporary, rather than an IntBox object
         std::cout << product(a, b).get() << std::endl;
@@ -68,20 +68,43 @@ alignas(IntBox) uint8_t _storageSumResult[sizeof(IntBox)]; // allocate return sl
 \end{frame}
 
 \begin{frame}[fragile]{Issue: Unnecessary Copies}
+  Our \code{IntBox} from 3.01 is copyable, but has no move constructor.
   \begin{minted}{cpp}
-  IntBox product(IntBox& a, IntBox& b) {
-      auto result = *(a.mData) * *(b.mData);
-      auto retval = IntBox{result};
-      return retval;
-  }
+    /* 3.01 */
+    IntBox product(IntBox& a, IntBox& b) {
+        auto result = *(a.mData) * *(b.mData);
+        auto retval = IntBox{result}; // allocates an int
+        return retval;                // copy ctor: allocates another int
+    }                                 // ~retval(): frees the first int
 
-  int main() {
-      auto a = IntBox{5}; auto b = IntBox{6};
-      auto c = product(a, b);
-      // the retval gets copied into return slot (c)
-      // then retval is destroyed (this seems wasteful!)
-  }
+    int demo() {
+        auto a = IntBox{5}; auto b = IntBox{6};
+        auto c = product(a, b);       // c is the return slot
+    }
   \end{minted}
-  Unacceptable waste, especially if we are returning something larger like a vector.\\
-  Is there a way to avoid this expensive copy?
+  Without RVO, \code{retval} is copy constructed into the return slot,
+  then immediately destroyed.
+  We pay for an extra allocation and copy, only to throw the original away.\\[0.5em]
+  \textcolor{sqt-question}{\code{retval} is about to die anyway.
+  Can we steal its resources instead of copying them?}
+\end{frame}
+
+\begin{frame}[fragile]{Solution: Define a Move Constructor}
+  \begin{minted}{cpp}
+    IntBox(IntBox&& other) : mData{std::exchange(other.mData, nullptr)} {}
+    IntBox product(IntBox& a, IntBox& b) {
+        auto result = *(a.mData) * *(b.mData);
+        auto retval = IntBox{result};
+        return retval; // move construct into returnSlot: no allocation, very fast
+    }                  // ~retval(): destroys moved-from object
+  \end{minted}
+
+  \begin{sqt:result}
+    A local returned by name is treated as an rvalue.
+    The copy ctor was previously called, because const lrefs can also bind to rvalues.
+  \end{sqt:result}
+
+  \begin{sqt:tip}
+    Don't write \code{return std::move(retval);}, as this disables NRVO.
+  \end{sqt:tip}
 \end{frame}

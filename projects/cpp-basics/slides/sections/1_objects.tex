@@ -194,18 +194,37 @@ void f(bool flag) {
   \end{itemize}
 \end{frame}
 
-% TODO(jlu)
-\begin{frame}[fragile]{Design by Contract, Well-Formedness}
-  TODO(jlu) finish this slide
+\begin{frame}[fragile]{Class Invariants}
+  An object is just a bit string, viewed through the lens of a type.\\
+  Some bit strings are not valid objects (not well-formed).\\
+  E.g. a vector with mSize > mCapacity is nonsensical.\\
+
+  \begin{sqt:definition}
+    The rules that must be satisfied for an object to be well-formed are called the \emph{class invariants}.
+    When designing a class, the programmer decides what these invariants should be.
+  \end{sqt:definition}
+
+  \begin{sqt:result}
+    For a well designed class, a public method call on a well-formed object should always leave it in a well-formed state.
+  \end{sqt:result}
+
+  These ideas are explored more deeply in Elements of Programming (software/philosphy book).
 \end{frame}
 
-% TODO(jlu) finish slide and come up with code example
 \begin{frame}[fragile]{Ownership}
-  Objects can \emph{own} state/resources or other objects.
-  Objects can also simply have references to other objects.
-  Always think about whether a relationship is an owning or non-owning relationship.
+  \begin{sqt:definition}
+    An object \emph{owns} something if it is responsible for destroying it.
+    The language enforces this only for subobjects:
+    members (and bases) die when the enclosing object dies.
+  \end{sqt:definition}
 
-  TODO(jlu) finish this slide
+  If an object contains a pointer to another object, this pointer is either owning or non-owning.
+  The compiler does not know or check who owns what.
+  Ownership should be documented (as should class invariants, etc.).
+
+  \begin{sqt:result}
+    If a class \emph{owns} a resource, then it should do so according to RAII.
+  \end{sqt:result}
 \end{frame}
 
 \begin{frame}[fragile]{RAII}
@@ -213,8 +232,6 @@ void f(bool flag) {
     The name of a C++ programming technique/pattern/idiom which binds the life cycle of a resource to the lifetime of an object.
     It is done by acquiring the resource in the object's constructor, and releasing it in the destructor.
   \end{sqt:definition}
-
-  Below is an example of an RAII class.
 
   \begin{columns}[T]
     \begin{column}{0.53\textwidth}
@@ -238,82 +255,4 @@ struct IntBox {
       \end{minted}
     \end{column}
   \end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Copy Construction/Assignment}
-  \begin{sqt:definition}
-    A copy constructor is a constructor that takes an existing object of the same class as its argument.
-  \end{sqt:definition}
-  Defining a copy constructor allows code like this to compile:
-  \begin{minted}{cpp}
-    /* 1.01 */
-    auto a = Gadget{};
-    auto& aLref = a;
-    auto&& aRref = std::move(a);
-
-    {
-        // all these are copy constructions
-        auto c = Gadget{a};
-        auto d = Gadget{aLref};
-        auto e = Gadget{aRref};
-        // this is copy assignment, not copy construction
-        e = a;
-    }
-  \end{minted}
-\end{frame}
-
-\begin{frame}[fragile]{Copy Construction}
-  \begin{sqt:result}
-    In a well-designed class, copy construction should create a "fully independent duplicate", such that
-    both objects can be used and destroyed independently.
-  \end{sqt:result}
-
-  The compiler auto-generates a copy-ctor that recursively copies each member.
-  \begin{minted}{cpp}
-    struct BadIntBox {
-      int *mData;
-      BadIntBox(int x) : mData{new int(x)} {}
-      ~BadIntBox() { delete mData; }
-      // auto-generated copy constructor
-      BadIntBox(const BadIntBox& other) : mData{other.mData} {}
-    };
-  \end{minted}
-  Usually, automatically generated copy constructors are NOT well-designed.\\
-  In this example, the resultant copy cannot be used nor destroyed independently.
-\end{frame}
-
-\begin{frame}[fragile]{Double Frees}
-  Double frees occur when you write buggy classes that don't handle copying properly.
-
-  Consider the below example using the \code{BadIntBox} we developed earlier
-  \begin{minted}{cpp}
-    int main() {
-        auto original = BadIntBox{42};
-        auto copy = BadIntBox{original}; // copy.mData = original.mData (both point to same heap object!)
-    
-        // ~original; ~copy; -> Double Free!
-    }
-  \end{minted}
-  When the destructors run, both objects think that they are responsible for destroying
-  the heap-allocated integer and freeing it. This results in Undefined Behavior!
-  
-  To fix this, think carefully when implementing your copy constructors.\\
-  Make your class non-copyable if applicable.
-\end{frame}
-
-\begin{frame}[fragile]{Copy Construction}
-  To perform a proper \emph{deep copy} on our \code{IntBox}, we want
-  \begin{itemize}
-    \item a new region of memory to be allocated on the heap
-    \item the \code{other.mData} integer is copy constructed into this new region
-  \end{itemize}
-
-  \begin{minted}{cpp}
-    struct IntBox {
-      int *mData;
-      IntBox(int x) : mData{new int(x)} {}
-      ~IntBox() { delete mData; }
-      IntBox(const IntBox& other) : mData{new int(*(other.mData))} {}
-    };
-  \end{minted}
 \end{frame}

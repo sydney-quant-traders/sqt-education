@@ -1,6 +1,84 @@
 
 \section{Move Semantics}
 
+\begin{frame}[fragile]{Copy Construction}
+  \begin{sqt:definition}
+    A copy constructor is a constructor that takes an existing object of the same class as its argument.
+  \end{sqt:definition}
+  Defining a copy constructor allows code like this to compile:
+  \begin{minted}{cpp}
+    /* 1.01 */
+    auto a = Gadget{};
+    auto& aLref = a;
+    auto&& aRref = std::move(a);
+
+    {
+        // all these are copy constructions
+        auto c = Gadget{a};
+        auto d = Gadget{aLref};
+        auto e = Gadget{aRref};
+        // this is copy assignment, not copy construction
+        e = a;
+    }
+  \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]{Copy Construction Convention}
+  \begin{sqt:result}
+    In a well-designed class, copy construction should create a "fully independent duplicate", such that
+    both objects can be used and destroyed independently.
+  \end{sqt:result}
+
+  The compiler auto-generates a copy-ctor that recursively copies each member.
+  \begin{minted}{cpp}
+    struct BadIntBox {
+      int *mData;
+      BadIntBox(int x) : mData{new int(x)} {}
+      ~BadIntBox() { delete mData; }
+      // auto-generated copy constructor
+      BadIntBox(const BadIntBox& other) : mData{other.mData} {}
+    };
+  \end{minted}
+  Usually, automatically generated copy constructors are NOT well-designed.\\
+  In this example, the resultant copy cannot be used nor destroyed independently.
+\end{frame}
+
+\begin{frame}[fragile]{Double Frees}
+  Double frees occur when you write buggy classes that don't handle copying properly.
+
+  Consider the below example using the \code{BadIntBox} we developed earlier
+  \begin{minted}{cpp}
+    int main() {
+        auto original = BadIntBox{42};
+        auto copy = BadIntBox{original}; // copy.mData = original.mData (both point to same heap object!)
+    
+        // ~original; ~copy; -> Double Free!
+    }
+  \end{minted}
+  When the destructors run, both objects think that they are responsible for destroying
+  the heap-allocated integer and freeing it. This results in Undefined Behavior!
+  
+  To fix this, think carefully when implementing your copy constructors.\\
+  Make your class non-copyable if applicable.
+\end{frame}
+
+\begin{frame}[fragile]{Copy Constructor Impl}
+  To perform a proper \emph{deep copy} on our \code{IntBox}, we want
+  \begin{itemize}
+    \item a new region of memory to be allocated on the heap
+    \item the \code{other.mData} integer is copy constructed into this new region
+  \end{itemize}
+
+  \begin{minted}{cpp}
+    struct IntBox {
+      int *mData;
+      IntBox(int x) : mData{new int(x)} {}
+      ~IntBox() { delete mData; }
+      IntBox(const IntBox& other) : mData{new int(*(other.mData))} {}
+    };
+  \end{minted}
+\end{frame}
+
 \begin{frame}[fragile]{Value Categories}
   Every \emph{expression} has a \emph{value category} (lvalue or rvalue).
   \begin{minted}{cpp}
@@ -75,6 +153,46 @@ int main() {
   \end{minted}
 \end{frame}
 
+\begin{frame}[fragile]{Reference Binding}
+  \begin{columns}[T]
+    \column{0.64\textwidth}
+    \begin{minted}{cpp}
+/* 2.01 */
+{
+    IntBox{3};                     // dies here
+    auto&& rref = IntBox{3};       // extended
+    const auto& lref = IntBox{3};  // extended
+    auto x = IntBox{3};            // no tmp
+}   // x, lref, rref destroyed here
+{
+    auto& data = IntBox{3}.get();  // UB!
+    std::cout << data << std::endl;
+}
+    \end{minted}
+
+    \column{0.32\textwidth}
+    \textbf{Output}
+    \begin{minted}{text}
+constructor
+destructor
+constructor
+constructor
+constructor
+destructor
+destructor
+destructor
+constructor
+destructor
+894751456
+    \end{minted}
+  \end{columns}
+
+  \begin{sqt:result}
+    \code{auto\&\&} and \code{const auto\&} extend a tmp's lifetime, \code{auto\&} cannot bind to tmps.\\
+    Only \emph{direct} binding extends: \code{get()} returns a ref to an object that dies immediately.
+  \end{sqt:result}
+\end{frame}
+
 \begin{frame}[fragile]{Overload resolution}
   Given that an argument has two overloads, one taking lvalues and one taking rvalues,
   how does the compiler determine which overload to dispatch for each call-site?
@@ -97,143 +215,145 @@ int main() {
   \end{sqt:result}
 \end{frame}
 
-\begin{frame}[fragile]{Solution: Move Construction}
+\begin{frame}[fragile]{Move Construction}
   \begin{sqt:definition}
     A move constructor is a constructor that takes an rvalue reference
-    to an existing object of the same type.
+    to an object of the same type.
   \end{sqt:definition}
 
   \begin{minted}{cpp}
     struct IntBox {
-        /* ... */
-        IntBox(IntBox&& other) : mData{std::exchange(other.mData, nullptr)} {
-            std::cout << "move constructor" << std::endl;
-        }
+        // ctor 
+        IntBox(int x) : mData{new int(x)} {}
+        // copy ctor
+        IntBox(const IntBox& other) : mData{new int(*(other.mData))} {}
+        // move ctor
+        IntBox(IntBox&& other) : mData{std::exchange(other.mData, nullptr)} {}
     };
 
     int main() {
-        auto a = IntBox{42};
-        auto b = std::move(a); // b.mData = a.mData; a.mData = nullptr; (cheap operation)
-        // a now points to nothing
-        // ~b; // b's dtor frees the heap-allocated int
-        // ~a; // a's destructor frees nullptr (no-op).
+        auto original = IntBox{42};
+        auto copied = IntBox{original};
+        auto moved = IntBox{static_cast<IntBox&&>(original)};
     }
   \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]{Returning a local variable by moving}
+\begin{frame}[fragile]{Move Construction Convention}
+  \begin{sqt:result}
+    In a well-designed class, move ctor should transfer ownership of resources from
+    \code{other} to \code{this}, such that upon completion, \code{this} represents the same abstract entity
+    that \code{other} used to, whilst \code{other} should end up in a well-formed null-like state,
+    such that its dtor may be called without issue.
+  \end{sqt:result}
+
   \begin{minted}{cpp}
-    IntBox product(IntBox& a, IntBox& b) {
-        auto result = *(a.mData) * *(b.mData);
-        auto retval = IntBox{result};
-        return std::move(retval);
-    }
+    struct IntBox {
+        // poorly designed move constructor, absolute nonsense
+        IntBox(IntBox&& other) : mData{(int*) 12345} {}
 
-    int main() {
-        auto a = IntBox{5}; auto b = IntBox{6};
-        auto c = product(a, b);
-        // retval is move constructed into the return slot c (cheap operation)
-        // retval is then destroyed (but it owns nothing at this point)
-    }
+        // poorly designed move constructor, shares ownership, double-free and UB
+        IntBox(IntBox&& other) : mData{other.mData} {}
+
+        // poorly designed move constructor, transfers ownership
+        // but `other` is no longer well-formed. UB upon destruction.
+        IntBox(IntBox&& other) : mData{std::exchange(other.mData, (int*) 12345)} {}
+    };
   \end{minted}
-
-  \begin{sqt:tip}
-    RVO/NRVO (constructing directly in return slot)
-    is preferable over constructing inside a local variable,
-    and then \code{std::move} into the return slot.
-  \end{sqt:tip}
 \end{frame}
 
-\begin{frame}[fragile]{Issue: Ownership}
-  Suppose we have a class that handles a Unique instance of an object. 
 
-  \begin{minted}{cpp}
-    int main() {
-      auto* x = new int(4);
 
-      auto a = UniqueIntBox{x}; // We do not want anyone else to be able to copy
+% \begin{frame}[fragile]{Issue: Ownership}
+%   Suppose we have a class that handles a Unique instance of an object. 
 
-      auto b = UniqueIntBox{a}; // What should we do here?
-    }
-  \end{minted}
+%   \begin{minted}{cpp}
+%     int main() {
+%       auto* x = new int(4);
 
-  Here the raw int pointer is being binded to the UniqueIntBox class. This is a common
-  pattern we see in C++ (examples include \mintinline{cpp}{std::unique_ptr}, and \mintinline{cpp}{std::unique_lock}). 
+%       auto a = UniqueIntBox{x}; // We do not want anyone else to be able to copy
+
+%       auto b = UniqueIntBox{a}; // What should we do here?
+%     }
+%   \end{minted}
+
+%   Here the raw int pointer is being binded to the UniqueIntBox class. This is a common
+%   pattern we see in C++ (examples include \mintinline{cpp}{std::unique_ptr}, and \mintinline{cpp}{std::unique_lock}). 
   
-  What constructor should we allow \code{b} to be constructed with? If we allow for deep copies,
-  then we violate the ``uniqueness" of the data held by \code{x}. If we allow shallow copies, then
-  we get the same double free issue we had before. 
-\end{frame}
+%   What constructor should we allow \code{b} to be constructed with? If we allow for deep copies,
+%   then we violate the ``uniqueness" of the data held by \code{x}. If we allow shallow copies, then
+%   we get the same double free issue we had before. 
+% \end{frame}
 
-\begin{frame}[fragile]{Solution: Move Semantics}
-  In situations like this, we typically want to only allow the programmer to transfer
-  ownership to the underlying data.
+% \begin{frame}[fragile]{Solution: Move Semantics}
+%   In situations like this, we typically want to only allow the programmer to transfer
+%   ownership to the underlying data.
 
-  \begin{minted}{cpp}
-    struct UniqueIntBox {
-      int *mData;
+%   \begin{minted}{cpp}
+%     struct UniqueIntBox {
+%       int *mData;
 
-      UniqueIntBox(int* x) : mData(x) {};
-      ~UniqueIntBox() { delete mData; }
-      UniqueIntBox(const UniqueIntBox& other) = delete;
-      UniqueIntBox(UniqueIntBox&& other) {
-        this->mData = other.mData;
-        other.mData = nullptr;
-      }
-    }
-  \end{minted}
+%       UniqueIntBox(int* x) : mData(x) {};
+%       ~UniqueIntBox() { delete mData; }
+%       UniqueIntBox(const UniqueIntBox& other) = delete;
+%       UniqueIntBox(UniqueIntBox&& other) {
+%         this->mData = other.mData;
+%         other.mData = nullptr;
+%       }
+%     }
+%   \end{minted}
 
-  Here we disable to copy ctor entirely, and only allow objects to be constructed via r-value
-  references to another \code{UniqueIntBox}.
-\end{frame}
+%   Here we disable to copy ctor entirely, and only allow objects to be constructed via r-value
+%   references to another \code{UniqueIntBox}.
+% \end{frame}
 
-\begin{frame}[fragile]{Transferring Ownership}
-  \begin{minted}{cpp}
-    int main() {
-      auto* x = new int(4);
+% \begin{frame}[fragile]{Transferring Ownership}
+%   \begin{minted}{cpp}
+%     int main() {
+%       auto* x = new int(4);
       
-      auto a = UniqueIntBox{x};
-      auto b = std::move(a); // Trasnfer ownership of a to b
-      auto c = UniqueIntBox{b}; // Compile Error
-    }
-  \end{minted}
+%       auto a = UniqueIntBox{x};
+%       auto b = std::move(a); // Trasnfer ownership of a to b
+%       auto c = UniqueIntBox{b}; // Compile Error
+%     }
+%   \end{minted}
 
-  We cast \code{a} to an r-value before passing it into \code{b}'s constructor. Importantly,
-  the l-value \code{a} is left in an invalid state after the move not undefined. Trying to 
-  invoke the \code{c}'s copy constructor will prevent the program from compiling.
-\end{frame}
+%   We cast \code{a} to an r-value before passing it into \code{b}'s constructor. Importantly,
+%   the l-value \code{a} is left in an invalid state after the move not undefined. Trying to 
+%   invoke the \code{c}'s copy constructor will prevent the program from compiling.
+% \end{frame}
 
-\begin{frame}[fragile]{Transferring Ownership Trap}
-  \code{std::move} will only attempt an r-value cast, but does not guarantee it.
+% \begin{frame}[fragile]{Transferring Ownership Trap}
+%   \code{std::move} will only attempt an r-value cast, but does not guarantee it.
 
-  \begin{minted}{cpp}
-    int main() {
-      auto* x = new int(4);
+%   \begin{minted}{cpp}
+%     int main() {
+%       auto* x = new int(4);
 
-      const auto a = UniqueIntBox{x};
-      auto b = std::move(a); // Will attempt to copy
-    }
-  \end{minted}
+%       const auto a = UniqueIntBox{x};
+%       auto b = std::move(a); // Will attempt to copy
+%     }
+%   \end{minted}
 
-  Here, since \code{x} is qualified is \code{const}, the r-value constructor cannot be used,
-  and so the above code will not compile if the copy constructor is deleted. If there is a copy constructor
-  available, the above code will silently invoke the copy constructor, which is likely not what was desired.
+%   Here, since \code{x} is qualified is \code{const}, the r-value constructor cannot be used,
+%   and so the above code will not compile if the copy constructor is deleted. If there is a copy constructor
+%   available, the above code will silently invoke the copy constructor, which is likely not what was desired.
 
-\end{frame}
+% \end{frame}
 
-\begin{frame}[fragile]{Ownership Trap II}
-  What do you think will happen below:
-  \begin{minted}{cpp}
-    int main() {
-      auto* x = new int(4);
+% \begin{frame}[fragile]{Ownership Trap II}
+%   What do you think will happen below:
+%   \begin{minted}{cpp}
+%     int main() {
+%       auto* x = new int(4);
     
-      auto a = UniqueIntBox{x};
-      auto b = UniqueIntBox{x};
-    }
-  \end{minted}
+%       auto a = UniqueIntBox{x};
+%       auto b = UniqueIntBox{x};
+%     }
+%   \end{minted}
 
-  Who ``owns" the pointer? What will happen when you run this code?
-\end{frame}
+%   Who ``owns" the pointer? What will happen when you run this code?
+% \end{frame}
 
 
 % % Used for

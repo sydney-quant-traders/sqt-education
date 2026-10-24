@@ -121,9 +121,9 @@
   makes a by-value overload (which is the worst thing ever).  
 \end{frame}
 
-\begin{frame}[fragile]{The solution: forwarding references}
+\begin{frame}[fragile]{The solution: universal references}
   \begin{sqt:definition}
-    The \emph{forwarding reference} technique is when a function parameter has declared type
+    The \emph{universal/forwarding reference} technique is when a function parameter has declared type
     \code{F\&\&}, where \code{F} is a template argument of the function.
   \end{sqt:definition}
 
@@ -141,11 +141,11 @@
 \end{frame}
 
 \begin{frame}[fragile]{How does it work}
-  There is no special compiler logic that handles forwarding references.\\
-  Two parts of the C++ language come together to make forwarding references possible:
+  There is no special compiler logic that handles universal references.\\
+  Two parts of the C++ language come together to make universal references possible:
   \begin{itemize}
     \item Reference collapsing rules
-    \item A special rule for template argument deduction
+    \item A special rule for template argument deduction (next slide)
   \end{itemize}
 
   Ref collapsing rules determine the resultant type when you take a ref to a ref.
@@ -153,14 +153,36 @@
   \begin{minted}{cpp}
       using L = int&;     // int &      -> int&
         using LL = L&;    // int & &    -> int&
-        using LR = L&&;   // int & &&   -> int&   (relevant to forward refs)
+        using LR = L&&;   // int & &&   -> int&   (relevant to universal refs)
 
-      using R = int&&;    // int &&     -> int&&  (relevant to forward refs)
+      using R = int&&;    // int &&     -> int&&  (relevant to universal refs)
         using RL = R&;    // int && &   -> int&
         using RR = R&&;   // int && &&  -> int&&
   \end{minted}
 \end{frame}
 
+\begin{frame}[fragile]{Template argument deduction rule}
+  \begin{result}
+    When a function parameter has form F&&, where T is a template parameter being deduced,
+    and the argument is an lvalue of type A, then T is deduced as A&.
+  \end{result}
+
+  \begin{minted}{cpp}
+    template <typename F>
+    void pushBack(F&& obj) { // function parameter has form F&&
+        /* ... */
+    }
+
+    auto x = Widget{5};
+    v.pushBack(x); 
+    // argument is an lvalue of type Widget
+    // thus F is deduced as Widget&
+
+    v.pushBack(std::move(x))
+    // argument is an rvalue of type Widget
+    // F is deduced as Widget
+  \end{minted}
+\end{frame}
 
 \begin{frame}[fragile]{How does it work}
   When called with both value categories, two instantiations are created:

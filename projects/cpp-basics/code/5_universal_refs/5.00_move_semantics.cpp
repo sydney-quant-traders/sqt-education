@@ -11,7 +11,10 @@ class BoundedVector
     std::size_t mSize = 0;
 
 public: // lifetime and resource management
-    BoundedVector() : mData{static_cast<T*>(::operator new(sizeof(T) * Capacity))} {}
+    BoundedVector() 
+        : mData{static_cast<T*>(::operator new(sizeof(T) * Capacity))}
+    {}
+
     ~BoundedVector() {
         if (mData) {
             for (std::size_t i = 0; i < mSize; ++i) {

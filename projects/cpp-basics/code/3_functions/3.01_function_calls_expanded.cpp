@@ -1,21 +1,9 @@
-// clang++ -std=c++20 -fno-elide-constructors 3.02_function_calls_fixed_rvo.cpp
+// clang++ -std=c++20 -fno-elide-constructors 3.01_function_calls_expanded.cpp
 
 #include <utility>
 #include <cstdint>
 #include <new>
 #include <iostream>
-
-// --- Utility: stores a callable to run when the scope ends ---
-
-template <typename F>
-struct ScopeExit {
-    F mF;
-    ScopeExit(F f) : mF(f) {}
-    ~ScopeExit() { mF(); }
-
-    ScopeExit(const ScopeExit&) = delete;
-    ScopeExit& operator=(const ScopeExit&) = delete;
-};
 
 // --- Library Types ---
 
@@ -76,6 +64,8 @@ int demo() {
     return 0;
 }
 
+// demo() but with all function calls inlined, for educational purposes
+// you would never write code like this
 int demoExpanded() {
     auto a = IntBox{5};
     auto b = IntBox{6};
@@ -83,16 +73,17 @@ int demoExpanded() {
     /*
         auto sumResult = sum(a, static_cast<IntBox&&>(b));
     */
+    // BEGIN EXPRESSION
     alignas(IntBox) uint8_t _storageSumResult[sizeof(IntBox)];
     {   auto* _returnSlot = reinterpret_cast<IntBox *>(_storageSumResult);
         auto& argA = a; auto& argB = b;
     {
         auto result = *(argA.mData) + *(argB.mData);
         // RVO: constructor runs directly in storage
-        new (_returnSlot) IntBox(result);
+        new (_returnSlot) IntBox{result};
     }}
     auto& sumResult = *std::launder(reinterpret_cast<IntBox *>(_storageSumResult));
-    auto _sumResultGuard = ScopeExit{[&]{sumResult.~IntBox();}};
+    // END EXPRESSION
 
     /*
         auto productResult = product(a, b); 
@@ -105,10 +96,9 @@ int demoExpanded() {
         auto result = *(argA.mData) * *(argB.mData);
         auto retval = IntBox{result};
         // No RVO: copy constructed into storage
-        new (_returnSlot) IntBox(retval);
+        new (_returnSlot) IntBox{retval};
     }}
     auto& productResult = *std::launder(reinterpret_cast<IntBox *>(_storageProductResult));
-    auto _productResultGuard = ScopeExit{[&]{productResult.~IntBox();}};
     // END EXPRESSION
 
     /*
@@ -128,6 +118,11 @@ int demoExpanded() {
     _tmpIntBox1->~IntBox();
     // END EXPRESSION
 
+    // compiler normally would automatically generate these destructor calls
+    // however in this expanded version, sumResult and produceResult were made by new expression
+    // thus we manually call the dtors, to match the behavior of demo()
+    productResult.~IntBox();
+    sumResult.~IntBox();
     return 0;
 }
 

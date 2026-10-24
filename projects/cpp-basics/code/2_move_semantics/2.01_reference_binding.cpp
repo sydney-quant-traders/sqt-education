@@ -32,11 +32,11 @@ struct IntBox {
 };
 
 void foo(IntBox& obj) {
-    obj.mData += 42;
+    *obj.mData += 42;
 }
 
 void foo(IntBox&& obj) {
-    obj.mData = nullptr;
+    *obj.mData = 67;
 }
 
 int main() {
